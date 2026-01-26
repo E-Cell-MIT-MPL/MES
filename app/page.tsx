@@ -1,219 +1,201 @@
 "use client";
 
 import { Canvas, useFrame } from "@react-three/fiber";
-import { PerspectiveCamera, Float, Environment, useGLTF, useAnimations } from "@react-three/drei";
+import { PerspectiveCamera, Environment, useGLTF, useAnimations } from "@react-three/drei";
 import { useRef, useEffect, useState, Suspense, useLayoutEffect, useMemo } from "react";
 import * as THREE from "three";
+import { SkeletonUtils } from "three-stdlib";
 import Prism from "../components/Prism"
-import Silk from "../components/Silk"
-// --- IMPORTS ---
 import Tunnel from "../components/Tunnel";
-import { Scene } from "../components/Scene";
 
 // =========================================
-// FALLING MAN - LIVES INSIDE EXPANDING CANVAS
+// SCROLL DEBUGGER (Top Right Red Box)
 // =========================================
-function FallingMan({ scrollProgress }: { scrollProgress: number }) {
+function ScrollDebugger() {
+  const [info, setInfo] = useState({ px: 0, vh: 0 });
+
+  useEffect(() => {
+    const update = () => {
+      const px = window.scrollY;
+      const h = window.innerHeight;
+      const vh = (px / h).toFixed(2); 
+      setInfo({ px: Math.round(px), vh: Number(vh) });
+    };
+
+    window.addEventListener("scroll", update);
+    window.addEventListener("resize", update);
+    update();
+
+    return () => {
+      window.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
+    };
+  }, []);
+
+  return (
+    <div className="fixed top-4 right-4 z-[9999] bg-red-600 text-white font-mono text-xs p-3 rounded shadow-lg border border-white/20 pointer-events-none">
+      <div>SCROLL Y: {info.px}px</div>
+      <div className="text-lg font-bold">VH: {info.vh}</div>
+    </div>
+  );
+}
+
+// =========================================
+// FALLING MAN (GLOBAL COMPONENT)
+// =========================================
+function FallingMan() {
   const group = useRef<THREE.Group>(null);
   const mixerRef = useRef<THREE.AnimationMixer | null>(null);
   const actionsRef = useRef<Record<string, THREE.AnimationAction>>({});
   const [currentPhase, setCurrentPhase] = useState("idle");
 
-  // Clone the model so it doesn't conflict with hero
   const gltf = useGLTF("/models/BusinessmanFinal.glb");
-  const scene = useMemo(() => gltf.scene.clone(), [gltf.scene]);
+  const scene = useMemo(() => SkeletonUtils.clone(gltf.scene), [gltf.scene]);
   const animations = gltf.animations;
+  const mixer = useMemo(() => new THREE.AnimationMixer(scene), [scene]);
+
+  const actions = useMemo(() => {
+    const actionMap: Record<string, THREE.AnimationAction> = {};
+    animations.forEach((clip) => {
+      actionMap[clip.name.toLowerCase()] = mixer.clipAction(clip);
+      actionMap[clip.name] = mixer.clipAction(clip); // Backup original name
+    });
+    return actionMap;
+  }, [mixer, animations]);
 
   useLayoutEffect(() => {
-    // Create our own mixer manually
-    if (!mixerRef.current) {
-      mixerRef.current = new THREE.AnimationMixer(scene);
-      
-      // Create actions manually
-      animations.forEach((clip) => {
-        const action = mixerRef.current!.clipAction(clip);
-        actionsRef.current[clip.name] = action;
-      });
-      
-      // ONE LOG TO SEE WHAT WE HAVE
-      console.log('Available animation names:', Object.keys(actionsRef.current));
-    }
-
+    mixerRef.current = mixer;
+    actionsRef.current = actions;
     scene.traverse((child) => {
       if ((child as THREE.Mesh).isMesh) {
         const mesh = child as THREE.Mesh;
+        // Hide helper shapes
         const name = mesh.name.toLowerCase();
-
         if (name.includes("sphere") || name.includes("circle") || name.includes("shape")) {
           mesh.visible = false;
           return;
         }
-
         mesh.visible = true;
         mesh.frustumCulled = false;
-        mesh.castShadow = true;
-        mesh.receiveShadow = true;
-        
         if (mesh.material) {
           const mat = Array.isArray(mesh.material) ? mesh.material[0] : mesh.material;
           mat.transparent = false;
           mat.opacity = 1;
           mat.side = THREE.DoubleSide;
-          mat.depthWrite = true;
-          mat.needsUpdate = true;
         }
       }
     });
-  }, [scene, animations]);
+  }, [scene, mixer, actions]);
 
   useFrame((state, delta) => {
     if (!group.current) return;
 
     const scrollY = window.scrollY;
     const vh = window.innerHeight;
-
-    // scrollProgress: 0 to 1 across the entire expanding section (100vh to 600vh)
-    // We need finer control based on actual scroll position
-
-    // Phase boundaries in viewport heights
-    const jumpStart = 4.5; // 450vh
-    const jumpEnd = 5.5;   // 550vh
-
     const currentVh = scrollY / vh;
 
-    // ========== PHASE 1: IDLE (0vh - 450vh) ==========
-    if (currentVh < jumpStart) {
+    // --- TIMELINE CONFIG ---
+    // 0 - 4.5vh: Idle (Matches Expanding Section)
+    // 4.5 - 5.5vh: Rotate (Transition)
+    // 5.5vh+: Dive (Tunnel Entry)
+    const startRotate = 4.5; 
+    const startDive = 5.5;   
+
+    // ==========================================
+    // PHASE 1: IDLE
+    // ==========================================
+    if (currentVh < startRotate) {
       if (currentPhase !== "idle") {
         setCurrentPhase("idle");
-        Object.values(actionsRef.current).forEach(a => a.stop());
-        const idleAction = actionsRef.current["idle"];
-        if (idleAction) {
-          idleAction.reset().play();
-        }
+        Object.values(actions).forEach(a => a.stop());
+        const idleAnim = actions["idle"] || Object.values(actions)[0];
+        idleAnim?.reset().play();
       }
 
-      // Center and properly sized
+      // Default Position (Center Screen)
       group.current.position.set(0, -2, 0);
-      group.current.rotation.set(0, 0, 0);
-      group.current.scale.set(1.5, 1.5, 1.5);
+      group.current.rotation.set(0, 0, 0); 
+      
+      // OPTIONAL: Hide him during the very first Hero screen (0-1vh) so he doesn't block the Prism text
+      // Change '0.5' to '0' if you want him visible immediately
+      const scale = currentVh < 0.2 ? 0 : 1.1; 
+      group.current.scale.set(scale, scale, scale);
 
       if (mixerRef.current) mixerRef.current.update(delta);
       return;
     }
 
-    // ========== PHASE 2: JUMP & FLIP (450vh - 550vh) ==========
-    if (currentVh < jumpEnd) {
-      const progress = (currentVh - jumpStart) / (jumpEnd - jumpStart);
+    // ==========================================
+    // PHASE 2: ROTATE (3 Times)
+    // ==========================================
+    if (currentVh < startDive) {
+      const progress = (currentVh - startRotate) / (startDive - startRotate);
 
-      if (currentPhase !== "jumping") {
-        setCurrentPhase("jumping");
-        Object.values(actionsRef.current).forEach(a => a.stop());
-        const flipAction = actionsRef.current["180flip"];
-        if (flipAction) {
-          flipAction.reset();
-          flipAction.setLoop(THREE.LoopOnce, 1);
-          flipAction.clampWhenFinished = true;
-          flipAction.paused = true;
-          flipAction.play();
-        }
+      if (currentPhase !== "rotating") {
+        setCurrentPhase("rotating");
+        // Keep Idle playing
+        const idleAnim = actions["idle"] || Object.values(actions)[0];
+        if (!idleAnim.isRunning()) idleAnim.reset().play();
       }
 
-      // Manual animation control
-      const flipAction = actionsRef.current["180flip"];
-      if (flipAction) {
-        const duration = flipAction.getClip().duration;
-        flipAction.time = progress * duration;
-      }
+      // Rotate 3 full times (6 * PI)
+      const spin = progress * (Math.PI * 6);
+      
+      group.current.rotation.set(0, spin, 0);
+      group.current.position.set(0, -2, 0); 
+      group.current.scale.set(1.1, 1.1, 1.1);
 
-      // Jump trajectory
-      const jumpHeight = Math.sin(progress * Math.PI) * 3;
-      const jumpDepth = progress * -8;
-
-      group.current.position.set(0, -2 + jumpHeight, jumpDepth);
-
-      // Rotation: tilt forward gradually
-      const tiltX = progress * (Math.PI * 0.35);
-      const spinY = progress * Math.PI;
-      group.current.rotation.set(tiltX, spinY, 0);
-      group.current.scale.set(1.5, 1.5, 1.5);
-
+      if (mixerRef.current) mixerRef.current.update(delta);
       return;
     }
 
-    // ========== PHASE 3: DIVING (550vh+) ==========
+    // ==========================================
+    // PHASE 3: DIVE INTO TUNNEL
+    // ==========================================
+    const diveProgress = currentVh - startDive; 
+
     if (currentPhase !== "diving") {
       setCurrentPhase("diving");
-      Object.values(actionsRef.current).forEach(a => a.stop());
-      const diveAction = actionsRef.current["runtodive"];
-      if (diveAction) {
-        diveAction.reset();
-        diveAction.setLoop(THREE.LoopRepeat, Infinity);
-        diveAction.play();
-      }
+      Object.values(actions).forEach(a => a.stop());
+
+      // Try multiple names for the dive animation
+      const diveAction = actions["runtodive"] || actions["dive"] || Object.values(actions)[2];
+      if (diveAction) diveAction.reset().play();
     }
 
-    // Keep diving
-    group.current.position.z -= 0.15;
-    group.current.position.y -= 0.08;
+    // 1. POSITION: Fly into negative Z
+    const startZ = 0;
+    // Speed = 20 (Adjust if he flies too fast/slow)
+    group.current.position.z = startZ - (diveProgress * 20); 
+    group.current.position.y = -2; // Lock Height
+    
+    // 2. ROTATION: Face Tunnel + Tilt Down
     group.current.rotation.set(Math.PI * 0.35, Math.PI, 0);
-    group.current.scale.set(1.5, 1.5, 1.5);
-
+    
     if (mixerRef.current) mixerRef.current.update(delta);
   });
 
   return (
-    <group ref={group}>
+    <group ref={group} renderOrder={999}>
       <primitive object={scene} />
     </group>
   );
 }
+useGLTF.preload("/models/BusinessmanFinal.glb?falling1");
 
 // =========================================
-// HERO MODEL (The "Greeting" Guy)
+// HERO MODEL (STATIC GREETING MAN)
 // =========================================
 function HeroBusinessman() {
   const group = useRef<THREE.Group>(null);
   const { scene, animations } = useGLTF("/models/BusinessmanFinal.glb");
   const { actions } = useAnimations(animations, group);
 
-  useLayoutEffect(() => {
-    if (!scene) return;
-
-    scene.traverse((child) => {
-      if ((child as THREE.Mesh).isMesh) {
-        const mesh = child as THREE.Mesh;
-        const name = mesh.name.toLowerCase();
-
-        if (name.includes("sphere") || name.includes("circle") || name.includes("shape")) {
-          mesh.visible = false;
-          return;
-        }
-
-        mesh.visible = true;
-        mesh.frustumCulled = false;
-        mesh.castShadow = true;
-        mesh.receiveShadow = true;
-        
-        if (mesh.material) {
-           const mat = Array.isArray(mesh.material) ? mesh.material[0] : mesh.material;
-           mat.transparent = false;
-           mat.opacity = 1;
-           mat.side = THREE.DoubleSide;
-           mat.depthWrite = true;
-           mat.needsUpdate = true;
-        }
-      }
-    });
-  }, [scene]);
-
   useEffect(() => {
-    const action = actions["greeting"];
-    if (action) {
-      action.reset().fadeIn(0.5).play();
-    } else {
-      actions[animations[0]?.name]?.reset().fadeIn(0.5).play();
-    }
-  }, [actions, animations]);
+    // Play greeting or first animation
+    const action = actions["greeting"] || actions[Object.keys(actions)[0]];
+    action?.reset().fadeIn(0.5).play();
+  }, [actions]);
 
   return (
     <group ref={group}>
@@ -221,59 +203,16 @@ function HeroBusinessman() {
         object={scene} 
         position={[0, -5.9, 0]}
         rotation={[0, 0, 0]}
-        scale={450}
+        scale={450} // Keeping your original scaling for Hero
       />
     </group>
   );
 }
 
-useGLTF.preload("/models/BusinessmanFinal.glb");
+useGLTF.preload("/models/BusinessmanFinal.glb?hero");
 
 // =========================================
-// CANDLESTICK (Floating Bars)
-// =========================================
-interface CandlestickProps {
-  position: [number, number, number];
-  color: string;
-  height: number;
-}
-
-function Candlestick({ position, color, height }: CandlestickProps) {
-  const ref = useRef<THREE.Group>(null);
-  const [initialPos] = useState(() => new THREE.Vector3(...position));
-
-  useFrame((state) => {
-    if (!ref.current) return;
-    const time = state.clock.elapsedTime;
-    const { x, y } = state.pointer;
-
-    const floatY = Math.sin(time + position[0] * 2) * 0.1;
-    const parallaxX = x * 0.5;
-    const parallaxY = -y * 0.5;
-
-    ref.current.position.y = THREE.MathUtils.lerp(ref.current.position.y, initialPos.y + floatY + parallaxY, 0.1);
-    ref.current.position.x = THREE.MathUtils.lerp(ref.current.position.x, initialPos.x + parallaxX, 0.1);
-    
-    ref.current.rotation.x = THREE.MathUtils.lerp(ref.current.rotation.x, -y * 0.2, 0.1);
-    ref.current.rotation.y = THREE.MathUtils.lerp(ref.current.rotation.y, x * 0.2, 0.1);
-  });
-
-  return (
-    <group position={position} ref={ref}>
-      <mesh>
-        <cylinderGeometry args={[0.02, 0.02, height + 0.5, 8]} />
-        <meshStandardMaterial color={color} emissive={color} emissiveIntensity={2} />
-      </mesh>
-      <mesh>
-        <boxGeometry args={[0.2, height, 0.2]} />
-        <meshStandardMaterial color={color} emissive={color} emissiveIntensity={2} />
-      </mesh>
-    </group>
-  );
-}
-
-// =========================================
-// EXPANDING SECTION (WITH FALLING MAN INSIDE)
+// EXPANDING SECTION (NO CANVAS INSIDE)
 // =========================================
 function ExpandingSection() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -311,11 +250,10 @@ function ExpandingSection() {
       borderRadius: isLocked ? '0px' : `${40 * (1 - easedP)}px`,
   };
   
-  const contentOpacity = isLocked ? 0.9 + easedIp * 0.1 : 0.9;
   const graphSVG = `data:image/svg+xml,%3Csvg width='100%25' height='100%25' viewBox='0 0 1000 500' preserveAspectRatio='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 400 Q 250 450, 500 300 T 1000 50' stroke='%23000' stroke-width='2' fill='none' vector-effect='non-scaling-stroke' opacity='0.1'/%3E%3Cpath d='M0 450 Q 250 500, 500 350 T 1000 100' stroke='%23000' stroke-width='1' fill='none' vector-effect='non-scaling-stroke' opacity='0.05'/%3E%3C/svg%3E`;
 
   return (
-      <section ref={containerRef} className="relative h-[500vh] bg-white font-sans z-20">          
+      <section ref={containerRef} className="relative h-[500vh] bg-white font-sans z-20">           
           <div className="sticky top-0 h-screen w-full flex items-center overflow-hidden">
               <div 
                   className="absolute bg-[#e0e0e0] overflow-hidden z-20 border border-black/10"
@@ -325,6 +263,7 @@ function ExpandingSection() {
                       boxShadow: `0 ${20 + easedP * 30}px ${60 + easedP * 40}px rgba(0,0,0,${0.1 + easedP * 0.15})`
                   }}
               >
+                    {/* Graph Background */}
                     <div 
                       className="absolute inset-0 pointer-events-none" 
                       style={{ 
@@ -332,24 +271,10 @@ function ExpandingSection() {
                           backgroundSize: '100% 100%',
                           opacity: 0.6 + easedP * 0.4
                       }}
-                  />
-                  <div className="absolute inset-0" style={{ opacity: contentOpacity }}>
-                      {/* CANVAS WITH FALLING MAN INSIDE */}
-                      <Canvas gl={{ antialias: true, alpha: true }}>
-                          <PerspectiveCamera makeDefault position={[0, 0, 16]} fov={50} />
-                          <ambientLight intensity={1.2} />
-                          <directionalLight position={[5, 5, 5]} intensity={1.5} castShadow />
-                          <directionalLight position={[-5, 3, -5]} intensity={0.8} />
-                          <spotLight position={[0, 10, 10]} intensity={2} angle={0.6} penumbra={1} />
-                          
-                          <Suspense fallback={null}>
-                              <FallingMan scrollProgress={easedIp} />
-                              <Scene scrollProgress={easedIp} />
-                          </Suspense>
-                      </Canvas>
-                  </div>
+                    />
                   
-                  <div className="absolute bottom-12 left-12 z-30 pointer-events-none">
+                    {/* Text Content */}
+                    <div className="absolute bottom-12 left-12 z-30 pointer-events-none">
                       <h2 className="font-serif-display text-black text-6xl leading-none">
                           Take the Leap.
                       </h2>
@@ -366,14 +291,16 @@ function ExpandingSection() {
                               Your journey from zero to one starts here.
                           </p>
                       </div>
-                  </div>
+                    </div>
               </div>
           </div>
       </section>
   );
 }
 
-// --- SPONSOR COMPONENT ---
+// =========================================
+// SPONSOR FOOTER
+// =========================================
 function SponsorFooter() {
   return (
     <div className="absolute bottom-0 w-full z-40 pb-24 pt-32 bg-gradient-to-t from-[#050505] via-[#050505] to-transparent">
@@ -398,11 +325,6 @@ function SponsorFooter() {
                <span className="text-white font-sans font-bold text-lg">SBI</span>
              </div>
              <div className="flex items-center gap-2">
-                <div className="flex -space-x-1">
-                  <div className="w-2.5 h-2.5 rounded-full bg-red-500 mix-blend-screen"></div>
-                  <div className="w-2.5 h-2.5 rounded-full bg-blue-500 mix-blend-screen"></div>
-                  <div className="w-2.5 h-2.5 rounded-full bg-yellow-500 mix-blend-screen"></div>
-                </div>
                 <span className="text-gray-200 font-sans font-medium text-sm">AdMob</span>
              </div>
           </div>
@@ -412,9 +334,6 @@ function SponsorFooter() {
           <div className="flex items-center gap-6 transition-all duration-500 cursor-pointer">
              <span className="text-red-500 font-bold italic text-lg font-serif">Campa</span>
              <div className="flex items-center gap-2">
-                <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 text-orange-600">
-                  <path d="M22.65 14.39L12 22.13 1.35 14.39a.84.84 0 0 1-.13-1.25.89.89 0 0 1 .23-.28l2.69-3.1L8 14.39l4-11.24 4 11.24 3.86-4.63 2.69 3.1a.84.84 0 0 1-.13 1.25.89.89 0 0 1 .23.28z" />
-                </svg>
                 <span className="text-white font-sans font-bold text-base">GitLab</span>
              </div>
           </div>
@@ -439,10 +358,8 @@ export default function Home() {
   }, []);
 
   return (
-    
     <div className="bg-[#050505] text-white w-full min-h-screen font-sans selection:bg-green-400 selection:text-black">
       
-      {/* Global Styles */}
       <style jsx global>{`
         html, body {
             margin: 0;
@@ -451,30 +368,46 @@ export default function Home() {
             overflow-x: clip; 
             background-color: #050505;
         }
-        @keyframes spin-slow {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-        .spin-text {
-          animation: spin-slow 10s linear infinite;
-        }
       `}</style>
 
-      {/* ================= HERO SECTION ================= */}
+      {/* 🔴 SCROLL DEBUGGER (Remove when done) */}
+      <ScrollDebugger />
+
+      {/* ================================================= */}
+      {/* 🚀 GLOBAL 3D LAYER (The Falling Man)              */}
+      {/* ================================================= */}
+      <div className="fixed inset-0 z-50 pointer-events-none">
+          <Canvas gl={{ antialias: true, alpha: true }}>
+              {/* Camera matches previous Expanding Section settings */}
+              <PerspectiveCamera makeDefault position={[0, 0, 16]} fov={50} />
+              
+              {/* Lighting matches previous Expanding Section settings */}
+              <ambientLight intensity={1.2} />
+              <directionalLight position={[5, 5, 5]} intensity={1.5} />
+              <directionalLight position={[-5, 3, -5]} intensity={0.8} />
+              <spotLight position={[0, 10, 10]} intensity={2} angle={0.6} penumbra={1} />
+
+              <Suspense fallback={null}>
+                  <FallingMan />
+              </Suspense>
+          </Canvas>
+      </div>
+
       {/* ================= HERO SECTION ================= */}
       <section className="relative h-screen w-full flex flex-col justify-center overflow-hidden">
         
-        {/* --- BACKGROUND LAYER --- */}
-        {/* We use absolute positioning here to take it out of the flex flow */}
+        {/* BACKGROUND LAYER */}
         <div className="absolute inset-0 z-0"> 
             <Prism 
                scale={4} 
                colorFrequency={1.5}
                noise={0}
             />
-     </div>
+            {/* Optional Floor Glow */}
+            <div className="absolute bottom-[-10%] left-0 w-full h-[60%] pointer-events-none bg-gradient-to-t from-cyan-500/30 via-white/20 to-transparent blur-[100px]" />
+        </div>
 
-        {/* --- NAV BAR (z-50 stays on top) --- */}
+        {/* NAV BAR */}
         <nav className="absolute top-0 w-full flex items-center justify-between p-8 z-50 text-gray-400 text-sm font-sans tracking-wide">
           <div>
             <span className="text-white font-bold">MES 2026</span><br />
@@ -492,7 +425,7 @@ export default function Home() {
           </div>
         </nav>
 
-        {/* --- HERO CONTENT (z-10 ensures it sits above the prism) --- */}
+        {/* HERO CONTENT */}
         <div className="relative z-10 w-full max-w-[1600px] mx-auto px-4 flex items-center justify-center">
             
             {/* Left Text */}
@@ -500,7 +433,7 @@ export default function Home() {
               MES
             </h1>
             
-            {/* --- CANVAS 1: HERO MODEL (Static Greeting Man) --- */}
+            {/* CANVAS 1: HERO MODEL (Static Greeting Man) */}
             <div className="w-[200px] h-[200px] md:w-[450px] md:h-[450px] relative shrink-0 z-20">
                 <Canvas gl={{ antialias: true, alpha: true }}>
                     <PerspectiveCamera makeDefault position={[0, 0, 8]} fov={50} near={0.1} />
@@ -513,10 +446,6 @@ export default function Home() {
 
                     <Suspense fallback={null}>
                         <HeroBusinessman />
-                        <Candlestick position={[-2.5, 1, 1]} color="#22c55e" height={1.2} />
-                        <Candlestick position={[2.5, -1, -1]} color="#ef4444" height={0.8} />
-                        <Candlestick position={[2, 1.5, 0]} color="#22c55e" height={0.5} />
-                        <Candlestick position={[-2, -1.5, 0]} color="#ef4444" height={1.5} />
                     </Suspense>
                 </Canvas>
             </div>
@@ -528,14 +457,13 @@ export default function Home() {
         </div>
         
         <SponsorFooter/>
-
       </section>
 
       {/* ================= 2. EXPANDING SECTION ================= */}
       <ExpandingSection />
 
       {/* ================= 3. TUNNEL SECTION ================= */}
-      <section className="relative z-30 w-full">
+      <section className="relative z-50 w-full">
         <Tunnel />
       </section>
 

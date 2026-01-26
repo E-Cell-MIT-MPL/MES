@@ -1,13 +1,9 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
+import * as THREE from "three";
+import galaxyImg from "@/public/images/galaxy.jpg";
 
-const TUNNEL_DEPTH_PX = 1650;
-const GRID_ROWS = 10;
-const GRID_COLS = 20;
-
-const gridSquares = Array.from({ length: GRID_ROWS * GRID_COLS });
-
-// 4x4 Glass Shards for the end effect
+// --- GLASS SHARDS DATA ---
 const glassShards = Array.from({ length: 16 }).map((_, i) => ({
   id: i,
   xDir: (Math.random() - 0.5) * 800,
@@ -16,13 +12,7 @@ const glassShards = Array.from({ length: 16 }).map((_, i) => ({
   rotY: (Math.random() - 0.5) * 1000,
 }));
 
-const walls = [
-  { origin: "left center", transform: "rotateY(90deg)", width: `${TUNNEL_DEPTH_PX}px`, height: "100%", left: "0px", top: "0px", type: "side", side: "left" },
-  { origin: "right center", transform: "rotateY(-90deg)", width: `${TUNNEL_DEPTH_PX}px`, height: "100%", right: "0px", top: "0px", type: "side", side: "right" },
-  { origin: "top center", transform: "rotateX(-90deg)", height: `${TUNNEL_DEPTH_PX}px`, width: "100%", top: "0px", left: "0px", type: "flat", side: "top" },
-  { origin: "bottom center", transform: "rotateX(90deg)", height: `${TUNNEL_DEPTH_PX}px`, width: "100%", bottom: "0px", left: "0px", type: "flat", side: "bottom" },
-];
-
+// --- [STOCK CHART COMPONENT] ---
 function StockChart({ color }: { color: "green" | "red" }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
@@ -31,222 +21,301 @@ function StockChart({ color }: { color: "green" | "red" }) {
     const ctx = canvas.getContext("2d", { alpha: true });
     if (!ctx) return;
     const scale = window.devicePixelRatio || 2;
-    canvas.width = 1200 * scale;
-    canvas.height = 800 * scale;
-    canvas.style.width = "100%";
-    canvas.style.height = "100%";
+    canvas.width = 1200 * scale; canvas.height = 800 * scale;
     ctx.scale(scale, scale);
-
     const generateData = () => {
-      const points: number[] = [];
-      let value = 200;
-      for (let i = 0; i < 50; i++) {
-        value += (Math.random() - 0.5) * 40;
-        value = Math.max(50, Math.min(350, value));
-        points.push(value);
-      }
-      return points;
+      const p = []; let v = 200;
+      for (let i=0; i<50; i++) { v += (Math.random()-0.5)*40; v=Math.max(50, Math.min(350,v)); p.push(v); }
+      return p;
     };
-    let dataPoints = generateData();
-    let offset = 0;
+    let dataPoints = generateData(); let offset = 0;
     const draw = () => {
-      ctx.clearRect(0, 0, 1200, 800);
-      ctx.imageSmoothingEnabled = true;
-      ctx.lineWidth = 2;
-      // Grid
-      ctx.strokeStyle = color === "green" ? "rgba(34, 197, 94, 0.5)" : "rgba(239, 68, 68, 0.5)";
-      for (let y = 0; y < 800; y += 80) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(1200, y); ctx.stroke(); }
-      for (let x = 0; x < 1200; x += 80) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, 800); ctx.stroke(); }
-      // Candles
-      const candleWidth = 20;
-      const spacing = 24;
-      for (let i = 0; i < 45; i++) {
-        const idx = Math.floor((i + offset) % dataPoints.length);
-        const open = dataPoints[idx];
-        const close = dataPoints[(idx + 1) % dataPoints.length];
-        const high = Math.max(open, close) + Math.random() * 20;
-        const low = Math.min(open, close) - Math.random() * 20;
-        const isGreen = close > open;
-        ctx.fillStyle = color === "green" 
-            ? (isGreen ? "rgba(34, 197, 94, 1)" : "rgba(34, 197, 94, 0.6)") 
-            : (isGreen ? "rgba(239, 68, 68, 0.6)" : "rgba(239, 68, 68, 1)");
-        ctx.strokeStyle = ctx.fillStyle;
-        ctx.lineWidth = 2;
-        ctx.beginPath(); ctx.moveTo(i * spacing + candleWidth / 2, high); ctx.lineTo(i * spacing + candleWidth / 2, low); ctx.stroke();
-        ctx.fillRect(i * spacing, Math.min(open, close), candleWidth, Math.abs(close - open));
+      ctx.clearRect(0, 0, 1200, 800); ctx.lineWidth = 2;
+      ctx.strokeStyle = color==="green"?"rgba(34,197,94,0.2)":"rgba(239,68,68,0.2)";
+      for(let y=0; y<800; y+=80){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(1200,y);ctx.stroke();}
+      for(let x=0; x<1200; x+=80){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,800);ctx.stroke();}
+      const candleW=20; const spacing=24;
+      for(let i=0; i<45; i++){
+        const idx = Math.floor((i+offset)%dataPoints.length);
+        const x=i*spacing; const o=dataPoints[idx]; const c=dataPoints[(idx+1)%dataPoints.length];
+        const h=Math.max(o,c)+Math.random()*20; const l=Math.min(o,c)-Math.random()*20;
+        const isG=c>o;
+        ctx.fillStyle=color==="green"?(isG?"rgba(34,197,94,1)":"rgba(34,197,94,0.6)"):(isG?"rgba(239,68,68,0.6)":"rgba(239,68,68,1)");
+        ctx.strokeStyle=ctx.fillStyle;
+        ctx.beginPath();ctx.moveTo(x+candleW/2,h);ctx.lineTo(x+candleW/2,l);ctx.stroke();
+        ctx.fillRect(x,Math.min(o,c),candleW,Math.abs(c-o));
       }
     };
-    let animationId: number;
-    let lastTime = 0;
-    const animate = (time: number) => {
-      if (time - lastTime > 100) { offset += 0.2; draw(); lastTime = time; }
-      animationId = requestAnimationFrame(animate);
+    let id:number; let last=0;
+    const loop=(t:number)=>{
+        if(t-last>100){ offset+=0.2; if(offset>dataPoints.length){dataPoints=generateData();offset=0;} draw(); last=t;}
+        id=requestAnimationFrame(loop);
     };
-    animate(0);
-    return () => cancelAnimationFrame(animationId);
+    loop(0);
+    return ()=>cancelAnimationFrame(id);
   }, [color]);
-  return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full opacity-80" style={{ mixBlendMode: "screen" }} />;
+  return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full opacity-60" style={{mixBlendMode:"screen"}}/>;
 }
 
+// --- [GALAXY TUNNEL] ---
+function GalaxyTunnel({ scrollProgress }: { scrollProgress: number }) {
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+    const scrollRef = useRef(0);
+  
+    useEffect(() => {
+      scrollRef.current = scrollProgress;
+    }, [scrollProgress]);
+  
+    useEffect(() => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+  
+      const ww = window.innerWidth;
+      const wh = window.innerHeight;
+  
+      const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+      renderer.setSize(ww, wh);
+      renderer.outputColorSpace = THREE.SRGBColorSpace; 
+      
+      const scene = new THREE.Scene();
+      scene.fog = new THREE.Fog(0x000000, 30, 150);
+  
+      const camera = new THREE.PerspectiveCamera(15, ww / wh, 0.01, 1000);
+      camera.rotation.y = Math.PI;
+      camera.position.z = 0.35;
+  
+      const points = [];
+      for (let i = 0; i < 5; i++) {
+        points.push(new THREE.Vector3(0, 0, 3 * (i / 4)));
+      }
+      points[4].y = -0.06;
+      
+      const curve = new THREE.CatmullRomCurve3(points);
+      const geometry = new THREE.TubeGeometry(curve, 70, 0.02, 50, false);
+  
+      const textureLoader = new THREE.TextureLoader();
+      const texture = textureLoader.load(galaxyImg.src);
+      
+      texture.colorSpace = THREE.SRGBColorSpace;
+      texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+      texture.wrapS = THREE.MirroredRepeatWrapping;
+      texture.wrapT = THREE.MirroredRepeatWrapping;
+      texture.repeat.set(10, 4); 
+  
+      const material = new THREE.MeshBasicMaterial({
+        side: THREE.BackSide,
+        map: texture,
+        color: 0xffffff, 
+      });
+  
+      const tubeMesh = new THREE.Mesh(geometry, material);
+      scene.add(tubeMesh);
+  
+      let animId: number;
+  
+      const animate = () => {
+        const scroll = scrollRef.current; 
+  
+        if (tubeMesh.material instanceof THREE.MeshBasicMaterial && tubeMesh.material.map) {
+          const targetRepeatX = THREE.MathUtils.lerp(10, 0.3, scroll);
+          tubeMesh.material.map.repeat.x = targetRepeatX;
+          tubeMesh.material.map.offset.x = -(scroll * 20); 
+          tubeMesh.material.map.offset.y += 0.002;
+        }
+  
+        const shake = scroll * 0.005; 
+        camera.position.x = (Math.random() - 0.5) * shake;
+        camera.position.y = (Math.random() - 0.5) * shake;
+  
+        renderer.render(scene, camera);
+        animId = requestAnimationFrame(animate);
+      };
+      animate();
+  
+      const handleResize = () => {
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+        renderer.setSize(w, h);
+      };
+      window.addEventListener('resize', handleResize);
+  
+      return () => {
+        cancelAnimationFrame(animId);
+        window.removeEventListener('resize', handleResize);
+        renderer.dispose();
+        geometry.dispose();
+        material.dispose();
+        texture.dispose();
+      };
+    }, []);
+  
+    return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full bg-black" />;
+}
+
+// --- MAIN ORCHESTRATOR ---
+const TUNNEL_DEPTH_PX = 1650;
+const GRID_ROWS = 10;
+const GRID_COLS = 20;
+
 export default function Tunnel() {
-  const [transform, setTransform] = useState({ z: 0, y: 0 });
+  const tunnelRef = useRef<HTMLDivElement>(null);
+  const [transform, setTransform] = useState({ z: -50, y: 0 });
   const [whiteFlash, setWhiteFlash] = useState(0);
+  const [showGalaxy, setShowGalaxy] = useState(false);
+  const [galaxyProgress, setGalaxyProgress] = useState(0);
   const [shatterProgress, setShatterProgress] = useState(0);
-  const containerRef = useRef<HTMLDivElement>(null);
+
+  const walls = [
+    { origin: "left center", transform: "rotateY(90deg)", width: `${TUNNEL_DEPTH_PX}px`, height: "100%", left: "0px", top: "0px", type: "side", side: "left" },
+    { origin: "right center", transform: "rotateY(-90deg)", width: `${TUNNEL_DEPTH_PX}px`, height: "100%", right: "0px", top: "0px", type: "side", side: "right" },
+    { origin: "top center", transform: "rotateX(-90deg)", height: `${TUNNEL_DEPTH_PX}px`, width: "100%", top: "0px", left: "0px", type: "flat", side: "top" },
+    { origin: "bottom center", transform: "rotateX(90deg)", height: `${TUNNEL_DEPTH_PX}px`, width: "100%", bottom: "0px", left: "0px", type: "flat", side: "bottom" },
+  ];
+
+  const gridSquares = Array.from({ length: GRID_ROWS * GRID_COLS });
 
   useEffect(() => {
     const onScroll = () => {
-      if (!containerRef.current) return;
-      const rect = containerRef.current.getBoundingClientRect();
-      const windowHeight = window.innerHeight;
-      
-      // Calculate how much of the tunnel we have scrolled through
-      // Start counting when the top of the container hits the top of the viewport
-      // We want to track this over the full height of the container
-      const totalScrollHeight = rect.height - windowHeight;
-      const scrolled = Math.abs(Math.min(0, rect.top)); // Positive value of pixels scrolled
-      
-      // Normalized Progress (0.0 to 1.0)
-      const p = Math.max(0, Math.min(1, scrolled / totalScrollHeight));
+      const scrollY = window.scrollY;
+      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+      const scrollProgress = Math.max(0, Math.min(1, scrollY / maxScroll));
 
-      // PHASE 1: ENTERING THE TUNNEL (0% - 50%)
-      if (p < 0.5) {
-        // Map p (0 -> 0.5) to local (0 -> 1)
-        const localP = p * 2; 
-        
-        // Move Forward: Start at z=200, Go deep to z=1500
-        const zValue = 200 + (localP * 1300); 
-        // Move Camera Y: Start high (400), go to center (0)
-        const yValue = 400 - (localP * 400);
-        
-        setTransform({ z: zValue, y: yValue });
+      console.log('Progress:', scrollProgress.toFixed(3), 'Z:', transform.z.toFixed(1), 'Show Galaxy:', showGalaxy, 'Galaxy Progress:', galaxyProgress.toFixed(3));
 
-        // Flash Logic: Starts fading in ONLY after 80% of Phase 1 (i.e., total progress 0.4)
-        if (localP > 0.8) {
-            const flashOpacity = (localP - 0.8) / 0.2; // 0 to 1
-            setWhiteFlash(flashOpacity);
-        } else {
-            setWhiteFlash(0);
-        }
-        setShatterProgress(0); // Ensure glass is intact
+      // PHASE 1: Stock Tunnel (0% - 60%)
+      if (scrollProgress < 0.6) {
+        // Much faster Z movement for immersive tunnel feel
+        const zValue = -50 + (scrollProgress * 1500); // Goes from -50 to 850
+        setTransform({ z: zValue, y: 0 });
+        setShowGalaxy(false);
+        setShatterProgress(0); 
+        setWhiteFlash(0);
       } 
-      
-      // PHASE 2: REVERSE & SHATTER (50% - 100%)
+      // TRANSITION: Flash (60% - 65%)
+      else if (scrollProgress < 0.65) {
+        const flashProgress = (scrollProgress - 0.6) / 0.05;
+        setWhiteFlash(flashProgress);
+        setShowGalaxy(false);
+        setShatterProgress(0);
+      }
+      // PHASE 2: Galaxy Tunnel (65% - 95%)
+      else if (scrollProgress < 0.95) {
+        setShowGalaxy(true);
+        
+        if (scrollProgress < 0.68) {
+          const flashOut = 1 - ((scrollProgress - 0.65) / 0.03);
+          setWhiteFlash(Math.max(0, flashOut));
+        } else {
+          setWhiteFlash(0);
+        }
+        
+        const gProg = (scrollProgress - 0.65) / 0.3;
+        setGalaxyProgress(gProg);
+        setShatterProgress(0);
+      }
+      // PHASE 3: Glass Shatter (95% - 100%)
       else {
-        // Map p (0.5 -> 1.0) to local (0 -> 1)
-        const localP = (p - 0.5) * 2;
-
-        // Flash Fade Out: Rapidly fade out in the first 20% of Phase 2
-        if (localP < 0.2) {
-            setWhiteFlash(1 - (localP / 0.2));
-        } else {
-            setWhiteFlash(0);
-        }
-
-        // Reverse Movement: Start from deep (z=1500) and pull back rapidly to 0
-        const zValue = 1500 - (localP * 1500);
-        setTransform({ z: zValue, y: 0 }); // Stay centered Y
-
-        // Shatter Logic: Trigger in the last 15% of the scroll
-        if (localP > 0.85) {
-            const shatter = (localP - 0.85) / 0.15;
-            setShatterProgress(shatter);
-        } else {
-            setShatterProgress(0);
-        }
+        setShowGalaxy(true);
+        setWhiteFlash(0);
+        const shatterProg = (scrollProgress - 0.95) / 0.05; 
+        setShatterProgress(Math.min(1, shatterProg));
+        setGalaxyProgress(1);
       }
     };
 
     window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
     return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  }, [transform.z, showGalaxy, galaxyProgress]);
 
   return (
-    // 800vh total height (400vh for entry, 400vh for exit)
-    <div ref={containerRef} className="relative h-[800vh] w-full bg-black">
-      <div className="sticky top-0 h-screen w-full overflow-hidden perspective-[100px]" style={{ perspective: "100px" }}>
+    <div ref={tunnelRef} className="relative h-[1500vh] bg-black">
+      <div className="w-full h-screen sticky top-0 overflow-hidden" 
+           style={{ perspective: "400px", transformStyle: "preserve-3d" }}>
         
-        {/* White Flash Overlay */}
-        <div 
-            className="absolute inset-0 z-50 pointer-events-none bg-white mix-blend-normal transition-opacity duration-75"
-            style={{ opacity: whiteFlash }}
-        />
+        {/* SHATTER OVERLAY */}
+        {shatterProgress > 0 && (
+          <div className="absolute inset-0 z-[60] pointer-events-none flex flex-wrap" style={{ perspective: '1000px' }}>
+              {glassShards.map((shard) => (
+                  <div key={shard.id} className="w-1/4 h-1/4 relative"
+                      style={{
+                          opacity: 1 - (shatterProgress * 0.3),
+                          transform: `
+                              translate3d(${shard.xDir * shatterProgress}px, ${shard.yDir * shatterProgress}px, ${shatterProgress * 800}px)
+                              rotateX(${shard.rotX * shatterProgress}deg) 
+                              rotateY(${shard.rotY * shatterProgress}deg)
+                          `,
+                          background: 'rgba(255, 255, 255, 0.1)',
+                          border: '1px solid rgba(255,255,255,0.4)',
+                          backdropFilter: 'blur(2px)',
+                          boxShadow: '0 0 10px rgba(255,255,255,0.2)'
+                      }}
+                  />
+              ))}
+          </div>
+        )}
 
-        {/* Glass Shatter Overlay (Visible at end) */}
-        <div className="absolute inset-0 z-40 pointer-events-none flex flex-wrap" style={{ perspective: '1000px' }}>
-            {glassShards.map((shard) => (
-                <div key={shard.id} className="w-1/4 h-1/4 relative"
-                    style={{
-                        opacity: shatterProgress > 0 ? 1 - shatterProgress : 0, // Fade out as they fly
-                        transform: shatterProgress > 0 ? `
-                            translate3d(${shard.xDir * shatterProgress}px, ${shard.yDir * shatterProgress}px, ${shatterProgress * 1000}px)
-                            rotateX(${shard.rotX * shatterProgress}deg) 
-                            rotateY(${shard.rotY * shatterProgress}deg)
-                        ` : 'none',
-                        background: 'rgba(255, 255, 255, 0.1)',
-                        border: '1px solid rgba(255,255,255,0.3)',
-                        backdropFilter: 'blur(4px)'
-                    }}
-                />
-            ))}
-        </div>
-
-        {/* The Tunnel 3D Container */}
+        {/* PHASE 1: CSS Grid Stock Tunnel */}
         <div
           className="w-full h-full absolute top-0 left-0"
           style={{
             transformStyle: "preserve-3d",
-            transform: `translate3d(0px, ${transform.y}px, ${transform.z}px)`,
+            transform: `translateZ(${transform.z}px)`,
+            opacity: showGalaxy ? 0 : 1,
+            transition: 'opacity 0.3s',
           }}
         >
           {walls.map((wall, i) => (
-            <div
-              key={i}
-              className="absolute grid"
+            <div key={i} className="absolute grid"
               style={{
-                transform: wall.transform,
+                transform: wall.transform, 
                 transformOrigin: wall.origin,
-                width: wall.width,
+                width: wall.width, 
                 height: wall.height,
-                left: wall.left,
-                right: wall.right,
-                top: wall.top,
+                left: wall.left, 
+                right: wall.right, 
+                top: wall.top, 
                 bottom: wall.bottom,
                 gridTemplateColumns: wall.type === "side" ? `repeat(${GRID_COLS}, 1fr)` : `repeat(${GRID_ROWS}, 1fr)`,
                 gridTemplateRows: wall.type === "side" ? `repeat(${GRID_ROWS}, 1fr)` : `repeat(${GRID_COLS}, 1fr)`,
               }}
             >
-              {/* Charts on Sides */}
-              {wall.side === "left" && <div className="absolute inset-0 pointer-events-none"><StockChart color="green" /></div>}
-              {wall.side === "right" && <div className="absolute inset-0 pointer-events-none"><StockChart color="red" /></div>}
-
-              {/* Grid Squares */}
-              {gridSquares.map((_, j) => {
-                let borderColor = "border-fuchsia-500/30";
-                let boxShadow = "0 0 15px rgba(168,85,247,0.2)";
-
-                if (wall.side === "left") {
-                  borderColor = "border-green-500/40";
-                  boxShadow = "0 0 15px rgba(34,197,94,0.2)";
-                } else if (wall.side === "right") {
-                  borderColor = "border-red-500/40";
-                  boxShadow = "0 0 15px rgba(239,68,68,0.2)";
-                } else {
-                  borderColor = "border-white/10"; // Fainter floor/ceiling
-                  boxShadow = "none";
-                }
-
-                return (
-                  <div
-                    key={j}
-                    className={`bg-transparent border ${borderColor}`}
-                    style={{ boxShadow }}
-                  />
-                );
-              })}
+              {(wall.side === "left" || wall.side === "right") && (
+                <div className="absolute inset-0 pointer-events-none">
+                  <StockChart color={wall.side === "left" ? "green" : "red"} />
+                </div>
+              )}
+              {gridSquares.map((_, j) => (
+                <div key={j} className={`bg-black border ${
+                  wall.side === "left" ? "border-green-500 shadow-[0_0_12px_rgba(34,197,94,0.3)]" :
+                  wall.side === "right" ? "border-red-500 shadow-[0_0_12px_rgba(239,68,68,0.3)]" :
+                  "border-white shadow-[0_0_12px_rgba(255,255,255,0.3)]"
+                }`} />
+              ))}
             </div>
           ))}
         </div>
+
+        {/* PHASE 2: Galaxy Tunnel */}
+        {showGalaxy && (
+          <div className="absolute inset-0 z-30">
+            <GalaxyTunnel scrollProgress={galaxyProgress} />
+          </div>
+        )}
+
+        {/* Flash Overlay */}
+        {whiteFlash > 0 && (
+          <div
+            className="absolute inset-0 pointer-events-none z-50"
+            style={{
+              background: `white`,
+              opacity: whiteFlash,
+              mixBlendMode: "screen"
+            }}
+          />
+        )}
       </div>
     </div>
   );
