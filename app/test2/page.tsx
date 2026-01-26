@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from "react";
 import * as THREE from "three";
 // Ensure you have the image imported
-import galaxyImg from "@/images/galaxy.jpg"; 
+import galaxyImg from "@/public/images/galaxy.jpg"; 
 
 // --- GLASS SHARDS DATA ---
 // 4x4 Glass Shards for the end effect
