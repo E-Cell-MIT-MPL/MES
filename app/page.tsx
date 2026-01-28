@@ -1,12 +1,13 @@
 "use client";
 
 import { Canvas, useFrame } from "@react-three/fiber";
-import { PerspectiveCamera, Environment, useGLTF, useAnimations } from "@react-three/drei";
 import { useRef, useEffect, useState, Suspense, useLayoutEffect, useMemo } from "react";
 import * as THREE from "three";
 import { SkeletonUtils } from "three-stdlib";
 import Prism from "../components/Prism";
 import Tunnel from "../components/Tunnel";
+import { PerspectiveCamera, Environment, useGLTF, useAnimations } from "@react-three/drei";
+
 
 // =========================================
 // SCROLL DEBUGGER
@@ -241,7 +242,7 @@ function HeroBusinessman() {
 
   return (
     <group ref={group}>
-      <primitive object={scene} position={[0, -2.9, 0]} scale={550} />
+      <primitive object={scene} position={[0, -6.9, 0]} scale={550} />
     </group>
   );
 }
