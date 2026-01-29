@@ -2,7 +2,7 @@ import { useRef, useMemo } from 'react';
 import { useFrame, useLoader } from '@react-three/fiber';
 import * as THREE from 'three';
 
-const BILL_COUNT = 500;
+const BILL_COUNT = 750;
 
 function DollarRain() {
   const meshRef = useRef<THREE.InstancedMesh>(null!);
