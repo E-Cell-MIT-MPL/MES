@@ -25,7 +25,7 @@ export default function Page() {
     setError(null);
 
     try {
-      const response = await fetch("http://localhost:5000/auth/login", {
+      const response = await fetch("http://localhost:8080/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -35,15 +35,16 @@ export default function Page() {
       });
 
       const data = await response.json();
+      console.log(data);
 
-      if (response.ok) {
-        // Successful login: reroute to /student
-        router.push("/student");
+      if (response.ok && response.status === 200) {
+        // Successful login: redirect to /student
+        setTimeout(() => router.push('/student'), 500);
       } else {
         setError(data.message || "Login failed. Please check your credentials.");
       }
     } catch (error) {
-      console.error("Network error:", error);
+      console.log("Network error:", error);
       setError("Connection error: Is your backend running?");
     } finally {
       setLoading(false);
