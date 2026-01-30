@@ -8,6 +8,7 @@ const ColorBends = dynamic(() => import('../components/ColorBends'), {
   ssr: false,
 });
 
+// Type stays the same
 type UserType = 'MIT' | 'NON-MIT';
 
 interface InputFieldProps extends InputHTMLAttributes<HTMLInputElement> {
@@ -18,7 +19,7 @@ export default function Page() {
   const router = useRouter();
   const [userType, setUserType] = useState<UserType>('MIT');
   const [loading, setLoading] = useState(false);
-  const [showOtp, setShowOtp] = useState(false); // Toggle between Register and OTP
+  const [showOtp, setShowOtp] = useState(false); 
   const [otpValue, setOtpValue] = useState('');
   
   const [status, setStatus] = useState<{ message: string; type: 'error' | 'success' | null }>({
@@ -40,7 +41,6 @@ export default function Page() {
     if (status.message) setStatus({ message: '', type: null });
   };
 
-  // --- 1. HANDLE REGISTRATION ---
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -58,7 +58,7 @@ export default function Page() {
     };
 
     try {
-      const res = await fetch('http://localhost:8080/auth/register', {
+      const res = await fetch('http://localhost:5000/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -68,7 +68,7 @@ export default function Page() {
 
       if (res.ok) {
         setStatus({ message: 'User registered! Please check your email for OTP.', type: 'success' });
-        setShowOtp(true); // Move to OTP screen
+        setShowOtp(true);
       } else {
         setStatus({ message: data.message || 'Registration failed', type: 'error' });
       }
@@ -79,13 +79,12 @@ export default function Page() {
     }
   };
 
-  // --- 2. HANDLE OTP VERIFICATION ---
   const handleVerify = async (e: FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      const res = await fetch('http://localhost:8080/auth/verify-otp', {
+      const res = await fetch('http://localhost:5000/auth/verify-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -128,21 +127,34 @@ export default function Page() {
           )}
 
           {!showOtp ? (
-            /* --- REGISTRATION FORM --- */
             <form className="space-y-4" onSubmit={handleSubmit}>
-              {/* User Type Toggle */}
               <div className="flex bg-white/50 p-1 rounded-xl mb-6 border border-white/20">
-                <button type="button" onClick={() => setUserType('MIT')} className={`flex-1 py-2 rounded-lg text-sm font-semibold transition ${userType === 'MIT' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-600 hover:bg-white/30'}`}>MIT Student</button>
-                <button type="button" onClick={() => setUserType('NON_MIT')} className={`flex-1 py-2 rounded-lg text-sm font-semibold transition ${userType === 'NON_MIT' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-600 hover:bg-white/30'}`}>Other</button>
+                <button 
+                  type="button" 
+                  onClick={() => setUserType('MIT')} 
+                  className={`flex-1 py-2 rounded-lg text-sm font-semibold transition ${userType === 'MIT' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-600 hover:bg-white/30'}`}
+                >
+                  MIT Student
+                </button>
+                <button 
+                  type="button" 
+                  // FIXED: Changed 'NON_MIT' to 'NON-MIT' to match the type definition
+                  onClick={() => setUserType('NON-MIT')} 
+                  className={`flex-1 py-2 rounded-lg text-sm font-semibold transition ${userType === 'NON-MIT' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-600 hover:bg-white/30'}`}
+                >
+                  Other
+                </button>
               </div>
 
               <InputField label="Full Name" name="name" value={formData.name} onChange={handleChange} required placeholder="John Doe" />
+              
               {userType === 'MIT' && (
                 <>
                   <InputField label="Registration Number" name="regNumber" value={formData.regNumber} onChange={handleChange} required placeholder="MEC123" />
                   <InputField label="Learner Email" name="learnerEmail" type="email" value={formData.learnerEmail} onChange={handleChange} required placeholder="john@learner.manipal.edu" />
                 </>
               )}
+              
               <InputField label="Phone Number" name="phone" type="tel" value={formData.phone} onChange={handleChange} required placeholder="9876543210" />
               <InputField label="Personal Email" name="personalEmail" type="email" value={formData.personalEmail} onChange={handleChange} required placeholder="john@gmail.com" />
               <InputField label="Password" name="password" type="password" value={formData.password} onChange={handleChange} required placeholder="••••••••" />
@@ -152,8 +164,7 @@ export default function Page() {
               </button>
             </form>
           ) : (
-            /* --- OTP VERIFICATION SCREEN --- */
-            <form className="space-y-6 animate-fade-in" onSubmit={handleVerify}>
+            <form className="space-y-6" onSubmit={handleVerify}>
               <p className="text-center text-sm text-gray-600">
                 Enter the 6-digit code sent to <br/>
                 <span className="font-bold">{formData.personalEmail}</span>
@@ -166,6 +177,7 @@ export default function Page() {
                 required 
                 placeholder="123456" 
                 maxLength={6}
+                // The className here is merged correctly in the component below
                 className="w-full text-center text-2xl tracking-[1rem] rounded-xl px-4 py-3 bg-white/70 outline-none border border-transparent focus:border-blue-500"
               />
 
@@ -177,7 +189,7 @@ export default function Page() {
                 <button 
                   type="button" 
                   onClick={async () => {
-                    await fetch('http://localhost:8080/auth/resend-otp', {
+                    await fetch('http://localhost:5000/auth/resend-otp', {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify({ email: formData.personalEmail }),
@@ -197,13 +209,14 @@ export default function Page() {
   );
 }
 
-function InputField({ label, ...props }: InputFieldProps) {
+// FIXED: Added proper class merging for the custom className prop
+function InputField({ label, className, ...props }: InputFieldProps) {
   return (
     <div>
       <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1 ml-1">{label}</label>
       <input
         {...props}
-        className={`w-full rounded-xl px-4 py-2 bg-white/70 outline-none border border-transparent focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all placeholder:text-gray-400 ${props.className}`}
+        className={`w-full rounded-xl px-4 py-2 bg-white/70 outline-none border border-transparent focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all placeholder:text-gray-400 ${className || ''}`}
       />
     </div>
   );
