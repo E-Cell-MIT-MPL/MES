@@ -6,9 +6,6 @@ const BILL_COUNT = 750;
 
 function DollarRain() {
   const meshRef = useRef<THREE.InstancedMesh>(null!);
-  
-  // 1. Use useLoader to ensure the texture is loaded before rendering
-  // Replace this path with the actual path to your image in the /public folder
   const texture = useLoader(THREE.TextureLoader, '/images/image.png');
 
   const particles = useMemo(() => {
@@ -18,7 +15,9 @@ function DollarRain() {
         t: Math.random() * 100,
         speed: 0.05 + Math.random() * 0.1,
         xFactor: -15 + Math.random() * 30,
-        zFactor: -15 + Math.random() * 30,
+        // FIX 1: Reduce Z range from 30 to 20. 
+        // Keeps bills safely away from the camera at z=16.
+        zFactor: -10 + Math.random() * 20, 
       });
     }
     return temp;
@@ -27,8 +26,7 @@ function DollarRain() {
   const dummy = new THREE.Object3D();
 
   useFrame((state) => {
-    particles.forEach((particle, i) => {
-      let { speed, xFactor, zFactor } = particle;
+    particles.forEach((particle, i) => {      let { speed, xFactor, zFactor } = particle;
       
       particle.t += speed;
       const y = 20 - (particle.t % 35); 
@@ -46,19 +44,22 @@ function DollarRain() {
     meshRef.current.instanceMatrix.needsUpdate = true;
   });
 
-  return (
-    <instancedMesh ref={meshRef} args={[null!, null!, BILL_COUNT]}>
-      <planeGeometry args={[1, 1]} />
-      {/* 2. Use MeshBasicMaterial if you don't have lights in your scene. 
-          Use transparent: true if your image has an alpha channel (PNG) */}
-      <meshBasicMaterial 
-        map={texture} 
-        side={THREE.DoubleSide} 
-        transparent={true}
-        depthWrite={true} 
-      />
-    </instancedMesh>
-  );
+  // Inside DollarRain function
+return (
+  <instancedMesh 
+    ref={meshRef} 
+    args={[null!, null!, BILL_COUNT]}
+    frustumCulled={false}  // <--- ADD THIS LINE
+  >
+    <planeGeometry args={[1, 1]} />
+    <meshBasicMaterial 
+      map={texture} 
+      side={THREE.DoubleSide} 
+      transparent={true}
+      depthWrite={false} // Recommended: Set to false for transparent particles to avoid black outlines
+    />
+  </instancedMesh>
+);
 }
 
 export default DollarRain;
