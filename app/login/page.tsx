@@ -34,6 +34,7 @@ export default function Page() {
       });
 
       const data = await response.json();
+      console.log(data);
 
       if (response.ok) {
         setTimeout(() => router.push('/student'), 500);

@@ -1,11 +1,16 @@
 'use client';
 
+<<<<<<< HEAD
 import { useState, ChangeEvent, FormEvent, InputHTMLAttributes, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2, ArrowRight, CheckCircle2, AlertCircle, ArrowLeft } from 'lucide-react';
+=======
+import { useState, ChangeEvent, FormEvent, InputHTMLAttributes } from 'react';
+>>>>>>> main
 import dynamic from 'next/dynamic';
+import { useRouter } from 'next/navigation';
 
 const ColorBends = dynamic(() => import('@/components/ColorBends'), { ssr: false });
 
