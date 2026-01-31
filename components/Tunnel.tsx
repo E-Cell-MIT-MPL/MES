@@ -1,16 +1,7 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
-import * as THREE from "three";
-import galaxyImg from "@/public/images/galaxy.jpg";
 
-// --- GLASS SHARDS DATA ---
-const glassShards = Array.from({ length: 16 }).map((_, i) => ({
-  id: i,
-  xDir: (Math.random() - 0.5) * 800,
-  yDir: (Math.random() - 0.5) * 800,
-  rotX: (Math.random() - 0.5) * 1000,
-  rotY: (Math.random() - 0.5) * 1000,
-}));
+import { useRef, useState, useEffect } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
 
 // --- [STOCK CHART COMPONENT] ---
 function StockChart({ color }: { color: "green" | "red" }) {
@@ -21,21 +12,28 @@ function StockChart({ color }: { color: "green" | "red" }) {
     const ctx = canvas.getContext("2d", { alpha: true });
     if (!ctx) return;
     const scale = window.devicePixelRatio || 2;
-    canvas.width = 1200 * scale; canvas.height = 800 * scale;
+    canvas.width = 4000 * scale; 
+    canvas.height = 800 * scale;
     ctx.scale(scale, scale);
+
     const generateData = () => {
       const p = []; let v = 200;
-      for (let i=0; i<50; i++) { v += (Math.random()-0.5)*40; v=Math.max(50, Math.min(350,v)); p.push(v); }
+      for (let i=0; i<200; i++) { 
+          v += (Math.random()-0.5)*40; 
+          v=Math.max(50, Math.min(350,v)); 
+          p.push(v); 
+      }
       return p;
     };
     let dataPoints = generateData(); let offset = 0;
+
     const draw = () => {
-      ctx.clearRect(0, 0, 1200, 800); ctx.lineWidth = 2;
+      ctx.clearRect(0, 0, 4000, 800); ctx.lineWidth = 2;
       ctx.strokeStyle = color==="green"?"rgba(34,197,94,0.2)":"rgba(239,68,68,0.2)";
-      for(let y=0; y<800; y+=80){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(1200,y);ctx.stroke();}
-      for(let x=0; x<1200; x+=80){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,800);ctx.stroke();}
+      for(let y=0; y<800; y+=80){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(4000,y);ctx.stroke();}
+      for(let x=0; x<4000; x+=80){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,800);ctx.stroke();}
       const candleW=20; const spacing=24;
-      for(let i=0; i<45; i++){
+      for(let i=0; i<180; i++){
         const idx = Math.floor((i+offset)%dataPoints.length);
         const x=i*spacing; const o=dataPoints[idx]; const c=dataPoints[(idx+1)%dataPoints.length];
         const h=Math.max(o,c)+Math.random()*20; const l=Math.min(o,c)-Math.random()*20;
@@ -57,115 +55,85 @@ function StockChart({ color }: { color: "green" | "red" }) {
   return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full opacity-60" style={{mixBlendMode:"screen"}}/>;
 }
 
-// --- [GALAXY TUNNEL] ---
-function GalaxyTunnel({ scrollProgress }: { scrollProgress: number }) {
-    const canvasRef = useRef<HTMLCanvasElement>(null);
-    const scrollRef = useRef(0);
-  
-    useEffect(() => {
-      scrollRef.current = scrollProgress;
-    }, [scrollProgress]);
-  
-    useEffect(() => {
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-  
-      const ww = window.innerWidth;
-      const wh = window.innerHeight;
-  
-      const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-      renderer.setSize(ww, wh);
-      renderer.outputColorSpace = THREE.SRGBColorSpace; 
-      
-      const scene = new THREE.Scene();
-      scene.fog = new THREE.Fog(0x000000, 30, 150);
-  
-      const camera = new THREE.PerspectiveCamera(15, ww / wh, 0.01, 1000);
-      camera.rotation.y = Math.PI;
-      camera.position.z = 0.35;
-  
-      const points = [];
-      for (let i = 0; i < 5; i++) {
-        points.push(new THREE.Vector3(0, 0, 3 * (i / 4)));
-      }
-      points[4].y = -0.06;
-      
-      const curve = new THREE.CatmullRomCurve3(points);
-      const geometry = new THREE.TubeGeometry(curve, 70, 0.02, 50, false);
-  
-      const textureLoader = new THREE.TextureLoader();
-      const texture = textureLoader.load(galaxyImg.src);
-      
-      texture.colorSpace = THREE.SRGBColorSpace;
-      texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
-      texture.wrapS = THREE.MirroredRepeatWrapping;
-      texture.wrapT = THREE.MirroredRepeatWrapping;
-      texture.repeat.set(10, 4); 
-  
-      const material = new THREE.MeshBasicMaterial({
-        side: THREE.BackSide,
-        map: texture,
-        color: 0xffffff, 
-      });
-  
-      const tubeMesh = new THREE.Mesh(geometry, material);
-      scene.add(tubeMesh);
-  
-      let animId: number;
-  
-      const animate = () => {
-        const scroll = scrollRef.current; 
-  
-        if (tubeMesh.material instanceof THREE.MeshBasicMaterial && tubeMesh.material.map) {
-          const targetRepeatX = THREE.MathUtils.lerp(10, 0.3, scroll);
-          tubeMesh.material.map.repeat.x = targetRepeatX;
-          tubeMesh.material.map.offset.x = -(scroll * 20); 
-          tubeMesh.material.map.offset.y += 0.002;
-        }
-  
-        const shake = scroll * 0.005; 
-        camera.position.x = (Math.random() - 0.5) * shake;
-        camera.position.y = (Math.random() - 0.5) * shake;
-  
-        renderer.render(scene, camera);
-        animId = requestAnimationFrame(animate);
-      };
-      animate();
-  
-      const handleResize = () => {
-        const w = window.innerWidth;
-        const h = window.innerHeight;
-        camera.aspect = w / h;
-        camera.updateProjectionMatrix();
-        renderer.setSize(w, h);
-      };
-      window.addEventListener('resize', handleResize);
-  
-      return () => {
-        cancelAnimationFrame(animId);
-        window.removeEventListener('resize', handleResize);
-        renderer.dispose();
-        geometry.dispose();
-        material.dispose();
-        texture.dispose();
-      };
-    }, []);
-  
-    return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full bg-black" />;
-}
+// --- HELPER: 3D TEXT WITH VISIBILITY LOGIC ---
+const TunnelText = ({ 
+  text, 
+  z, 
+  currentZ, 
+  color = "white" 
+}: { 
+  text: string, 
+  z: number, 
+  currentZ: number, 
+  color?: string 
+}) => {
+  const relativePos = z + currentZ;
+  let opacity = 0;
+
+  // VISIBILITY WINDOW
+  if (relativePos > -600 && relativePos < -100) {
+    opacity = (relativePos + 600) / 500;
+  }
+  else if (relativePos >= -100 && relativePos < 200) {
+    opacity = 1;
+  }
+  else if (relativePos >= 200 && relativePos < 400) {
+    opacity = 1 - ((relativePos - 200) / 200);
+  }
+
+  return (
+    <div 
+      className="absolute top-1/2 left-1/2 flex items-center justify-center pointer-events-none"
+      style={{
+        transform: `translate(-50%, -50%) translateZ(${z}px)`,
+        width: '100%',
+        opacity: Math.max(0, Math.min(1, opacity)),
+        transition: 'opacity 0.1s linear',
+      }}
+    >
+      <h2 
+        className={`text-6xl md:text-8xl font-serif-display italic font-black text-center whitespace-nowrap`}
+        style={{ 
+          color: color,
+          textShadow: `0 0 30px ${color}, 0 0 60px ${color}`
+        }}
+      >
+        {text}
+      </h2>
+    </div>
+  );
+};
 
 // --- MAIN ORCHESTRATOR ---
-const TUNNEL_DEPTH_PX = 1650;
+const TUNNEL_DEPTH_PX = 4000;
 const GRID_ROWS = 10;
-const GRID_COLS = 20;
+const GRID_COLS = 80;
+// FIX 1: Define a set scroll distance for the tunnel interaction
+const SCROLL_HEIGHT = 4500; 
 
 export default function Tunnel() {
   const tunnelRef = useRef<HTMLDivElement>(null);
-  const [transform, setTransform] = useState({ z: -50, y: 0 });
-  const [whiteFlash, setWhiteFlash] = useState(0);
-  const [showGalaxy, setShowGalaxy] = useState(false);
-  const [galaxyProgress, setGalaxyProgress] = useState(0);
-  const [shatterProgress, setShatterProgress] = useState(0);
+  
+  // FIX 2: useScroll relative to THIS component
+  const { scrollYProgress } = useScroll({
+    target: tunnelRef,
+    offset: ["start start", "end end"]
+  });
+
+  // FIX 3: Map scroll progress (0 to 1) directly to animation values
+  // This ensures animation ends EXACTLY when scroll ends
+  const z = useTransform(scrollYProgress, [0, 0.9], [-50, 4500]); // Travel 4500px in first 90%
+  const flash = useTransform(scrollYProgress, [0.85, 0.95, 1], [0, 1, 1]); // Flash happens in last 15%
+
+  // We need raw values for the TunnelText logic
+  const [currentZ, setCurrentZ] = useState(-50);
+  
+  // Subscribe to motion value to update state for 3D Text logic
+  useEffect(() => {
+    return z.on("change", (latest) => {
+      setCurrentZ(latest);
+    });
+  }, [z]);
 
   const walls = [
     { origin: "left center", transform: "rotateY(90deg)", width: `${TUNNEL_DEPTH_PX}px`, height: "100%", left: "0px", top: "0px", type: "side", side: "left" },
@@ -176,97 +144,28 @@ export default function Tunnel() {
 
   const gridSquares = Array.from({ length: GRID_ROWS * GRID_COLS });
 
-  useEffect(() => {
-    const onScroll = () => {
-      const scrollY = window.scrollY;
-      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-      const scrollProgress = Math.max(0, Math.min(1, scrollY / maxScroll));
-
-      console.log('Progress:', scrollProgress.toFixed(3), 'Z:', transform.z.toFixed(1), 'Show Galaxy:', showGalaxy, 'Galaxy Progress:', galaxyProgress.toFixed(3));
-
-      // PHASE 1: Stock Tunnel (0% - 60%)
-      if (scrollProgress < 0.6) {
-        // Much faster Z movement for immersive tunnel feel
-        const zValue = -50 + (scrollProgress * 1500); // Goes from -50 to 850
-        setTransform({ z: zValue, y: 0 });
-        setShowGalaxy(false);
-        setShatterProgress(0); 
-        setWhiteFlash(0);
-      } 
-      // TRANSITION: Flash (60% - 65%)
-      else if (scrollProgress < 0.65) {
-        const flashProgress = (scrollProgress - 0.6) / 0.05;
-        setWhiteFlash(flashProgress);
-        setShowGalaxy(false);
-        setShatterProgress(0);
-      }
-      // PHASE 2: Galaxy Tunnel (65% - 95%)
-      else if (scrollProgress < 0.95) {
-        setShowGalaxy(true);
-        
-        if (scrollProgress < 0.68) {
-          const flashOut = 1 - ((scrollProgress - 0.65) / 0.03);
-          setWhiteFlash(Math.max(0, flashOut));
-        } else {
-          setWhiteFlash(0);
-        }
-        
-        const gProg = (scrollProgress - 0.65) / 0.3;
-        setGalaxyProgress(gProg);
-        setShatterProgress(0);
-      }
-      // PHASE 3: Glass Shatter (95% - 100%)
-      else {
-        setShowGalaxy(true);
-        setWhiteFlash(0);
-        const shatterProg = (scrollProgress - 0.95) / 0.05; 
-        setShatterProgress(Math.min(1, shatterProg));
-        setGalaxyProgress(1);
-      }
-    };
-
-    window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
-    return () => window.removeEventListener("scroll", onScroll);
-  }, [transform.z, showGalaxy, galaxyProgress]);
-
   return (
-    <div ref={tunnelRef} className="relative h-[1500vh] bg-black">
+    // FIX 4: Set height to our defined scroll duration. 
+    // Once user scrolls 4500px, the component ends, sticky breaks, and we move to next section.
+    <div ref={tunnelRef} className="relative bg-black" style={{ height: `${SCROLL_HEIGHT}px` }}>
+      
       <div className="w-full h-screen sticky top-0 overflow-hidden" 
            style={{ perspective: "400px", transformStyle: "preserve-3d" }}>
         
-        {/* SHATTER OVERLAY */}
-        {shatterProgress > 0 && (
-          <div className="absolute inset-0 z-[60] pointer-events-none flex flex-wrap" style={{ perspective: '1000px' }}>
-              {glassShards.map((shard) => (
-                  <div key={shard.id} className="w-1/4 h-1/4 relative"
-                      style={{
-                          opacity: 1 - (shatterProgress * 0.3),
-                          transform: `
-                              translate3d(${shard.xDir * shatterProgress}px, ${shard.yDir * shatterProgress}px, ${shatterProgress * 800}px)
-                              rotateX(${shard.rotX * shatterProgress}deg) 
-                              rotateY(${shard.rotY * shatterProgress}deg)
-                          `,
-                          background: 'rgba(255, 255, 255, 0.1)',
-                          border: '1px solid rgba(255,255,255,0.4)',
-                          backdropFilter: 'blur(2px)',
-                          boxShadow: '0 0 10px rgba(255,255,255,0.2)'
-                      }}
-                  />
-              ))}
-          </div>
-        )}
-
-        {/* PHASE 1: CSS Grid Stock Tunnel */}
-        <div
+        <motion.div
           className="w-full h-full absolute top-0 left-0"
           style={{
             transformStyle: "preserve-3d",
-            transform: `translateZ(${transform.z}px)`,
-            opacity: showGalaxy ? 0 : 1,
-            transition: 'opacity 0.3s',
+            z: z, // Framer Motion handles the transform directly
+            opacity: useTransform(flash, (v) => 1 - v), // Fade tunnel out as flash comes in
           }}
         >
+          {/* TEXT POSITIONS */}
+          <TunnelText text="WELCOME TO" z={-400} currentZ={currentZ} /> 
+          <TunnelText text="MES 2026" z={-1500} currentZ={currentZ} /> 
+          <TunnelText text="EXPECT THE UNEXPECTED" z={-2800} currentZ={currentZ} />
+
+          {/* WALLS */}
           {walls.map((wall, i) => (
             <div key={i} className="absolute grid"
               style={{
@@ -280,6 +179,7 @@ export default function Tunnel() {
                 bottom: wall.bottom,
                 gridTemplateColumns: wall.type === "side" ? `repeat(${GRID_COLS}, 1fr)` : `repeat(${GRID_ROWS}, 1fr)`,
                 gridTemplateRows: wall.type === "side" ? `repeat(${GRID_ROWS}, 1fr)` : `repeat(${GRID_COLS}, 1fr)`,
+                backfaceVisibility: "hidden" 
               }}
             >
               {(wall.side === "left" || wall.side === "right") && (
@@ -288,34 +188,21 @@ export default function Tunnel() {
                 </div>
               )}
               {gridSquares.map((_, j) => (
-                <div key={j} className={`bg-black border ${
-                  wall.side === "left" ? "border-green-500 shadow-[0_0_12px_rgba(34,197,94,0.3)]" :
-                  wall.side === "right" ? "border-red-500 shadow-[0_0_12px_rgba(239,68,68,0.3)]" :
-                  "border-white shadow-[0_0_12px_rgba(255,255,255,0.3)]"
+                <div key={j} className={`bg-black/90 border ${
+                  wall.side === "left" ? "border-green-500/30 shadow-[0_0_8px_rgba(34,197,94,0.1)]" :
+                  wall.side === "right" ? "border-red-500/30 shadow-[0_0_8px_rgba(239,68,68,0.1)]" :
+                  "border-white/20 shadow-[0_0_8px_rgba(255,255,255,0.1)]"
                 }`} />
               ))}
             </div>
           ))}
-        </div>
+        </motion.div>
 
-        {/* PHASE 2: Galaxy Tunnel */}
-        {showGalaxy && (
-          <div className="absolute inset-0 z-30">
-            <GalaxyTunnel scrollProgress={galaxyProgress} />
-          </div>
-        )}
-
-        {/* Flash Overlay */}
-        {whiteFlash > 0 && (
-          <div
-            className="absolute inset-0 pointer-events-none z-50"
-            style={{
-              background: `white`,
-              opacity: whiteFlash,
-              mixBlendMode: "screen"
-            }}
-          />
-        )}
+        {/* WHITE FLASH OVERLAY */}
+        <motion.div
+          className="absolute inset-0 pointer-events-none z-50 bg-white"
+          style={{ opacity: flash }}
+        />
       </div>
     </div>
   );
