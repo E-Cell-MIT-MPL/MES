@@ -220,7 +220,7 @@ export default function StudentDashboard() {
     if (!user) return null;
 
     return (
-        <div className="flex items-center justify-center min-h-screen w-full bg-[#050505] font-sans p-2 md:p-4 selection:bg-purple-500/30 text-white">
+        <div className="flex items-center justify-center min-h-screen w-full bg-[#050505] font-sans p-2 md:p-8 selection:bg-purple-500/30 text-white">
             
             <Script 
                 src={process.env.NEXT_PUBLIC_ATOM_CDN_URL} 
@@ -231,86 +231,93 @@ export default function StudentDashboard() {
                 {showSuccess && <SuccessOverlay onClose={() => setShowSuccess(false)} />}
             </AnimatePresence>
 
-            <div className="relative w-[96vw] max-w-[1600px] h-[92vh] bg-[#0a0a0a] rounded-[30px] overflow-hidden flex shadow-2xl border border-white/5">
+            {/* FIX 1: Changed h-[92vh] to min-h-[85vh] and removed overflow-hidden.
+               This allows the card to grow and triggers normal browser scrolling.
+            */}
+            <div className="relative w-[96vw] max-w-[1600px] min-h-[85vh] bg-[#0a0a0a] rounded-[30px] overflow-hidden flex flex-col lg:flex-row shadow-2xl border border-white/5 my-10">
                 
-                {/* --- LEFT SIDE: VISUALS + QR --- */}
-                <div className="hidden lg:block w-[35%] h-full relative overflow-hidden bg-black border-r border-white/5">
-                    <Link 
-                        href="/"
-                        className="absolute top-8 left-8 z-30 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-white/60 hover:text-white transition-all duration-300 group"
-                    >
-                        <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
-                        Home
-                    </Link>
-
-                    <div className="absolute inset-0 opacity-80">
-                        <ColorBends colors={['#7e22ce', '#3b82f6', '#000000']} speed={0.15} />
-                    </div>
-                    <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/80" />
-
-                    <div className="absolute inset-0 flex flex-col items-center justify-center z-20 p-8">
-                        <motion.div 
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.2 }}
-                            className="w-full max-w-sm"
+                {/* --- LEFT SIDE: STICKY VISUALS --- */}
+                {/* FIX 2: Made this sticky so it stays visible while you scroll the content on the right */}
+                <div className="hidden lg:block w-[35%] bg-black border-r border-white/5 relative">
+                    <div className="sticky top-0 h-screen max-h-[85vh] overflow-hidden">
+                        <Link 
+                            href="/"
+                            className="absolute top-8 left-8 z-30 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-white/60 hover:text-white transition-all duration-300 group"
                         >
-                            <div className="relative overflow-hidden rounded-[24px] bg-white/5 backdrop-blur-xl border border-white/20 shadow-2xl p-1">
-                                <div className="relative rounded-[20px] bg-black/40 p-8 flex flex-col items-center text-center overflow-hidden">
-                                    <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-gradient-to-tr from-purple-500/30 to-blue-500/30 rounded-full blur-[60px] transition-all duration-700 ${hasPaidTicket ? 'opacity-100' : 'opacity-0'}`} />
+                            <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
+                            Home
+                        </Link>
 
-                                    <div className="relative z-10 mb-6">
-                                        <div className={`w-56 h-56 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl flex items-center justify-center p-3 transition-all duration-500 ${!hasPaidTicket ? 'shadow-none' : 'shadow-[0_0_40px_rgba(124,58,237,0.15)]'}`}>
-                                            {qrUrl ? (
-                                                <img src={qrUrl} alt="Ticket QR" className="w-full h-full object-contain rounded-lg" />
-                                            ) : (
-                                                <div className="flex flex-col items-center gap-4 w-full h-full justify-center">
-                                                    <div className="p-4 rounded-full bg-white/5 border border-white/10">
-                                                        <TicketIcon size={24} className="text-gray-400" />
+                        <div className="absolute inset-0 opacity-80">
+                            <ColorBends colors={['#7e22ce', '#3b82f6', '#000000']} speed={0.15} />
+                        </div>
+                        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/80" />
+
+                        <div className="absolute inset-0 flex flex-col items-center justify-center z-20 p-8">
+                            <motion.div 
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.2 }}
+                                className="w-full max-w-sm"
+                            >
+                                <div className="relative overflow-hidden rounded-[24px] bg-white/5 backdrop-blur-xl border border-white/20 shadow-2xl p-1">
+                                    <div className="relative rounded-[20px] bg-black/40 p-8 flex flex-col items-center text-center overflow-hidden">
+                                        <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-gradient-to-tr from-purple-500/30 to-blue-500/30 rounded-full blur-[60px] transition-all duration-700 ${hasPaidTicket ? 'opacity-100' : 'opacity-0'}`} />
+
+                                        <div className="relative z-10 mb-6">
+                                            <div className={`w-56 h-56 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl flex items-center justify-center p-3 transition-all duration-500 ${!hasPaidTicket ? 'shadow-none' : 'shadow-[0_0_40px_rgba(124,58,237,0.15)]'}`}>
+                                                {qrUrl ? (
+                                                    <img src={qrUrl} alt="Ticket QR" className="w-full h-full object-contain rounded-lg" />
+                                                ) : (
+                                                    <div className="flex flex-col items-center gap-4 w-full h-full justify-center">
+                                                        <div className="p-4 rounded-full bg-white/5 border border-white/10">
+                                                            <TicketIcon size={24} className="text-gray-400" />
+                                                        </div>
+                                                        <button 
+                                                            onClick={handleBuyTicket}
+                                                            disabled={paymentLoading}
+                                                            className="group flex items-center gap-2 px-5 py-2 bg-white text-black text-[10px] font-bold uppercase tracking-widest rounded-full hover:scale-105 transition-all shadow-[0_0_20px_rgba(255,255,255,0.15)] hover:shadow-[0_0_30px_rgba(255,255,255,0.3)] disabled:opacity-70 disabled:cursor-not-allowed"
+                                                        >
+                                                            {paymentLoading ? <Loader2 size={12} className="animate-spin"/> : <Plus size={12} strokeWidth={4} />}
+                                                            {paymentLoading ? 'Processing...' : 'Get Pass'}
+                                                        </button>
                                                     </div>
-                                                    <button 
-                                                        onClick={handleBuyTicket}
-                                                        disabled={paymentLoading}
-                                                        className="group flex items-center gap-2 px-5 py-2 bg-white text-black text-[10px] font-bold uppercase tracking-widest rounded-full hover:scale-105 transition-all shadow-[0_0_20px_rgba(255,255,255,0.15)] hover:shadow-[0_0_30px_rgba(255,255,255,0.3)] disabled:opacity-70 disabled:cursor-not-allowed"
-                                                    >
-                                                        {paymentLoading ? <Loader2 size={12} className="animate-spin"/> : <Plus size={12} strokeWidth={4} />}
-                                                        {paymentLoading ? 'Processing...' : 'Get Pass'}
-                                                    </button>
+                                                )}
+                                            </div>
+                                            
+                                            <div className="absolute -bottom-3 left-1/2 -translate-x-1/2">
+                                                <span className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest border backdrop-blur-xl shadow-lg flex items-center gap-2 whitespace-nowrap ${
+                                                    hasPaidTicket 
+                                                    ? 'bg-emerald-500/20 border-emerald-500/30 text-emerald-400' 
+                                                    : 'bg-white/10 border-white/20 text-gray-400'
+                                                }`}>
+                                                    {hasPaidTicket ? <CheckCircle2 size={12} /> : <div className="w-2 h-2 rounded-full bg-gray-500" />}
+                                                    {hasPaidTicket ? 'Access Granted' : 'No Active Pass'}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div className="relative z-10 w-full pt-4 border-t border-white/10">
+                                            <h3 className="text-2xl font-bold text-white mb-1">{user.name}</h3>
+                                            <p className="text-xs text-gray-400 font-mono tracking-widest uppercase mb-4">{user.regNumber || 'GUEST USER'}</p>
+                                            
+                                            {hasPaidTicket && (
+                                                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-white/5 border border-white/10">
+                                                    <p className="text-[10px] text-gray-500 uppercase tracking-wider">ID</p>
+                                                    <p className="text-xs font-mono text-purple-300">#{activeTicket?._id.slice(-6).toUpperCase()}</p>
                                                 </div>
                                             )}
                                         </div>
-                                        
-                                        <div className="absolute -bottom-3 left-1/2 -translate-x-1/2">
-                                            <span className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest border backdrop-blur-xl shadow-lg flex items-center gap-2 whitespace-nowrap ${
-                                                hasPaidTicket 
-                                                ? 'bg-emerald-500/20 border-emerald-500/30 text-emerald-400' 
-                                                : 'bg-white/10 border-white/20 text-gray-400'
-                                            }`}>
-                                                {hasPaidTicket ? <CheckCircle2 size={12} /> : <div className="w-2 h-2 rounded-full bg-gray-500" />}
-                                                {hasPaidTicket ? 'Access Granted' : 'No Active Pass'}
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    <div className="relative z-10 w-full pt-4 border-t border-white/10">
-                                        <h3 className="text-2xl font-bold text-white mb-1">{user.name}</h3>
-                                        <p className="text-xs text-gray-400 font-mono tracking-widest uppercase mb-4">{user.regNumber || 'GUEST USER'}</p>
-                                        
-                                        {hasPaidTicket && (
-                                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-white/5 border border-white/10">
-                                                <p className="text-[10px] text-gray-500 uppercase tracking-wider">ID</p>
-                                                <p className="text-xs font-mono text-purple-300">#{activeTicket?._id.slice(-6).toUpperCase()}</p>
-                                            </div>
-                                        )}
                                     </div>
                                 </div>
-                            </div>
-                        </motion.div>
+                            </motion.div>
+                        </div>
                     </div>
                 </div>
 
-                {/* --- RIGHT SIDE: DASHBOARD --- */}
-                <div className="w-full lg:w-[65%] h-full bg-[#0E0E0E] flex flex-col relative overflow-y-auto [&::-webkit-scrollbar]:w-[6px] [&::-webkit-scrollbar-thumb]:bg-white/10 [&::-webkit-scrollbar-track]:bg-transparent">
+                {/* --- RIGHT SIDE: CONTENT --- */}
+                {/* FIX 3: Removed overflow-y-auto and fixed height. It now expands naturally. */}
+                <div className="w-full lg:w-[65%] min-h-full bg-[#0E0E0E] flex flex-col">
                     <div className="p-8 md:p-12 pb-6 flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-white/5">
                         <div>
                             <div className="flex items-center gap-3 mb-2">
@@ -339,7 +346,7 @@ export default function StudentDashboard() {
                         )}
                     </div>
 
-                    <div className="p-8 md:p-12 space-y-8">
+                    <div className="p-8 md:p-12 space-y-8 flex-grow">
                         {/* 1. Quick Stats */}
                         <motion.div 
                             initial={{ opacity: 0, y: 10 }}
@@ -361,12 +368,13 @@ export default function StudentDashboard() {
 
                             {/* Venue Card with Link */}
                             <a 
-    href="https://www.google.com/maps/search/?api=1&query=Academic+Block+5+MIT+Manipal" 
-    target="_blank" 
-    rel="noopener noreferrer"
-    className="p-6 rounded-2xl bg-[#151515] border border-white/5 relative overflow-hidden group hover:border-blue-500/30 transition-colors"
->
-<div className="absolute -right-4 -top-4 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl group-hover:bg-blue-500/20 transition-all" />                                <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity text-blue-500">
+                                href="https://www.google.com/maps/search/?api=1&query=Academic+Block+5+MIT+Manipal" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="p-6 rounded-2xl bg-[#151515] border border-white/5 relative overflow-hidden group hover:border-blue-500/30 transition-colors"
+                            >
+                                <div className="absolute -right-4 -top-4 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl group-hover:bg-blue-500/20 transition-all" />                                
+                                <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity text-blue-500">
                                     <MapPin size={80} />
                                 </div>
                                 <p className="text-gray-500 text-[10px] font-bold uppercase tracking-widest mb-2">Venue</p>
@@ -392,83 +400,76 @@ export default function StudentDashboard() {
                             </div>
 
                             <div className="space-y-4 mt-6">
-    {CONCLAVES.map((event, index) => {
-        const getArtAsset = (id: string) => {
-            if (id === 'fintech') return '/images/ev1-removebg-preview.png';   
-            if (id === 'built-her') return '/images/ev2-removebg-preview.png'; 
-            return '/images/ev3-removebg-preview.png';                        
-        };
+                                {CONCLAVES.map((event, index) => {
+                                    const getArtAsset = (id: string) => {
+                                        if (id === 'fintech') return '/images/ev1-removebg-preview.png';   
+                                        if (id === 'built-her') return '/images/ev2-removebg-preview.png'; 
+                                        return '/images/ev3-removebg-preview.png';                        
+                                    };
 
-        // Determine if this is the first artwork to apply specific sizing
-        const isFinTech = event.id === 'fintech';
+                                    const isFinTech = event.id === 'fintech';
 
-        return (
-            <motion.div 
-                key={event.id}
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                whileHover={{ y: -2, scale: 1.005 }}
-                className="group relative flex items-center h-28 rounded-[24px] bg-[#121212] border border-white/5 overflow-hidden transition-all duration-300 shadow-xl"
-            >
-                {/* --- ARTWORK CONTAINER --- */}
-                <div className="absolute right-0 top-0 h-full w-full pointer-events-none select-none overflow-hidden">
-                    <motion.img 
-                        src={getArtAsset(event.id)} 
-                        alt="Event Art" 
-                        className={`absolute right-0 bottom-[-10%] object-contain object-right opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500
-                            ${isFinTech ? 'h-[120%] ' : 'h-[120%]'}`} // 👈 Increased height and pulled right for FinTech
-                    />
-                    
-                    {/* FADE MASK: Adjusted to ensure button area (right side) is clear */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-[#121212] via-[#121212]/40 to-transparent w-[70%] z-10" />
-                </div>
+                                    return (
+                                        <motion.div 
+                                            key={event.id}
+                                            initial={{ opacity: 0, y: 15 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: index * 0.1 }}
+                                            whileHover={{ y: -2, scale: 1.005 }}
+                                            className="group relative flex items-center h-28 rounded-[24px] bg-[#121212] border border-white/5 overflow-hidden transition-all duration-300 shadow-xl"
+                                        >
+                                            {/* --- ARTWORK CONTAINER --- */}
+                                            <div className="absolute right-0 top-0 h-full w-full pointer-events-none select-none overflow-hidden">
+                                                <motion.img 
+                                                    src={getArtAsset(event.id)} 
+                                                    alt="Event Art" 
+                                                    className={`absolute right-0 bottom-[-10%] object-contain object-right opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500
+                                                        ${isFinTech ? 'h-[120%] ' : 'h-[120%]'}`} 
+                                                />
+                                                <div className="absolute inset-0 bg-gradient-to-r from-[#121212] via-[#121212]/40 to-transparent w-[70%] z-10" />
+                                            </div>
 
-                {/* --- CARD CONTENT --- */}
-                <div className="relative z-20 flex items-center w-full px-6">
-                    
-                    {/* Date Badge */}
-                    <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-black/40 backdrop-blur-xl border border-white/10 flex flex-col items-center justify-center shadow-lg">
-                        <span className="text-[8px] font-black uppercase text-gray-500 tracking-tighter">
-                            {event.displayDate.split(' ')[0]}
-                        </span>
-                        <span className="text-lg font-bold text-white leading-none">
-                            {event.displayDate.split(' ')[1]}
-                        </span>
-                    </div>
+                                            {/* --- CARD CONTENT --- */}
+                                            <div className="relative z-20 flex items-center w-full px-6">
+                                                <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-black/40 backdrop-blur-xl border border-white/10 flex flex-col items-center justify-center shadow-lg">
+                                                    <span className="text-[8px] font-black uppercase text-gray-500 tracking-tighter">
+                                                        {event.displayDate.split(' ')[0]}
+                                                    </span>
+                                                    <span className="text-lg font-bold text-white leading-none">
+                                                        {event.displayDate.split(' ')[1]}
+                                                    </span>
+                                                </div>
 
-                    {/* Text Details */}
-                    <div className="ml-5 flex-grow">
-                        <h4 className="text-lg font-bold text-white tracking-tight">
-                            {event.title}
-                        </h4>
-                        <div className="flex items-center gap-4 mt-1">
-                            <div className="flex items-center gap-1.5 text-[10px] text-gray-400 font-bold uppercase tracking-wider">
-                                <Clock size={12} className="text-purple-500/80" />
-                                {event.time}
+                                                <div className="ml-5 flex-grow">
+                                                    <h4 className="text-lg font-bold text-white tracking-tight">
+                                                        {event.title}
+                                                    </h4>
+                                                    <div className="flex items-center gap-4 mt-1">
+                                                        <div className="flex items-center gap-1.5 text-[10px] text-gray-400 font-bold uppercase tracking-wider">
+                                                            <Clock size={12} className="text-purple-500/80" />
+                                                            {event.time}
+                                                        </div>
+                                                        <div className="flex items-center gap-1.5 text-[10px] text-gray-400 font-bold uppercase tracking-wider">
+                                                            <MapPin size={12} className="text-blue-500/80" />
+                                                            {event.venue}
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="ml-auto relative z-30"> 
+                                                    <motion.button
+                                                        whileHover={{ scale: 1.05 }}
+                                                        whileTap={{ scale: 0.95 }}
+                                                        className="px-5 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-[9px] font-black uppercase tracking-[0.15em] text-white hover:bg-white hover:text-black hover:border-white transition-all duration-300 shadow-[0_4px_12px_rgba(0,0,0,0.5)]"
+                                                    >
+                                                        Access
+                                                    </motion.button>
+                                                </div>
+                                            </div>
+                                        </motion.div>
+                                    );
+                                })}
                             </div>
-                            <div className="flex items-center gap-1.5 text-[10px] text-gray-400 font-bold uppercase tracking-wider">
-                                <MapPin size={12} className="text-blue-500/80" />
-                                {event.venue}
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* --- ACCESS BUTTON: Increased visibility with solid background and higher Z-index --- */}
-                    <div className="ml-auto relative z-30"> {/* 👈 High z-index to stay above artwork */}
-                        <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            className="px-5 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-[9px] font-black uppercase tracking-[0.15em] text-white hover:bg-white hover:text-black hover:border-white transition-all duration-300 shadow-[0_4px_12px_rgba(0,0,0,0.5)]"
-                        >
-                            Access
-                        </motion.button>
-                    </div>
-                </div>
-            </motion.div>
-        );
-    })}
-</div>
                         </motion.div>
                     </div>
                 </div>
