@@ -236,7 +236,7 @@ function DashboardContent() {
                 
                 {/* --- LEFT SIDE: STICKY VISUALS --- */}
                 <div className="hidden lg:block w-[35%] bg-black border-r border-white/5 relative">
-                    <div className="sticky top-0 h-screen max-h-[85vh] overflow-hidden">
+                    <div className="sticky top-0 h-screen max-h-[100vh] overflow-hidden">
                         <Link 
                             href="/"
                             className="absolute top-8 left-8 z-30 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-white/60 hover:text-white transition-all duration-300 group"

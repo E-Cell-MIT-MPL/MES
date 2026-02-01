@@ -162,6 +162,8 @@ export default function SignupPage() {
         
         {/* --- LEFT SIDE: VISUALS (60%) --- */}
         <div className="hidden lg:block w-[60%] h-full relative overflow-hidden bg-black">
+            
+            {/* BACK BUTTON */}
             <Link 
                 href="/"
                 className="absolute top-8 right-8 z-30 flex items-center gap-2 px-4 py-2 rounded-full bg-black/20 backdrop-blur-md border border-white/10 text-xs font-bold uppercase tracking-wider text-white hover:bg-white/10 transition-all duration-300 group"
@@ -170,31 +172,38 @@ export default function SignupPage() {
                 Back to website
             </Link>
 
-            <div className="absolute inset-0 opacity-90">
+            {/* BACKGROUND WAVES (Fixed Cutoff) */}
+            {/* Added 'scale-110' to zoom in slightly and push edges out of view */}
+            {/* Added 'w-full h-full' to ensure container fills completely */}
+            <div className="absolute inset-0 w-full h-full opacity-90 scale-110 origin-center pointer-events-none">
                 <ColorBends colors={['#7e22ce', '#3b82f6', '#000000']} speed={0.25} />
             </div>
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/20" />
 
+            {/* GRADIENT OVERLAY (Smoothens the look) */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/20 pointer-events-none" />
+
+            {/* CONTENT SLIDER */}
             <div className="absolute bottom-12 left-12 z-20 max-w-lg">
                 <div className="h-[140px] flex items-end">
-                <AnimatePresence mode='wait'>
-                    <motion.div
-                        key={currentSlide}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -20 }}
-                        transition={{ duration: 0.5, ease: "easeInOut" }}
-                    >
-                        <h2 className="text-5xl xl:text-6xl font-serif-display italic font-bold mb-4 text-white leading-tight">
-                            {SLIDES[currentSlide].title}
-                        </h2>
-                        <p className="text-gray-400 text-sm xl:text-base leading-relaxed max-w-sm">
-                            {SLIDES[currentSlide].desc}
-                        </p>
-                    </motion.div>
-                </AnimatePresence>
+                    <AnimatePresence mode='wait'>
+                        <motion.div
+                            key={currentSlide}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -20 }}
+                            transition={{ duration: 0.5, ease: "easeInOut" }}
+                        >
+                            <h2 className="text-5xl xl:text-6xl font-serif-display italic font-bold mb-4 text-white leading-tight">
+                                {SLIDES[currentSlide].title}
+                            </h2>
+                            <p className="text-gray-400 text-sm xl:text-base leading-relaxed max-w-sm">
+                                {SLIDES[currentSlide].desc}
+                            </p>
+                        </motion.div>
+                    </AnimatePresence>
                 </div>
                 
+                {/* INDICATORS */}
                 <div className="flex gap-2 mt-8">
                     {SLIDES.map((_, index) => (
                         <div 
