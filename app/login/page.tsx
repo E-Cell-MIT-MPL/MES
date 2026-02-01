@@ -10,8 +10,8 @@ import dynamic from 'next/dynamic';
 const ColorBends = dynamic(() => import('@/components/ColorBends'), { ssr: false });
 
 // Ensure this matches your Render URL in the dashboard environment variables
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
-
+// Remove the localhost fallback so it doesn't default to your laptop's address
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://mes-backend-47zl.onrender.com";
 const SLIDES = [
   {
     title: <>Welcome Back,<br />Innovator.</>,
