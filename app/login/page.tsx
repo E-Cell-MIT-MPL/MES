@@ -63,9 +63,10 @@ export default function LoginPage() {
       const data = await response.json();
 
       if (response.ok) {
-        // SUCCESS: Redirecting immediately to prevent state reset "refresh"
-        // replace() is better for logins so they can't 'back' into the login form
-        router.replace('/student'); 
+        console.log("Login successful, redirecting...");
+        // Use window.location to force a full refresh into the dashboard
+        // This ensures the new cookie is picked up immediately
+        window.location.href = '/student'; 
       } else {
         setError(data.message || "Login failed.");
         setLoading(false);
