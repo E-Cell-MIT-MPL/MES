@@ -1,11 +1,11 @@
 "use client";
 
-import React, { Suspense, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { CheckCircle, Loader2 } from "lucide-react";
 import apiClient from "@/app/lib/api-client";
 
-function PaymentSuccessClient() {
+export default function PaymentSuccessClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const ticketId = searchParams.get("ticketId");
@@ -13,10 +13,9 @@ function PaymentSuccessClient() {
 
   useEffect(() => {
     if (ticketId) {
-      // Optional: Verify status from backend to be sure
       apiClient.get(`/payment/status/${ticketId}`)
         .then(() => {
-           localStorage.setItem("hasTicket", "true"); // Unlock dashboard
+           localStorage.setItem("hasTicket", "true");
            setLoading(false);
         })
         .catch((err) => console.error(err));
@@ -51,13 +50,5 @@ function PaymentSuccessClient() {
         )}
       </div>
     </div>
-  );
-}
-
-export default function PaymentSuccess() {
-  return (
-    <Suspense fallback={<div className="min-h-screen bg-[#05070c] flex items-center justify-center"><div className="text-white">Loading...</div></div>}>
-      <PaymentSuccessClient />
-    </Suspense>
   );
 }
