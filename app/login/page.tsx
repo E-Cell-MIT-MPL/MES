@@ -72,7 +72,8 @@ export default function LoginPage() {
         setLoading(false);
       }
     } catch (err) {
-      setError(`Connection failed. Check if Render is awake at ${BACKEND_URL}`);
+      console.error("DEBUG LOGIN ERROR:", err);
+      setError("Server is waking up. Please try again in 10 seconds.");
       setLoading(false);
     }
   };
