@@ -1,21 +1,29 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { useRef, useMemo, useEffect } from "react";
+import { motion, useScroll, useTransform, MotionValue } from "framer-motion";
 
 // --- [STOCK CHART COMPONENT] ---
+// (Unchanged, but now it won't be forced to re-render constantly)
 function StockChart({ color }: { color: "green" | "red" }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d", { alpha: true });
     if (!ctx) return;
-    const scale = window.devicePixelRatio || 2;
-    canvas.width = 4000 * scale; 
-    canvas.height = 800 * scale;
-    ctx.scale(scale, scale);
+    
+    // Optimization: Handle High DPI displays without heavy processing
+    const dpr = window.devicePixelRatio || 1;
+    const width = 4000;
+    const height = 800;
+    
+    canvas.width = width * dpr; 
+    canvas.height = height * dpr;
+    ctx.scale(dpr, dpr);
 
+    // Generate static data once to save CPU
     const generateData = () => {
       const p = []; let v = 200;
       for (let i=0; i<200; i++) { 
@@ -25,18 +33,46 @@ function StockChart({ color }: { color: "green" | "red" }) {
       }
       return p;
     };
-    let dataPoints = generateData(); let offset = 0;
+    
+    let dataPoints = generateData(); 
+    let offset = 0;
+    let animationFrameId: number;
+    let lastTime = 0;
+    const fpsInterval = 1000 / 30; // Limit to 30fps for performance style
 
-    const draw = () => {
-      ctx.clearRect(0, 0, 4000, 800); ctx.lineWidth = 2;
+    const draw = (time: number) => {
+      animationFrameId = requestAnimationFrame(draw);
+      
+      const elapsed = time - lastTime;
+      if (elapsed < fpsInterval) return;
+      lastTime = time - (elapsed % fpsInterval);
+
+      offset += 0.2; 
+      if (offset > dataPoints.length) {
+          // Recycle data instead of regenerating to save GC
+          offset = 0;
+      }
+
+      ctx.clearRect(0, 0, width, height); 
+      ctx.lineWidth = 2;
       ctx.strokeStyle = color==="green"?"rgba(34,197,94,0.2)":"rgba(239,68,68,0.2)";
-      for(let y=0; y<800; y+=80){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(4000,y);ctx.stroke();}
-      for(let x=0; x<4000; x+=80){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,800);ctx.stroke();}
+      
+      // Draw Grid
+      for(let y=0; y<height; y+=80){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(width,y);ctx.stroke();}
+      for(let x=0; x<width; x+=80){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,height);ctx.stroke();}
+      
+      // Draw Candles
       const candleW=20; const spacing=24;
       for(let i=0; i<180; i++){
         const idx = Math.floor((i+offset)%dataPoints.length);
-        const x=i*spacing; const o=dataPoints[idx]; const c=dataPoints[(idx+1)%dataPoints.length];
-        const h=Math.max(o,c)+Math.random()*20; const l=Math.min(o,c)-Math.random()*20;
+        const x=i*spacing; 
+        const o=dataPoints[idx]; 
+        const c=dataPoints[(idx+1)%dataPoints.length];
+        
+        // Simple random movement for "live" feel
+        const h=Math.max(o,c)+ (Math.sin(i + offset) * 10); 
+        const l=Math.min(o,c)- (Math.cos(i + offset) * 10);
+        
         const isG=c>o;
         ctx.fillStyle=color==="green"?(isG?"rgba(34,197,94,1)":"rgba(34,197,94,0.6)"):(isG?"rgba(239,68,68,0.6)":"rgba(239,68,68,1)");
         ctx.strokeStyle=ctx.fillStyle;
@@ -44,51 +80,55 @@ function StockChart({ color }: { color: "green" | "red" }) {
         ctx.fillRect(x,Math.min(o,c),candleW,Math.abs(c-o));
       }
     };
-    let id:number; let last=0;
-    const loop=(t:number)=>{
-        if(t-last>100){ offset+=0.2; if(offset>dataPoints.length){dataPoints=generateData();offset=0;} draw(); last=t;}
-        id=requestAnimationFrame(loop);
-    };
-    loop(0);
-    return ()=>cancelAnimationFrame(id);
+    
+    draw(0);
+    return () => cancelAnimationFrame(animationFrameId);
   }, [color]);
+
   return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full opacity-60" style={{mixBlendMode:"screen"}}/>;
 }
 
-// --- HELPER: 3D TEXT WITH VISIBILITY LOGIC ---
+// --- [OPTIMIZED HELPER: 3D TEXT] ---
+// Now accepts MotionValue instead of raw number to avoid React Renders
 const TunnelText = ({ 
   text, 
-  z, 
-  currentZ, 
+  zOffset, 
+  tunnelZ, 
   color = "white" 
 }: { 
   text: string, 
-  z: number, 
-  currentZ: number, 
+  zOffset: number, 
+  tunnelZ: MotionValue<number>, 
   color?: string 
 }) => {
-  const relativePos = z + currentZ;
-  let opacity = 0;
+  
+  // Calculate opacity purely via Framer Motion transforms (GPU based)
+  // Logic: RelativePos = zOffset + currentTunnelZ
+  // We want it visible when RelativePos is between -100 and 200
+  
+  // Math: 
+  // If we want Opacity 1 at RelativePos -100...
+  // -100 = zOffset + tunnelZ  ->  tunnelZ = -100 - zOffset
+  
+  const inStart = -600 - zOffset;
+  const inFull = -100 - zOffset;
+  const outStart = 200 - zOffset;
+  const outEnd = 400 - zOffset;
 
-  // VISIBILITY WINDOW
-  if (relativePos > -600 && relativePos < -100) {
-    opacity = (relativePos + 600) / 500;
-  }
-  else if (relativePos >= -100 && relativePos < 200) {
-    opacity = 1;
-  }
-  else if (relativePos >= 200 && relativePos < 400) {
-    opacity = 1 - ((relativePos - 200) / 200);
-  }
+  const opacity = useTransform(
+    tunnelZ,
+    [inStart, inFull, outStart, outEnd],
+    [0, 1, 1, 0]
+  );
 
   return (
-    <div 
+    <motion.div 
       className="absolute top-1/2 left-1/2 flex items-center justify-center pointer-events-none"
       style={{
-        transform: `translate(-50%, -50%) translateZ(${z}px)`,
+        // Use translateZ directly in style to keep it performant
+        transform: `translate(-50%, -50%) translateZ(${zOffset}px)`,
         width: '100%',
-        opacity: Math.max(0, Math.min(1, opacity)),
-        transition: 'opacity 0.1s linear',
+        opacity: opacity, 
       }}
     >
       <h2 
@@ -100,7 +140,7 @@ const TunnelText = ({
       >
         {text}
       </h2>
-    </div>
+    </motion.div>
   );
 };
 
@@ -108,45 +148,34 @@ const TunnelText = ({
 const TUNNEL_DEPTH_PX = 4000;
 const GRID_ROWS = 10;
 const GRID_COLS = 80;
-// FIX 1: Define a set scroll distance for the tunnel interaction
 const SCROLL_HEIGHT = 4500; 
 
 export default function Tunnel() {
   const tunnelRef = useRef<HTMLDivElement>(null);
   
-  // FIX 2: useScroll relative to THIS component
   const { scrollYProgress } = useScroll({
     target: tunnelRef,
     offset: ["start start", "end end"]
   });
 
-  // FIX 3: Map scroll progress (0 to 1) directly to animation values
-  // This ensures animation ends EXACTLY when scroll ends
-  const z = useTransform(scrollYProgress, [0, 0.9], [-50, 4500]); // Travel 4500px in first 90%
-  const flash = useTransform(scrollYProgress, [0.85, 0.95, 1], [0, 1, 1]); // Flash happens in last 15%
-
-  // We need raw values for the TunnelText logic
-  const [currentZ, setCurrentZ] = useState(-50);
+  // Map scroll progress to Z depth
+  const z = useTransform(scrollYProgress, [0, 0.9], [-50, 4500]);
   
-  // Subscribe to motion value to update state for 3D Text logic
-  useEffect(() => {
-    return z.on("change", (latest) => {
-      setCurrentZ(latest);
-    });
-  }, [z]);
+  // Flash effect at the end
+  const flash = useTransform(scrollYProgress, [0.85, 0.95, 1], [0, 1, 1]);
+  const tunnelOpacity = useTransform(flash, (v) => 1 - v);
 
-  const walls = [
+  // Memoize static arrays to prevent garbage collection on re-renders
+  const walls = useMemo(() => [
     { origin: "left center", transform: "rotateY(90deg)", width: `${TUNNEL_DEPTH_PX}px`, height: "100%", left: "0px", top: "0px", type: "side", side: "left" },
     { origin: "right center", transform: "rotateY(-90deg)", width: `${TUNNEL_DEPTH_PX}px`, height: "100%", right: "0px", top: "0px", type: "side", side: "right" },
     { origin: "top center", transform: "rotateX(-90deg)", height: `${TUNNEL_DEPTH_PX}px`, width: "100%", top: "0px", left: "0px", type: "flat", side: "top" },
     { origin: "bottom center", transform: "rotateX(90deg)", height: `${TUNNEL_DEPTH_PX}px`, width: "100%", bottom: "0px", left: "0px", type: "flat", side: "bottom" },
-  ];
+  ], []);
 
-  const gridSquares = Array.from({ length: GRID_ROWS * GRID_COLS });
+  const gridSquares = useMemo(() => Array.from({ length: GRID_ROWS * GRID_COLS }), []);
 
   return (
-    // FIX 4: Set height to our defined scroll duration. 
-    // Once user scrolls 4500px, the component ends, sticky breaks, and we move to next section.
     <div ref={tunnelRef} className="relative bg-black" style={{ height: `${SCROLL_HEIGHT}px` }}>
       
       <div className="w-full h-screen sticky top-0 overflow-hidden" 
@@ -156,14 +185,14 @@ export default function Tunnel() {
           className="w-full h-full absolute top-0 left-0"
           style={{
             transformStyle: "preserve-3d",
-            z: z, // Framer Motion handles the transform directly
-            opacity: useTransform(flash, (v) => 1 - v), // Fade tunnel out as flash comes in
+            z: z, // Direct hardware accelerated animation
+            opacity: tunnelOpacity, 
           }}
         >
-          {/* TEXT POSITIONS */}
-          <TunnelText text="WELCOME TO" z={-400} currentZ={currentZ} /> 
-          <TunnelText text="MES 2026" z={-1500} currentZ={currentZ} /> 
-          <TunnelText text="EXPECT THE UNEXPECTED" z={-2800} currentZ={currentZ} />
+          {/* TEXT - PASSING THE RAW MOTION VALUE */}
+          <TunnelText text="WELCOME TO" zOffset={-400} tunnelZ={z} /> 
+          <TunnelText text="MES 2026" zOffset={-1500} tunnelZ={z} /> 
+          <TunnelText text="EXPECT THE UNEXPECTED" zOffset={-2800} tunnelZ={z} />
 
           {/* WALLS */}
           {walls.map((wall, i) => (
@@ -182,11 +211,14 @@ export default function Tunnel() {
                 backfaceVisibility: "hidden" 
               }}
             >
+              {/* Only render Chart on sides */}
               {(wall.side === "left" || wall.side === "right") && (
-                <div className="absolute inset-0 pointer-events-none">
+                <div className="absolute inset-0 pointer-events-none transform-gpu">
                   <StockChart color={wall.side === "left" ? "green" : "red"} />
                 </div>
               )}
+              
+              {/* Grid Lines */}
               {gridSquares.map((_, j) => (
                 <div key={j} className={`bg-black/90 border ${
                   wall.side === "left" ? "border-green-500/30 shadow-[0_0_8px_rgba(34,197,94,0.1)]" :

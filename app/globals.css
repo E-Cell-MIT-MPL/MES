@@ -1,11 +1,9 @@
 @import "tailwindcss";
 
+/* --- THEME & ROOT VARIABLES --- */
 :root {
   --background: #ffffff;
   --foreground: #171717;
-}
-html {
-  scroll-behavior: smooth;
 }
 
 @theme inline {
@@ -22,17 +20,46 @@ html {
   }
 }
 
+/* --- LENIS SMOOTH SCROLL (CRITICAL FIXES) --- */
+html.lenis, html.lenis body {
+  height: auto;
+}
+
+/* FIX: Force 'auto' so browser doesn't fight Lenis */
+html {
+  scroll-behavior: auto !important; 
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-scrolling iframe {
+  pointer-events: none;
+}
+
+/* --- BASE STYLES --- */
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  overflow-x: hidden; /* Prevents horizontal scroll */
 }
+
+/* --- ANIMATIONS --- */
 @keyframes fadeIn {
   from {
     opacity: 0;
     transform: translateY(8px) scale(0.95);
   }
-
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -41,32 +68,6 @@ body {
 
 .animate-fade-in {
   animation: fadeIn 0.4s ease-out;
-}
-@import "tailwindcss";
-
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
 }
 
 
@@ -114,7 +115,6 @@ body {
   width: max-content;
   min-width: 200vw; 
 }
-
 
 .track.left {
   animation: scrollLeft 70s linear infinite;
@@ -195,14 +195,14 @@ body {
   padding: 12px;
   border-radius: 10px;
   border: none;
-  background: rgba(255,255,255,0.12);
+  background: rgba(255, 255, 255, 0.12);
   color: white;
   outline: none;
       pointer-events: auto;
 }
 
 .login-box input::placeholder {
-  color: rgba(255,255,255,0.5);
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .login-box button {

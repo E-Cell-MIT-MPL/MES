@@ -2,7 +2,7 @@ import { useRef, useMemo } from 'react';
 import { useFrame, useLoader } from '@react-three/fiber';
 import * as THREE from 'three';
 
-const BILL_COUNT = 750;
+const BILL_COUNT = 250;
 
 function DollarRain() {
   const meshRef = useRef<THREE.InstancedMesh>(null!);
@@ -14,10 +14,11 @@ function DollarRain() {
       temp.push({
         t: Math.random() * 100,
         speed: 0.05 + Math.random() * 0.1,
-        xFactor: -15 + Math.random() * 30,
-        // FIX 1: Reduce Z range from 30 to 20. 
-        // Keeps bills safely away from the camera at z=16.
-        zFactor: -10 + Math.random() * 20, 
+        // FIX: Tighten this range to restrict width
+        // A range of -2 to 2 (total width of 4) keeps it strictly in the center
+        xFactor: -2 + Math.random() * 4, 
+        // Keeps bills safely behind the camera
+        zFactor: -5 + Math.random() * 10, 
       });
     }
     return temp;
@@ -25,17 +26,18 @@ function DollarRain() {
 
   const dummy = new THREE.Object3D();
 
-  useFrame((state) => {
-    particles.forEach((particle, i) => {      let { speed, xFactor, zFactor } = particle;
+  useFrame(() => {
+    particles.forEach((particle, i) => {
+      let { speed, xFactor, zFactor } = particle;
       
       particle.t += speed;
-      const y = 20 - (particle.t % 35); 
+      // Increased fall distance to ensure they don't pop out of existence too early
+      const y = 25 - (particle.t % 45); 
       
       dummy.position.set(xFactor, y, zFactor);
       
-      // Fluttering effect
+      // Realistic fluttering
       dummy.rotation.set(particle.t * 0.8, particle.t * 0.4, particle.t * 0.2);
-      // Aspect ratio of a USD bill is roughly 2.3:1
       dummy.scale.set(1.2, 0.5, 1); 
       
       dummy.updateMatrix();
@@ -44,22 +46,21 @@ function DollarRain() {
     meshRef.current.instanceMatrix.needsUpdate = true;
   });
 
-  // Inside DollarRain function
-return (
-  <instancedMesh 
-    ref={meshRef} 
-    args={[null!, null!, BILL_COUNT]}
-    frustumCulled={false}  // <--- ADD THIS LINE
-  >
-    <planeGeometry args={[1, 1]} />
-    <meshBasicMaterial 
-      map={texture} 
-      side={THREE.DoubleSide} 
-      transparent={true}
-      depthWrite={false} // Recommended: Set to false for transparent particles to avoid black outlines
-    />
-  </instancedMesh>
-);
+  return (
+    <instancedMesh 
+      ref={meshRef} 
+      args={[null!, null!, BILL_COUNT]}
+      frustumCulled={false} 
+    >
+      <planeGeometry args={[1, 1]} />
+      <meshBasicMaterial 
+        map={texture} 
+        side={THREE.DoubleSide} 
+        transparent={true}
+        depthWrite={false} 
+      />
+    </instancedMesh>
+  );
 }
 
 export default DollarRain;

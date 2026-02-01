@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 // 1. Import the provider
+import Lenis from 'lenis'
 import { AuthProvider } from "./lib/auth-context"; 
+import SmoothScroll from "../components/SmoothScroll";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,7 +33,9 @@ export default function RootLayout({
       >
         {/* 2. Wrap children with AuthProvider */}
         <AuthProvider>
+        <SmoothScroll>
             {children}
+            </SmoothScroll>
         </AuthProvider>
       </body>
     </html>
