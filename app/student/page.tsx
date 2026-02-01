@@ -466,6 +466,24 @@ function DashboardContent() {
                                     );
                                 })}
                             </div>
+                        </div>
+                    </div>
+
+                    {/* --- ACCESS BUTTON: Increased visibility with solid background and higher Z-index --- */}
+                    <div className="ml-auto relative z-30"> {/* 👈 High z-index to stay above artwork */}
+                        <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            className="px-5 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-[9px] font-black uppercase tracking-[0.15em] text-white hover:bg-white hover:text-black hover:border-white transition-all duration-300 shadow-[0_4px_12px_rgba(0,0,0,0.5)]"
+                        >
+                            Access
+                        </motion.button>
+                    </div>
+                </div>
+            </motion.div>
+        );
+    })}
+</div>
                         </motion.div>
                     </div>
                 </div>
