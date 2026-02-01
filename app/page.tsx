@@ -4,7 +4,7 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { PerspectiveCamera, useGLTF, useAnimations } from "@react-three/drei";
 import { useRef, useEffect, useState, Suspense, useLayoutEffect, useMemo } from "react";
 import * as THREE from "three";
-import { motion, useInView, useAnimation, Variants } from "framer-motion";
+import { motion, useInView, useAnimation, Variants, useTransform, useScroll, useSpring } from "framer-motion";
 import { SkeletonUtils } from "three-stdlib";
 import Prism from "../components/Prism";
 import Image from "next/image";
@@ -13,7 +13,6 @@ import DollarRain from "@/components/DollarRain";
 import Navbar from "@/components/Navbar";
 import CardSwap, { Card, CardSwapHandle } from "../components/CardsSwap";
 import { Check, ArrowUpRight, Linkedin, Twitter } from "lucide-react"; 
-
 // =========================================
 // SCROLL DEBUGGER
 // =========================================
@@ -160,35 +159,29 @@ function BlurReveal({ children, delay = 0, className = "" }: { children: React.R
 // =========================================
 function HeroBusinessman() {
   const group = useRef<THREE.Group>(null);
-  const model1 = useGLTF("/models/BusinessmanFinal.glb");
-  const model2 = useGLTF("/models/onlyGreeting.glb"); 
-  const actions1 = useAnimations(model1.animations, group).actions;
-  const actions2 = useAnimations(model2.animations, group).actions;
-  const [showSecondModel, setShowSecondModel] = useState(false);
-  const [startRain, setStartRain] = useState(false);
+  const { scene, animations } = useGLTF("/models/BusinessmanFinal.glb");
+  const { actions } = useAnimations(animations, group);
+  
+  // Set startRain to true immediately
+  const [startRain] = useState(true);
 
   useEffect(() => {
-    const idleAction = actions1["idle"];
-    idleAction?.reset().fadeIn(0.5).play();
-
-    const timer = setTimeout(() => {
-      setShowSecondModel(true);
-      const greetAction = actions2[""] || Object.values(actions2).find(a => a!.getClip().name.toLowerCase().includes("greet"));
-      if (greetAction) greetAction.reset().fadeIn(0.1).play();
-      setStartRain(true);
-    }, 1500); 
-
-    return () => clearTimeout(timer);
-  }, [actions1, actions2]);
+    // Locate the greeting animation immediately
+    const greetAction = actions["greet"] || 
+                        Object.values(actions).find(a => a!.getClip().name.toLowerCase().includes("greet"));
+    
+    if (greetAction) {
+      // Play immediately with no fade-in delay for maximum "snap"
+      greetAction.reset().play();
+    }
+  }, [actions]);
 
   return (
     <group ref={group}>
-      {!showSecondModel && (
-        <primitive object={model1.scene} position={[0, -7.5, 0]} scale={500} />
-      )}
-      {showSecondModel && (
-        <primitive object={model2.scene} position={[0, -1.0, 0]} scale={500} />
-      )}
+      {/* The model is present and animating from frame one */}
+      <primitive object={scene} position={[0, -7.5, 0]} scale={500} />
+      
+      {/* Rain starts immediately on mount */}
       {startRain && <DollarRain />}
     </group>
   );
@@ -198,112 +191,151 @@ useGLTF.preload("/models/BusinessmanFinal.glb");
 // =========================================
 // DATA FOR EVENTS (REAL DATA)
 // =========================================
+// =========================================
+// 3. UPDATED EVENTS SECTION (Cinematic Cards)
+// =========================================
+
+// =========================================
+// 3. UPDATED EVENTS SECTION (Fixed Image Links)
+// =========================================
+
 const REAL_EVENTS = [
-  {
-    date: "7 Feb",
-    title: "Conceptio Ideathon",
-    desc: "A high-energy ideation sprint where teams brainstorm, validate, and pitch innovative solutions.",
-    link: "https://unstop.com/competitions/conceptio-manipal-entrepreneurship-summit-2026-manipal-institute-of-technology-manipal-1607202",
-    color: "border-purple-500 hover:shadow-purple-500/20"
+  { 
+    date: "7 Feb", 
+    title: "Conceptio Ideathon", 
+    desc: "A high-energy ideation sprint where teams brainstorm, validate, and pitch innovative solutions.", 
+    link: "https://unstop.com/", 
+    // Image: Abstract Tech Team / Brainstorming
+    image: "https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=800&auto=format&fit=crop"
   },
-  {
-    date: "10 Feb",
-    title: "Money Quest",
-    desc: "A finance-focused challenge testing strategy, risk-taking, and decision-making skills.",
-    link: "https://unstop.com/competitions/money-quest-manipal-entrepreneurship-summit-2026-manipal-institute-of-technology-manipal-1620675?lb=manUB5ka&utm_medium=Share&utm_source=shiveshq9014&utm_campaign=Competitions",
-    color: "border-green-500 hover:shadow-green-500/20"
+  { 
+    date: "10 Feb", 
+    title: "Money Quest", 
+    desc: "A finance-focused challenge testing strategy, risk-taking, and decision-making skills.", 
+    link: "https://unstop.com/", 
+    // FIXED IMAGE: High-contrast Dark Trading Charts
+image:"https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?q=80&w=800&auto=format&fit=crop"  },
+  { 
+    date: "10 Feb", 
+    title: "Exclusive Workshop", 
+    desc: "A hands-on, expert-led workshop offering deep insights and practical takeaways.", 
+    link: "#", 
+    // Image: Collaborative Workshop
+    image: "https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=800&auto=format&fit=crop"
   },
-  {
-    date: "10 Feb",
-    title: "Exclusive Workshop",
-    desc: "A hands-on, expert-led workshop offering deep insights and practical takeaways.",
-    link: "/events/exclusive-workshop",
-    color: "border-cyan-500 hover:shadow-cyan-500/20"
+  { 
+    date: "11 Feb", 
+    title: "Innovation Policy", 
+    desc: "A consortium-style discussion on innovation frameworks, governance, and policy impact.", 
+    link: "#", 
+    // Image: Corporate Round Table
+    image: "https://images.unsplash.com/photo-1577962917302-cd874c4e31d2?q=80&w=800&auto=format&fit=crop"
   },
-  {
-    date: "11 Feb",
-    title: "Innovation Policy",
-    desc: "A consortium-style discussion on innovation frameworks, governance, and policy impact.",
-    link: "https://www.ecellmit.in/ipc",
-    color: "border-orange-500 hover:shadow-orange-500/20"
+  { 
+    date: "11 Feb", 
+    title: "Postmortem", 
+    desc: "An analytical postmortem session uncovering blind spots, failures, and lessons from real cases.", 
+    link: "#", 
+    // Image: Dark Chess / Strategy
+    image: "https://images.unsplash.com/photo-1606326608606-aa0b62935f2b?q=80&w=800&auto=format&fit=crop"
   },
-  {
-    date: "11 Feb",
-    title: "Postmortem",
-    desc: "An analytical postmortem session uncovering blind spots, failures, and lessons from real cases.",
-    link: "https://unstop.com/competitions/postmortem-manipal-entrepreneurship-summit-2026-manipal-institute-of-technology-manipal-1622583",
-    color: "border-red-500 hover:shadow-red-500/20"
-  },
-  {
-    date: "12 Feb",
-    title: "Inauguration",
-    desc: "The official inauguration marking the beginning of the event series.",
-    link: "/events/inauguration-ceremony",
-    color: "border-blue-500 hover:shadow-blue-500/20"
+  { 
+    date: "12 Feb", 
+    title: "Inauguration", 
+    desc: "The official inauguration marking the beginning of the event series.", 
+    link: "#", 
+    // Image: Stage Lighting / Event
+    image: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=800&auto=format&fit=crop"
   },
   {
     date: "13 Feb",
     title: "Pitch Tank",
     desc: "Startup-style pitch sessions where teams present ideas to a judging panel.",
-    link: "https://unstop.com/competitions/pitchtank-manipal-entrepreneurship-summit-2026-manipal-institute-of-technology-manipal-1610364",
-    color: "border-pink-500 hover:shadow-pink-500/20"
+    link: "#", 
+    // Image: Microphone / Speaker
+    image: "https://images.unsplash.com/photo-1559136555-9303baea8ebd?q=80&w=800&auto=format&fit=crop"
   },
   {
     date: "14 Feb",
     title: "Innovation Mela",
     desc: "A vibrant exhibition of innovative ideas, prototypes, and creative projects.",
-    link: "https://docs.google.com/forms/d/e/1FAIpQLSccbx4GNrM3zdvwWszk5issp7FQfK9cbudltI80pMIDXPiFLw/viewform",
-    color: "border-yellow-500 hover:shadow-yellow-500/20"
+    link: "#",
+    // Image: Futuristic Abstract / Expo
+    image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=800&auto=format&fit=crop"
   },
   {
     date: "14 Feb",
     title: "Case Maze",
     desc: "A competitive case-solving challenge designed to test analytical thinking.",
-    link: "https://unstop.com/competitions/case-maze-manipal-entrepreneurship-summit-2026-manipal-institute-of-technology-manipal-1616137",
-    color: "border-teal-500 hover:shadow-teal-500/20"
-  },
+    link: "#",
+    // Image: Abstract Maze / Geometry
+    image: "https://images.unsplash.com/photo-1616628188859-7a11abb6fcc9?q=80&w=800&auto=format&fit=crop"
+  }
 ];
 
-// =========================================
-// 1. UPDATED EVENTS SECTION (BENTO STYLE)
-// =========================================
 function EventsPage() {
   return (
     <section className="py-32 bg-[#050505]">
       <div className="max-w-7xl mx-auto px-6">
         <BlurReveal>
-            <h2 className="text-6xl md:text-8xl font-serif-display italic font-bold text-white mb-16 text-center">
-            Event Schedule
-            </h2>
+            <div className="text-center mb-16">
+                <p className="text-purple-500 font-mono text-[10px] tracking-[0.4em] uppercase mb-4">The Agenda // 03</p>
+                <h2 className="text-6xl md:text-8xl font-serif-display italic font-bold text-white">Event Schedule</h2>
+            </div>
         </BlurReveal>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {REAL_EVENTS.map((event, idx) => (
             <BlurReveal key={idx} delay={idx * 0.1} className="h-full">
-                <div
-                onClick={() => window.open(event.link, "_blank")}
-                className={`group relative p-8 rounded-2xl bg-white/5 border-t-4 ${event.color} border-x border-b border-white/5 hover:-translate-y-2 transition-all duration-300 hover:shadow-2xl cursor-pointer h-full flex flex-col`}
-                >
-                <div className="flex justify-between items-start mb-6">
-                    <span className="px-3 py-1 bg-white/10 rounded text-xs font-mono text-white backdrop-blur-sm">
-                    {event.date}
-                    </span>
-                    <ArrowUpRight className="text-gray-500 group-hover:text-white group-hover:translate-x-1 group-hover:-translate-y-1 transition-all duration-300" />
+              <div 
+                onClick={() => window.open(event.link, "_blank")} 
+                className="group relative h-[500px] rounded-[2.5rem] bg-[#0c0c0c] border border-white/5 overflow-hidden cursor-pointer transition-transform duration-500 hover:scale-[1.02] hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)]"
+              >
+                
+                {/* 1. Full Background Image */}
+                <div className="absolute inset-0">
+                    <Image 
+                        src={event.image} 
+                        alt={event.title} 
+                        fill 
+                        className="object-cover transition-transform duration-700 group-hover:scale-110 opacity-80 group-hover:opacity-100" 
+                    />
                 </div>
-                
-                <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-gray-400 transition-all">
-                    {event.title}
-                </h3>
-                
-                <p className="text-gray-400 text-sm leading-relaxed mb-8 flex-grow">
-                    {event.desc}
-                </p>
 
-                <div className="text-sm font-bold text-gray-500 group-hover:text-white uppercase tracking-wider flex items-center gap-2 mt-auto">
-                    <span>Register Now</span>
-                    <div className="h-px w-8 bg-gray-500 group-hover:bg-white transition-all" />
+                {/* 2. Cinematic Gradient Overlay (Ensures text readability) */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent opacity-90 transition-opacity duration-500 group-hover:opacity-80" />
+
+                {/* 3. Content Layer */}
+                <div className="relative h-full flex flex-col p-10 z-10 justify-between">
+                    
+                    {/* Top Row: Date Badge & Arrow */}
+                    <div className="flex justify-between items-start">
+                        <div className="px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/10">
+                            <span className="text-xs font-bold text-white uppercase tracking-[0.15em]">{event.date}</span>
+                        </div>
+                        <div className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md border border-white/10 text-white flex items-center justify-center opacity-70 group-hover:opacity-100 group-hover:bg-white group-hover:text-black transition-all duration-300">
+                            <ArrowUpRight size={20} />
+                        </div>
+                    </div>
+
+                    {/* Bottom Row: Title, Desc, Button */}
+                    <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                        <h3 className="text-4xl font-serif-display italic font-bold text-white mb-3 leading-[0.9]">
+                            {event.title}
+                        </h3>
+                        <p className="text-gray-300 text-sm font-light leading-relaxed line-clamp-2 mb-6 opacity-80 group-hover:opacity-100 transition-opacity">
+                            {event.desc}
+                        </p>
+                        
+                        <div className="pt-6 border-t border-white/20 flex items-center justify-between">
+                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Flagship Event</span>
+                            <span className="text-sm font-bold text-white underline decoration-white/30 underline-offset-4 group-hover:decoration-white transition-all">
+                                Register
+                            </span>
+                        </div>
+                    </div>
                 </div>
-                </div>
+              </div>
             </BlurReveal>
           ))}
         </div>
@@ -311,140 +343,143 @@ function EventsPage() {
     </section>
   );
 }
-
 // =========================================
 // EXPANDING SECTION
 // =========================================
-function ExpandingSection() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const cardSwapRef = useRef<CardSwapHandle>(null);
-  const [progress, setProgress] = useState(0);
-  const lastTriggerRef = useRef(0); 
 
-  useEffect(() => {
-      const handleScroll = () => {
-          if (!containerRef.current) return;
-          const rect = containerRef.current.getBoundingClientRect();
-          const totalDistance = rect.height - window.innerHeight;
-          const scrolled = -rect.top;
-          setProgress(Math.max(0, Math.min(1, scrolled / totalDistance)));
-      };
-      window.addEventListener("scroll", handleScroll, { passive: true });
-      return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+export  function ExpandingSection() {
+    const containerRef = useRef<HTMLDivElement>(null);
+    const cardSwapRef = useRef<CardSwapHandle>(null);
+    const [progress, setProgress] = useState(0);
+    const lastIndexRef = useRef(0);
 
-  const timeline = progress * 2.5;
-  const expansionCap = Math.min(1, timeline);
-  const ease = (t: number) => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
-  const easedBox = ease(expansionCap);
-  const isLocked = expansionCap >= 0.99;
+    useEffect(() => {
+        const handleScroll = () => {
+            if (!containerRef.current) return;
+            const rect = containerRef.current.getBoundingClientRect();
+            const totalDistance = rect.height - window.innerHeight;
+            const scrolled = -rect.top;
+            setProgress(Math.max(0, Math.min(1, scrolled / totalDistance)));
+        };
+        window.addEventListener("scroll", handleScroll, { passive: true });
+        return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
 
-  useEffect(() => {
-    if (timeline > 1.3 && lastTriggerRef.current < 1) {
-        cardSwapRef.current?.triggerSwap();
-        lastTriggerRef.current = 1;
-    } else if (timeline > 1.8 && lastTriggerRef.current < 2) {
-        cardSwapRef.current?.triggerSwap();
-        lastTriggerRef.current = 2;
-    } else if (timeline < 1.0) {
-        lastTriggerRef.current = 0; 
-    }
-  }, [timeline]);
+    const timeline = progress * 2.5; 
+    const expansionCap = Math.min(1, timeline);
+    const ease = (t: number) => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+    const easedBox = ease(expansionCap);
+    const isLocked = expansionCap >= 0.99;
 
-  return (
-      <section ref={containerRef} className="relative h-[500vh] bg-white font-sans z-20">          
-          <div className="sticky top-0 h-screen w-full flex items-center overflow-hidden">
-              <div 
-                  className="absolute bg-[#e0e0e0] overflow-hidden z-20 border border-black/10"
-                  style={{ 
-                      width: isLocked ? '100%' : `${45 + easedBox * 55}%`, 
-                      height: isLocked ? '100vh' : `${50 + easedBox * 50}vh`,
-                      top: '50%',
-                      left: isLocked ? '0' : `${10 * (1 - easedBox)}%`,
-                      transform: isLocked ? 'translate(0, -50%)' : 'translateY(-50%)',
-                      borderRadius: isLocked ? '0px' : `${40 * (1 - easedBox)}px`,
-                      willChange: 'width, height, left, transform'
-                  }}
-              >
-                 <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='100%25' height='100%25' viewBox='0 0 1000 500' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 400 Q 250 450, 500 300 T 1000 50' stroke='%23000' stroke-width='2' fill='none' opacity='0.1'/%3E%3C/svg%3E")`, backgroundSize: '100% 100%', opacity: 0.6 + easedBox * 0.4 }} />
-                 
-                 <div className="absolute bottom-32 left-12 z-30 pointer-events-none">
-                    <h2 
-                        className="font-serif-display text-black text-6xl leading-none"
-                        style={{
-                            opacity: Math.max(0, (timeline - 0.5) * 5),
-                            transform: `translateY(${timeline > 0.5 ? '0' : '20px'})`,
-                            transition: 'opacity 0.5s, transform 0.5s'
-                        }}
-                    >
-                        Take the Leap.
-                    </h2>
-                    <div 
-                        className="overflow-hidden" 
-                        style={{ 
-                            maxHeight: timeline > 0.6 ? '200px' : '0px', 
-                            opacity: Math.max(0, (timeline - 0.6) * 5),
-                            marginTop: timeline > 0.6 ? '1rem' : '0', 
-                            transition: 'all 0.5s' 
-                        }}
-                    >
-                        <p className="text-gray-700 max-w-md text-lg">
-                            Your journey from zero to one starts here.
-                        </p>
-                    </div>
-                 </div>
+    const activeCardIndex = Math.floor(progress * 12) % 3;
 
-                 <div 
-                    className="absolute top-1/2 right-12 md:right-32 -translate-y-1/2 z-30 pointer-events-none"
-                    style={{
-                          opacity: Math.max(0, (timeline - 0.8) * 5),
-                          transition: 'opacity 0.5s'
+    useEffect(() => {
+        if (activeCardIndex !== lastIndexRef.current) {
+            cardSwapRef.current?.triggerSwap();
+            lastIndexRef.current = activeCardIndex;
+        }
+    }, [activeCardIndex]);
+
+    return (
+        <section ref={containerRef} className="relative h-[500vh] bg-[#ffffff] z-20 font-sans">
+            <div className="sticky top-0 h-screen w-full flex items-center overflow-hidden">
+                {/* THE FIX: ANIMATED BACKGROUND COLOR
+                   1. Starts at Hero Black (#0a0a0a)
+                   2. Expands into Soft Pink (#FFD9DA) for the "Vision" impact
+                   3. Fades back to Dark (#0a0a0a) when cards appear (timeline > 0.4) 
+                   so it matches the rest of the dark site.
+                */}
+                <div 
+                    className="absolute overflow-hidden z-20 border border-white/5 shadow-2xl transition-colors duration-1000 ease-in-out"
+                    style={{ 
+                        backgroundColor: timeline > 0.4 ? '#FFD9DA' : '#FFD9DA', // COLOR SWITCH LOGIC
+                        width: isLocked ? '100%' : `${45 + easedBox * 55}%`, 
+                        height: isLocked ? '100vh' : `${50 + easedBox * 50}vh`,
+                        top: '50%',
+                        left: isLocked ? '0' : `${10 * (1 - easedBox)}%`,
+                        transform: isLocked ? 'translate(0, -50%)' : 'translateY(-50%)',
+                        borderRadius: isLocked ? '0px' : `${40 * (1 - easedBox)}px`
                     }}
-                 >
-                    <div className="pointer-events-auto"> 
-                        <CardSwap 
-                            ref={cardSwapRef}
-                            width="500px" 
-                            height="420px" 
-                            easing="elastic"
+                >
+                    <div className="absolute inset-0 opacity-[0.1] pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
+
+                    {/* TEXT: THE VISION (Visible on Pink BG) */}
+                    <div 
+                        className="absolute top-20 left-12 md:left-24 z-30 pointer-events-none"
+                        style={{ 
+                            opacity: Math.max(0, 1 - (timeline - 0.3) * 10), // Fades out as it turns black
+                            transform: `translateY(${(timeline - 0.2) > 0 ? '0' : '20px'})`,
+                            transition: 'all 0.5s ease-out'
+                        }}
+                    >
+                        <p className="text-rose-600 font-mono text-[10px] tracking-[0.4em] uppercase mb-2">The Mission // 01</p>
+                        <h2 className="font-serif-display italic text-black text-5xl md:text-8xl leading-none">The Vision.</h2>
+                    </div>
+
+                    {/* TEXT: TAKE THE LEAP (Visible on Black BG) */}
+                    <div className="absolute bottom-12 left-12 z-30 pointer-events-none md:bottom-20 md:left-20">
+                        <h2 
+                            className="font-serif-display italic font-bold text-fuchsia-900 text-7xl md:text-9xl leading-none tracking-tighter"
+                            style={{
+                                opacity: Math.max(0, (timeline - 0.6) * 5),
+                                transform: `translateY(${(timeline - 0.6) > 0 ? '0' : '40px'})`,
+                                transition: 'all 0.6s cubic-bezier(0.22, 1, 0.36, 1)'
+                            }}
                         >
-                            <Card customClass="bg-black border border-white/20 rounded-xl overflow-hidden shadow-2xl">
-                                <div className="relative w-full h-full">
-                                    <img src="https://images.unsplash.com/photo-1556157382-97eda2d62296?q=80&w=600&auto=format&fit=crop" className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-500" alt="Ashneer"/>
-                                    <div className="absolute bottom-0 left-0 w-full p-6 bg-gradient-to-t from-black via-black/80 to-transparent">
-                                        <h3 className="text-white text-3xl font-serif-display italic">Ashneer</h3>
-                                        <h3 className="text-white text-3xl font-bold -mt-2">Grover</h3>
-                                        <p className="text-gray-400 text-xs mt-2 uppercase tracking-widest">BharatPe</p>
+                            Take the Leap.
+                        </h2>
+                    </div>
+
+                    {/* CARDS: Styled with Matching Pink Accents */}
+                    <div 
+                        className="absolute top-[55%] right-8 md:right-16 -translate-y-1/2 z-30 pointer-events-auto"
+                        style={{
+                            opacity: Math.max(0, (timeline - 0.4) * 5),
+                            transition: 'opacity 0.5s ease-out'
+                        }}
+                    >
+                        <CardSwap ref={cardSwapRef} width={400} height={420} easing="elastic">
+                            {/* PILLAR 1: CAPITAL */}
+                            <Card customClass="bg-[#111] border border-white/10 overflow-hidden rounded-[32px] shadow-2xl">
+                                <div className="relative w-full h-full p-8 flex flex-col justify-between">
+                                    <div className="w-10 h-10 rounded-full bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400 font-bold">01</div>
+                                    <div>
+                                        <h3 className="text-white text-4xl font-serif-display italic mb-2">Capital</h3>
+                                        <p className="text-gray-400 text-xs leading-relaxed font-light">Connecting student-led ventures with serious VC backing.</p>
                                     </div>
+                                    <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-rose-500 blur-[80px] opacity-20" />
                                 </div>
                             </Card>
-                            <Card customClass="bg-black border border-white/20 rounded-xl overflow-hidden shadow-2xl">
-                                <div className="relative w-full h-full">
-                                    <img src="https://images.unsplash.com/photo-1557862921-37829c790f19?q=80&w=600&auto=format&fit=crop" className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-500" alt="Aman"/>
-                                    <div className="absolute bottom-0 left-0 w-full p-6 bg-gradient-to-t from-black via-black/80 to-transparent">
-                                        <h3 className="text-white text-3xl font-serif-display italic">Aman</h3>
-                                        <h3 className="text-white text-3xl font-bold -mt-2">Gupta</h3>
-                                        <p className="text-gray-400 text-xs mt-2 uppercase tracking-widest">boAt</p>
+
+                            {/* PILLAR 2: COMMUNITY */}
+                            <Card customClass="bg-[#111] border border-white/10 overflow-hidden rounded-[32px] shadow-2xl">
+                                <div className="relative w-full h-full p-8 flex flex-col justify-between">
+                                    <div className="w-10 h-10 rounded-full bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-purple-400 font-bold">02</div>
+                                    <div>
+                                        <h3 className="text-white text-4xl font-serif-display italic mb-2">Community</h3>
+                                        <p className="text-gray-400 text-xs leading-relaxed font-light">A massive network of 30,000+ students and alumni.</p>
                                     </div>
+                                    <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-purple-500 blur-[80px] opacity-20" />
                                 </div>
                             </Card>
-                            <Card customClass="bg-black border border-white/20 rounded-xl overflow-hidden shadow-2xl">
-                                <div className="relative w-full h-full">
-                                    <img src="https://images.unsplash.com/photo-1542909168-82c3e7fdca5c?q=80&w=600&auto=format&fit=crop" className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-500" alt="Ritesh"/>
-                                    <div className="absolute bottom-0 left-0 w-full p-6 bg-gradient-to-t from-black via-black/80 to-transparent">
-                                        <h3 className="text-white text-3xl font-serif-display italic">Ritesh</h3>
-                                        <h3 className="text-white text-3xl font-bold -mt-2">Agarwal</h3>
-                                        <p className="text-gray-400 text-xs mt-2 uppercase tracking-widest">OYO</p>
+
+                            {/* PILLAR 3: CAREER */}
+                            <Card customClass="bg-[#111] border border-white/10 overflow-hidden rounded-[32px] shadow-2xl">
+                                <div className="relative w-full h-full p-8 flex flex-col justify-between">
+                                    <div className="w-10 h-10 rounded-full bg-blue-500/20 border border-blue-500/40 flex items-center justify-center text-blue-400 font-bold">03</div>
+                                    <div>
+                                        <h3 className="text-white text-4xl font-serif-display italic mb-2">Career</h3>
+                                        <p className="text-gray-400 text-xs leading-relaxed font-light">Bridging the gap between engineering and entrepreneurship.</p>
                                     </div>
+                                    <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-blue-500 blur-[80px] opacity-20" />
                                 </div>
                             </Card>
                         </CardSwap>
                     </div>
-                 </div>
-              </div>
-          </div>
-      </section>
-  );
+                </div>
+            </div>
+        </section>
+    );
 }
 
 // =========================================
@@ -511,69 +546,109 @@ const TIMELINE_DATA = [
   }
 ];
 
+
+
+
+
+// Sub-component to prevent parent re-renders// --- DATA (Same as before) ---
+
 export function TimelineSection() {
+  const sectionRef = useRef<HTMLDivElement>(null);
+
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start start", "end end"]
+  });
+
+  const smoothProgress = useSpring(scrollYProgress, {
+    stiffness: 100,
+    damping: 30,
+    restDelta: 0.001
+  });
+
+  // REDUCED SCROLL DISTANCE: h-[300vh] instead of 600vh makes it faster
+  // x-range adjusted to ensure the last card isn't cut off
+  const xTranslate = useTransform(smoothProgress, [0, 1], ["0%", "-85%"]);
+
   return (
-    <section id="timeline" className="py-32 bg-black overflow-hidden">
-      <BlurReveal>
-        <div className="max-w-7xl mx-auto px-6 mb-16">
-            <h2 className="text-6xl md:text-8xl font-serif-display italic font-bold text-white mb-2">
+    <section ref={sectionRef} className="relative h-[300vh] bg-[#050505]">
+      <div className="sticky top-0 h-screen w-full flex flex-col justify-center overflow-hidden">
+        
+        <div className="max-w-7xl mx-auto px-6 mb-8 w-full z-10">
+          {/* SCALED DOWN TEXT: From 9xl to 7xl to fit screen better */}
+          <h2 className="text-5xl md:text-7xl font-serif-display italic font-bold text-white mb-2 tracking-tighter">
             Timeline
-            </h2>
-            <p className="text-gray-500 text-sm tracking-[0.2em] uppercase">
-            Swipe to explore the journey
+          </h2>
+          <div className="flex items-center gap-4">
+            <div className="h-[1px] w-8 bg-purple-500" />
+            <p className="text-purple-400 font-mono text-[10px] tracking-[0.2em] uppercase">
+              Phase Sequence 2026 // 04
             </p>
+          </div>
         </div>
-      </BlurReveal>
 
-      {/* Horizontal Scroll Container */}
-      <div className="relative w-full overflow-x-auto pb-12 hide-scrollbar cursor-grab active:cursor-grabbing pl-6 md:pl-[max(24px,calc((100vw-1280px)/2))]">
-        <div className="flex gap-8 w-max">
+        {/* HORIZONTAL TRACK */}
+        <motion.div 
+          style={{ x: xTranslate }} 
+          className="flex gap-6 px-6 md:px-24 will-change-transform"
+        >
           {TIMELINE_DATA.map((phase, idx) => (
-            <div key={idx} className="relative w-[350px] md:w-[400px] shrink-0 pt-16">
-              
-              {/* Top Connector Dot */}
-              <div className={`absolute top-0 left-8 w-4 h-4 rounded-full ${phase.color} shadow-[0_0_20px_rgba(255,255,255,0.4)] z-10`} />
-              <div className={`absolute top-2 left-10 w-full h-[2px] bg-white/10`} /> {/* Line connecting to next */}
+            <TimelineCard key={idx} phase={phase} />
+          ))}
+          {/* Spacer to prevent cutoff */}
+          <div className="w-[10vw] shrink-0" />
+        </motion.div>
+        
+        {/* Custom Scrollbar */}
+        <div className="absolute bottom-12 left-12 right-12 h-[1px] bg-white/10 overflow-hidden rounded-full">
+          <motion.div 
+            className="h-full bg-gradient-to-r from-purple-500 to-pink-500" 
+            style={{ scaleX: smoothProgress, transformOrigin: "left" }} 
+          />
+        </div>
+      </div>
+    </section>
+  );
+}
 
-              {/* Card */}
-              <div className="bg-[#0A0A0A] border border-white/10 rounded-2xl p-8 hover:border-white/20 transition-colors duration-300 h-full">
-                <div className="flex justify-between items-start mb-8">
-                  <h3 className="text-2xl font-bold text-white">{phase.title}</h3>
-                  <span className="px-2 py-1 border border-white/20 rounded text-[10px] font-bold text-white uppercase tracking-wider">
-                    {phase.tag}
-                  </span>
-                </div>
+function TimelineCard({ phase }: { phase: any }) {
+  return (
+    // SCALED DOWN CARD: Width 350px (was 500px), Padding p-8 (was p-12)
+    <div className="relative w-[300px] md:w-[380px] shrink-0 group">
+      <div className="bg-[#0A0A0A] backdrop-blur-3xl border border-white/5 rounded-[2rem] p-8 hover:border-purple-500/30 transition-all duration-500 h-full group-hover:bg-[#0f0f0f] shadow-xl">
+        
+        <div className="flex justify-between items-start mb-8">
+          <div>
+            <span className={`text-[9px] font-black ${phase.color.replace('bg-', 'text-')} uppercase tracking-[0.2em] mb-1 block`}>
+              {phase.tag}
+            </span>
+            <h3 className="text-2xl font-bold text-white tracking-tight">{phase.title}</h3>
+          </div>
+          <div className={`w-2 h-2 rounded-full ${phase.color} shadow-[0_0_15px_rgba(255,255,255,0.3)]`} />
+        </div>
 
-                {/* Timeline Items inside Card */}
-                <div className="space-y-8 relative">
-                  {/* Vertical Line inside card */}
-                  <div className="absolute top-2 left-[5px] w-[2px] h-[calc(100%-10px)] bg-white/10" />
+        <div className="space-y-8 relative">
+          <div className="absolute top-2 left-[3px] w-[1px] h-[calc(100%-10px)] bg-gradient-to-b from-white/10 via-white/5 to-transparent" />
 
-                  {phase.items.map((item, i) => (
-                    <div key={i} className="relative pl-6">
-                      {/* Dot */}
-                      <div className={`absolute top-2 left-0 w-2.5 h-2.5 rounded-full ${phase.color} shadow-sm`} />
-                      
-                      <div className="flex flex-col">
-                        <span className={`text-xs font-bold uppercase tracking-widest mb-1 bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-500`}>
-                          {item.date}
-                        </span>
-                        <h4 className="text-lg font-bold text-white mb-1">
-                          {item.label}
-                        </h4>
-                        <p className="text-sm text-gray-500 leading-snug">
-                          {item.desc}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+          {phase.items.map((item: any, i: number) => (
+            <div key={i} className="relative pl-6 group/item">
+              <div className={`absolute top-2 left-0 w-1.5 h-1.5 rounded-full bg-[#151515] border border-white/10 group-hover/item:border-purple-500 transition-colors`} />
+              <div className="flex flex-col">
+                <span className="text-[9px] font-bold uppercase tracking-widest text-gray-600 mb-1 font-mono">
+                  {item.date}
+                </span>
+                <h4 className="text-base font-bold text-white/80 group-hover/item:text-white transition-colors">
+                  {item.label}
+                </h4>
+                <p className="text-xs text-gray-500 leading-relaxed mt-1 font-light">
+                  {item.desc}
+                </p>
               </div>
             </div>
           ))}
         </div>
       </div>
-    </section>
+    </div>
   );
 }
 
@@ -589,22 +664,23 @@ export function SponsorFooter() {
           <p className="text-gray-400 text-[9px] uppercase tracking-[0.2em] font-sans opacity-80 h-4 flex items-end">
             Innovation Mela Sponsor
           </p>
-          <div className="relative w-full flex flex-col items-center gap-2">
-            {/* White Glow Container for Visibility */}
-            <div className="relative w-16 h-16  hover:scale-105 transition-transform duration-300 flex items-center justify-center overflow-hidden">
-               <Image 
-                 src="/images/MIT Manipal Alumni Association Logo Transparent.png" 
-                 alt="MITMAA" 
-                 fill 
-                 className="object-contain p-0.5" 
-               />
-               
-            </div>
-            <p className="text-purple-400 text-[9px] uppercase tracking-[0.2em] font-sans font-bold opacity-90 h-4 flex items-end">
-            Title Sponsor
-          </p>
+          <div className="relative w-full flex flex-row items-center justify-center gap-4">
+    {/* Logo Container */}
+    <div className="relative w-20 h-20 hover:scale-105 transition-transform duration-300 flex items-center justify-center overflow-hidden">
+        <Image 
+            src="/images/MIT Manipal Alumni Association Logo Transparent.png" 
+            alt="MITMAA" 
+            fill 
+            className="object-contain p-0.5" 
+        />
+    </div>
 
-          </div>
+    {/* Text beside the image */}
+    <span className="font-serif-display text-white text-2xl font-bold tracking-wider">
+        MITMAA
+    </span>
+</div>
+          
         </div>
 
         {/* --- COLUMN 2: TITLE SPONSOR (SIMNOVUS) --- */}
@@ -668,114 +744,137 @@ export function SponsorFooter() {
 // =========================================
 // 3. UPDATED SPEAKERS SECTION
 // =========================================
+// =========================================
+// 3. UPDATED SPEAKERS SECTION (God-Tier UI)
+// =========================================
+
 const REAL_SPEAKERS = [
-  {
-    name: "Sam Altman",
-    role: "CEO, OpenAI",
-    company: "OpenAI",
+  { 
+    name: "Sam Altman", 
+    role: "CEO", 
+    company: "OpenAI", 
     image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=800&auto=format&fit=crop", 
-    color: "from-emerald-400 to-green-600",
-    glow: "rgba(16, 185, 129, 0.5)"
+    color: "bg-emerald-500",
+    gradient: "from-emerald-400 to-green-600"
   },
-  {
-    name: "Nithin Kamath",
-    role: "Founder & CEO",
-    company: "Zerodha",
-    image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=800&auto=format&fit=crop",
-    color: "from-blue-400 to-indigo-600",
-    glow: "rgba(59, 130, 246, 0.5)"
+  { 
+    name: "Nithin Kamath", 
+    role: "Founder", 
+    company: "Zerodha", 
+    image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=800&auto=format&fit=crop", 
+    color: "bg-blue-500",
+    gradient: "from-blue-400 to-indigo-600"
   },
-  {
-    name: "Falguni Nayar",
-    role: "Founder & CEO",
-    company: "Nykaa",
-    image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=800&auto=format&fit=crop",
-    color: "from-pink-400 to-rose-600",
-    glow: "rgba(236, 72, 153, 0.5)"
+  { 
+    name: "Falguni Nayar", 
+    role: "CEO", 
+    company: "Nykaa", 
+    image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=800&auto=format&fit=crop", 
+    color: "bg-pink-500",
+    gradient: "from-pink-400 to-rose-600"
   },
-  {
-    name: "Kunnal Shah",
-    role: "Founder",
-    company: "CRED",
-    image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=800&auto=format&fit=crop",
-    color: "from-gray-200 to-white",
-    glow: "rgba(255, 255, 255, 0.4)"
+  { 
+    name: "Kunnal Shah", 
+    role: "Founder", 
+    company: "CRED", 
+    image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=800&auto=format&fit=crop", 
+    color: "bg-white",
+    gradient: "from-gray-200 to-white"
   },
-  {
-    name: "Deepinder Goyal",
-    role: "Founder & CEO",
-    company: "Zomato",
-    image: "https://images.unsplash.com/photo-1556157382-97eda2d62296?q=80&w=800&auto=format&fit=crop",
-    color: "from-red-500 to-red-700",
-    glow: "rgba(239, 68, 68, 0.5)"
+  { 
+    name: "Deepinder Goyal", 
+    role: "CEO", 
+    company: "Zomato", 
+    image: "https://images.unsplash.com/photo-1556157382-97eda2d62296?q=80&w=800&auto=format&fit=crop", 
+    color: "bg-red-500",
+    gradient: "from-red-500 to-red-700"
   },
-  {
-    name: "Mukesh Bansal",
-    role: "Co-Founder",
-    company: "Cure.fit",
-    image: "https://images.unsplash.com/photo-1618077360395-f3068be8e001?q=80&w=800&auto=format&fit=crop",
-    color: "from-violet-400 to-purple-600",
-    glow: "rgba(139, 92, 246, 0.5)"
+  { 
+    name: "Mukesh Bansal", 
+    role: "Co-Founder", 
+    company: "Cure.fit", 
+    image: "https://images.unsplash.com/photo-1618077360395-f3068be8e001?q=80&w=800&auto=format&fit=crop", 
+    color: "bg-purple-500",
+    gradient: "from-violet-400 to-purple-600"
   }
 ];
 
 export function SpeakersSection() {
   return (
-    <div className="w-full max-w-7xl mx-auto px-6 py-32">
-      {/* Background Glow */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-blue-900/20 rounded-full blur-[120px] pointer-events-none" />
+    <div className="w-full max-w-7xl mx-auto px-6 py-32 relative">
+      
+      {/* Section Background Decor */}
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-purple-900/20 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-blue-900/10 rounded-full blur-[120px] pointer-events-none" />
 
+      {/* Header */}
       <BlurReveal>
-        <div className="text-center mb-24 relative z-10">
-          <h2 className="text-6xl md:text-8xl font-serif-display italic font-bold text-white mb-6">
-            Speakers
-          </h2>
-          <p className="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto font-light">
-            Industry titans, disruptors, and innovators shaping the future of finance and tech.
+        <div className="mb-24 relative z-10 flex flex-col md:flex-row justify-between items-end gap-8">
+          <div>
+             <p className="text-blue-500 font-mono text-[10px] tracking-[0.4em] uppercase mb-4">The Network // 02</p>
+             <h2 className="text-6xl md:text-9xl font-serif-display italic font-bold text-white leading-[0.85]">
+               The<br/>Speakers.
+             </h2>
+          </div>
+          <p className="text-gray-400 text-lg max-w-md font-light leading-relaxed mb-2 text-right md:text-left">
+            Visionaries, disruptors, and titans of industry. These are the voices shaping the future.
           </p>
         </div>
       </BlurReveal>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 relative z-10">
+      {/* Cards Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative z-10">
         {REAL_SPEAKERS.map((speaker, idx) => (
           <BlurReveal key={idx} delay={idx * 0.1}>
-            <div className="group relative h-[500px] w-full rounded-2xl overflow-hidden cursor-pointer bg-neutral-900 border border-white/10">
-              {/* Image with Grayscale Transition */}
-              <div className="absolute inset-0">
-                  <Image
-                    src={speaker.image}
-                    alt={speaker.name}
-                    fill
-                    className="object-cover transition-all duration-700 group-hover:scale-105 grayscale group-hover:grayscale-0"
+            <div className="group relative h-[600px] w-full rounded-[2.5rem] overflow-hidden bg-[#0a0a0a] border border-white/5 hover:border-white/20 transition-all duration-700">
+              
+              {/* 1. FULL HEIGHT IMAGE */}
+              <div className="absolute inset-0 z-0">
+                  <Image 
+                    src={speaker.image} 
+                    alt={speaker.name} 
+                    fill 
+                    className="object-cover transition-all duration-700 group-hover:scale-110 grayscale group-hover:grayscale-0 opacity-80 group-hover:opacity-100" 
                   />
-                  {/* Gradient Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-90" />
+                  {/* Texture Overlay */}
+                  <div className="absolute inset-0 opacity-[0.2] bg-[url('https://grainy-gradients.vercel.app/noise.svg')] mix-blend-overlay" />
+                  {/* Cinematic Gradient */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-90 group-hover:opacity-70 transition-opacity duration-500" />
               </div>
 
-              {/* Content Card */}
-              <div className="absolute bottom-0 left-0 w-full p-8 flex flex-col items-start transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                {/* Company Tag */}
-                <span className={`inline-block px-3 py-1 mb-4 text-[10px] font-bold uppercase tracking-widest text-white rounded-full bg-gradient-to-r ${speaker.color}`}>
-                  {speaker.company}
-                </span>
+              {/* 2. HOVER GLOW EFFECT (Bottom Right) */}
+              <div className={`absolute -bottom-10 -right-10 w-64 h-64 rounded-full blur-[100px] opacity-0 group-hover:opacity-50 transition-opacity duration-700 ${speaker.color}`} />
 
-                <h3 className="text-3xl font-sans font-bold text-white mb-1">
-                  {speaker.name}
-                </h3>
-                <p className="text-gray-400 text-sm font-medium uppercase tracking-wide mb-6">
-                  {speaker.role}
-                </p>
+              {/* 3. CONTENT LAYER */}
+              <div className="absolute inset-0 p-10 flex flex-col justify-between z-10">
+                
+                {/* Top: Hidden Details reveal on hover */}
+                <div className="flex justify-between items-start translate-y-[-20px] opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
+                   <div className="px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/10">
+                      <span className="text-xs font-bold text-white uppercase tracking-widest">{speaker.company}</span>
+                   </div>
+                   <div className="w-12 h-12 rounded-full bg-white text-black flex items-center justify-center hover:bg-blue-500 hover:text-white transition-colors cursor-pointer">
+                      <Linkedin size={20} />
+                   </div>
+                </div>
 
-                {/* Social Icons (Reveal on Hover) */}
-                <div className="flex gap-4 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
-                  <button className="p-2 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md text-white transition-colors">
-                    <Linkedin size={18} />
-                  </button>
-                  <button className="p-2 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md text-white transition-colors">
-                    <Twitter size={18} />
-                  </button>
+                {/* Bottom: Massive Typography */}
+                <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                   <p className="text-gray-400 font-mono text-[10px] uppercase tracking-[0.3em] mb-3 border-l-2 border-white/20 pl-3">
+                      {speaker.role}
+                   </p>
+                   
+                   <h3 className="text-6xl font-serif-display italic font-bold text-white leading-[0.85] mb-6">
+                     {speaker.name.split(' ').map((n, i) => (
+                       <span key={i} className="block">{n}</span>
+                     ))}
+                   </h3>
+
+                   {/* Animated Line */}
+                   <div className={`h-[2px] w-12 group-hover:w-full transition-all duration-700 bg-gradient-to-r ${speaker.gradient}`} />
                 </div>
               </div>
+
             </div>
           </BlurReveal>
         ))}
@@ -1009,11 +1108,11 @@ export default function Home() {
       <ScrollDebugger></ScrollDebugger>
       
       {/* HERO SECTION */}
-      <section className="relative h-screen w-full flex flex-col justify-center overflow-hidden z-[100] ">
+      <section id= "hero" className="relative h-screen w-full flex flex-col justify-center overflow-hidden z-[100] ">
         <div className="absolute inset-0 z-0"><Prism scale={4} colorFrequency={2.5} noise={0} /></div>
           <div className="relative z-10 w-full max-w-[1600px] mx-auto px-4 flex items-center justify-center">
-              <h1 className="font-serif-display italic text-6xl md:text-8xl lg:text-[10rem] leading-none text-white mix-blend-difference flex-1 text-right pr-12 md:pr-24">MES</h1>
-            <div className="relative w-full h-screen overflow-visible"> 
+              <h1 className="mr-130 font-serif-display  font-bold text-6xl md:text-8xl lg:text-[11rem] leading-none text-white mix-blend-difference flex-1 text-right pr-8 md:pr-16 tracking-tighter drop-shadow-[0_0_30px_rgba(255,255,255,0.1)]">MES</h1>
+            <div className="absolute w-full h-screen overflow-visible"> 
         <Canvas 
           shadows 
           camera={{ position: [0, 0, 10], fov: 50 }}
@@ -1023,8 +1122,9 @@ export default function Home() {
             <HeroBusinessman />
         </Canvas>
               </div>
-              <h1 className="font-serif-display text-6xl md:text-8xl lg:text-[10rem] leading-none text-white mix-blend-difference flex-1 text-left pl-12 md:pl-24">2026</h1>
-          </div>
+              <h1 className="font-serif-display font-bold text-6xl md:text-8xl lg:text-[11rem] leading-none text-white mix-blend-difference flex-1 text-left pl-8 md:pl-16 tracking-tighter drop-shadow-[0_0_30px_rgba(255,255,255,0.1)]">
+        2026
+    </h1>          </div>
         <SponsorFooter/>
       </section>
 
