@@ -42,18 +42,18 @@ const Navbar = () => {
             3. 'top-1/2 -translate-y-1/2' keeps it perfectly vertically centered.
             4. 'w-40 h-20' makes it BIG without affecting layout. Change h-20 to h-24/h-32 if you want it HUGE.
         */}
-        <div 
-            className="absolute left-8 top-1/2 -translate-y-1/2 w-40 h-20 cursor-pointer transition-opacity hover:opacity-80 z-50" 
-            onClick={scrollToTop}
-        >
-          <Image 
-            src="/images/MES 2026 logo 4.png" 
-            alt="MES 2026" 
-            fill
-            className="object-contain object-left" // object-left ensures it grows from the left side
-            priority
-          />
-        </div>
+        <a 
+  href="#hero" // 👈 Targets the hero section
+  className="absolute left-8 top-1/2 -translate-y-1/2 w-40 h-20 cursor-pointer transition-opacity hover:opacity-80 z-50" 
+>
+  <Image 
+    src="/images/MES 2026 logo 4.png" 
+    alt="MES 2026" 
+    fill
+    className="object-contain object-left"
+    priority
+  />
+</a>
 
         {/* --- CENTER: PILLS (Already Absolute) --- */}
         <div className="absolute left-1/2 -translate-x-1/2 z-40">

@@ -57,7 +57,7 @@ interface Ticket {
     eventName: string;
     paymentStatus: string;
     isUsed: boolean;
-    qrData?: string; // 👈 Add this line
+    qrData?: string;
 }
 
 const CONCLAVES = [
@@ -68,6 +68,21 @@ const CONCLAVES = [
 
 const TARGET_EVENT_NAME = "MES Conclave 2026"; 
 
+const calculateTimeLeft = () => {
+    const eventDate = new Date('2026-02-12T10:00:00'); 
+    const now = new Date();
+    const difference = eventDate.getTime() - now.getTime();
+
+    if (difference <= 0) return { days: 0, hours: 0, minutes: 0, seconds: 0 };
+
+    return {
+        days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+        minutes: Math.floor((difference / 1000 / 60) % 60),
+        seconds: Math.floor((difference / 1000) % 60),
+    };
+};
+
 export default function StudentDashboard() {
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -77,8 +92,8 @@ export default function StudentDashboard() {
     const [loading, setLoading] = useState(true);
     const [paymentLoading, setPaymentLoading] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
-
-    // --- FETCH DATA ---
+    const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
+    
     const fetchDashboardData = useCallback(async () => {
         try {
             const res = await apiClient.get('/tickets/my-tickets');
@@ -91,7 +106,11 @@ export default function StudentDashboard() {
         }
     }, []);
 
-    // --- CALLBACK URL STATUS HANDLER ---
+    useEffect(() => {
+        const timer = setInterval(() => setTimeLeft(calculateTimeLeft()), 1000);
+        return () => clearInterval(timer);
+    }, []);
+
     useEffect(() => {
         const status = searchParams.get('status');
         if (status === 'success') {
@@ -104,7 +123,6 @@ export default function StudentDashboard() {
         }
     }, [searchParams, fetchDashboardData, router]);
 
-    // --- AUTH CHECK ---
     useEffect(() => {
         if (!authLoading) {
             if (user) {
@@ -116,45 +134,40 @@ export default function StudentDashboard() {
         }
     }, [user, authLoading, fetchDashboardData, router]);
 
-    // --- ACTIVE TICKET CHECK ---
     const activeTicket = tickets.find(t => 
         t.eventName === TARGET_EVENT_NAME && 
         (t.paymentStatus === 'SUCCESS' || t.paymentStatus === 'PAID')
     );
     const hasPaidTicket = !!activeTicket;
 
-    // --- QR GENERATION ---
- // --- SECURE QR GENERATION ---
-useEffect(() => {
-    if (activeTicket && user) {
-        // 1. If backend sent an encrypted hash, use it directly
-        if (activeTicket.qrData && activeTicket.qrData !== "VALIDATED") {
-            QRCode.toDataURL(activeTicket.qrData, { 
-                width: 300, 
-                margin: 2,
-                color: { dark: '#FFFFFF', light: '#00000000' }
-            }).then(setQrUrl);
-        } 
-        // 2. Fallback: generate local payload if qrData isn't ready yet
-        else {
-            const payload = JSON.stringify({
-                username: user.name,
-                regNo: user.regNumber,
-                ticketId: activeTicket._id,
-                timestamp: new Date().toISOString()
-            });
+    useEffect(() => {
+        if (activeTicket && user) {
+            if (activeTicket.qrData && activeTicket.qrData !== "VALIDATED") {
+                QRCode.toDataURL(activeTicket.qrData, { 
+                    width: 300, 
+                    margin: 2,
+                    color: { dark: '#FFFFFF', light: '#00000000' }
+                }).then(setQrUrl);
+            } 
+            else {
+                const payload = JSON.stringify({
+                    username: user.name,
+                    regNo: user.regNumber,
+                    ticketId: activeTicket._id,
+                    timestamp: new Date().toISOString()
+                });
 
-            QRCode.toDataURL(payload, { 
-                width: 300, 
-                margin: 2,
-                color: { dark: '#FFFFFF', light: '#00000000' }
-            }).then(setQrUrl);
+                QRCode.toDataURL(payload, { 
+                    width: 300, 
+                    margin: 2,
+                    color: { dark: '#FFFFFF', light: '#00000000' }
+                }).then(setQrUrl);
+            }
+        } else {
+            setQrUrl(null);
         }
-    } else {
-        setQrUrl(null);
-    }
-}, [activeTicket, user]);
-    // --- 1. OPEN ATOM POPUP ---
+    }, [activeTicket, user]);
+
     const openAtomPay = (token: string, merchId: string) => {
         const options = {
             atomTokenId: token,
@@ -172,34 +185,25 @@ useEffect(() => {
             }
             // @ts-ignore
             const atom = new AtomPaynetz(options, 'uat'); 
-            console.log("🚀 Launched Atom Popup");
         } catch (error) {
             console.error("Atom SDK Error:", error);
-            alert("Failed to launch payment popup.");
         }
     };
 
-    // --- 2. INITIATE PAYMENT ---
     const handleBuyTicket = async () => {
         setPaymentLoading(true);
         try {
-            console.log("1. Requesting Token...");
             const res = await apiClient.post('/payment/initiate', {
                 eventName: TARGET_EVENT_NAME,
-                amount: 1, // SET TO 1 FOR TESTING
+                amount: 1, 
             });
 
             const responseData = res.data.data || res.data;
             if (responseData.atomTokenId) {
                 openAtomPay(responseData.atomTokenId, responseData.merchId);
-            } else {
-                throw new Error("No token received");
             }
-
         } catch (error: any) {
-            console.error("PAYMENT ERROR:", error);
-            const msg = error.response?.data?.message || error.message;
-            alert(`Payment Error: ${msg}`);
+            alert(`Payment Error: ${error.message}`);
         } finally {
             setPaymentLoading(false);
         }
@@ -221,7 +225,6 @@ useEffect(() => {
             <Script 
                 src={process.env.NEXT_PUBLIC_ATOM_CDN_URL} 
                 strategy="lazyOnload" 
-                onLoad={() => console.log("✅ Atom Payment SDK Loaded")}
             />
 
             <AnimatePresence>
@@ -254,7 +257,6 @@ useEffect(() => {
                         >
                             <div className="relative overflow-hidden rounded-[24px] bg-white/5 backdrop-blur-xl border border-white/20 shadow-2xl p-1">
                                 <div className="relative rounded-[20px] bg-black/40 p-8 flex flex-col items-center text-center overflow-hidden">
-                                    
                                     <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-gradient-to-tr from-purple-500/30 to-blue-500/30 rounded-full blur-[60px] transition-all duration-700 ${hasPaidTicket ? 'opacity-100' : 'opacity-0'}`} />
 
                                     <div className="relative z-10 mb-6">
@@ -344,23 +346,35 @@ useEffect(() => {
                             animate={{ opacity: 1, y: 0 }}
                             className="grid grid-cols-1 md:grid-cols-2 gap-4"
                         >
+                            {/* Countdown Card */}
                             <div className="p-6 rounded-2xl bg-[#151515] border border-white/5 relative overflow-hidden group hover:border-purple-500/30 transition-colors">
+                                <div className="absolute -right-4 -top-4 w-32 h-32 bg-purple-500/10 rounded-full blur-3xl group-hover:bg-purple-500/20 transition-all" />
                                 <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity text-purple-500">
                                     <Calendar size={80} />
                                 </div>
-                                <p className="text-gray-500 text-[10px] font-bold uppercase tracking-widest mb-2">Event Status</p>
-                                <h3 className="text-2xl font-serif-display italic text-white">Live in 12 Days</h3>
-                                <p className="text-xs text-gray-400 mt-2">Get ready for the summit.</p>
+                                <p className="text-gray-500 text-[10px] font-bold uppercase tracking-widest mb-2">Event Countdown</p>
+                                <h3 className="text-3xl font-serif-display italic text-white">
+                                    {timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m {timeLeft.seconds}s
+                                </h3>
+                                <p className="text-[10px] text-purple-400 mt-2 font-mono uppercase tracking-tighter">Starts Feb 12, 10:00 AM</p>
                             </div>
 
-                            <div className="p-6 rounded-2xl bg-[#151515] border border-white/5 relative overflow-hidden group hover:border-blue-500/30 transition-colors">
-                                <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity text-blue-500">
+                            {/* Venue Card with Link */}
+                            <a 
+    href="https://www.google.com/maps/search/?api=1&query=Academic+Block+5+MIT+Manipal" 
+    target="_blank" 
+    rel="noopener noreferrer"
+    className="p-6 rounded-2xl bg-[#151515] border border-white/5 relative overflow-hidden group hover:border-blue-500/30 transition-colors"
+>
+<div className="absolute -right-4 -top-4 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl group-hover:bg-blue-500/20 transition-all" />                                <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity text-blue-500">
                                     <MapPin size={80} />
                                 </div>
                                 <p className="text-gray-500 text-[10px] font-bold uppercase tracking-widest mb-2">Venue</p>
-                                <h3 className="text-2xl font-serif-display italic text-white">MIT Manipal</h3>
-                                <p className="text-xs text-gray-400 mt-2">Academic Block 5 & Library.</p>
-                            </div>
+                                <h3 className="text-2xl font-serif-display italic text-white underline decoration-blue-500/30 underline-offset-4">MIT Manipal</h3>
+                                <p className="text-xs text-gray-400 mt-2 flex items-center gap-1">
+                                    AB5 & Library Auditorium <Plus size={10} className="text-blue-500" />
+                                </p>
+                            </a>
                         </motion.div>
 
                         {/* 2. Timeline */}
@@ -377,41 +391,84 @@ useEffect(() => {
                                 <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Feb 2026</span>
                             </div>
 
-                            <div className="space-y-3">
-                                {CONCLAVES.map((event) => (
-                                    <div 
-                                        key={event.id}
-                                        className="group flex items-center p-4 rounded-xl bg-[#151515] border border-white/5 hover:border-white/10 hover:bg-[#1a1a1a] transition-all duration-300"
-                                    >
-                                        <div className="flex-shrink-0 w-14 h-14 rounded-lg bg-black/40 flex flex-col items-center justify-center border border-white/5 group-hover:border-purple-500/30 transition-colors">
-                                            <span className="text-[9px] font-bold uppercase text-gray-500">{event.displayDate.split(' ')[0]}</span>
-                                            <span className="text-lg font-bold text-white">{event.displayDate.split(' ')[1]}</span>
-                                        </div>
+                            <div className="space-y-4 mt-6">
+    {CONCLAVES.map((event, index) => {
+        const getArtAsset = (id: string) => {
+            if (id === 'fintech') return '/images/ev1-removebg-preview.png';   
+            if (id === 'built-her') return '/images/ev2-removebg-preview.png'; 
+            return '/images/ev3-removebg-preview.png';                        
+        };
 
-                                        <div className="ml-5 flex-grow">
-                                            <h4 className="text-sm font-bold text-gray-200 group-hover:text-white transition-colors">
-                                                {event.title}
-                                            </h4>
-                                            <div className="flex items-center gap-4 mt-1">
-                                                <div className="flex items-center gap-1.5 text-[10px] text-gray-500 font-mono">
-                                                    <Clock size={10} />
-                                                    {event.time}
-                                                </div>
-                                                <div className="flex items-center gap-1.5 text-[10px] text-gray-500 font-mono">
-                                                    <MapPin size={10} />
-                                                    {event.venue}
-                                                </div>
-                                            </div>
-                                        </div>
+        // Determine if this is the first artwork to apply specific sizing
+        const isFinTech = event.id === 'fintech';
 
-                                        <div className="opacity-0 group-hover:opacity-100 transition-opacity -translate-x-2 group-hover:translate-x-0 duration-300">
-                                            <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white">
-                                                <CheckCircle2 size={14} />
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
+        return (
+            <motion.div 
+                key={event.id}
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                whileHover={{ y: -2, scale: 1.005 }}
+                className="group relative flex items-center h-28 rounded-[24px] bg-[#121212] border border-white/5 overflow-hidden transition-all duration-300 shadow-xl"
+            >
+                {/* --- ARTWORK CONTAINER --- */}
+                <div className="absolute right-0 top-0 h-full w-full pointer-events-none select-none overflow-hidden">
+                    <motion.img 
+                        src={getArtAsset(event.id)} 
+                        alt="Event Art" 
+                        className={`absolute right-0 bottom-[-10%] object-contain object-right opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500
+                            ${isFinTech ? 'h-[120%] ' : 'h-[120%]'}`} // 👈 Increased height and pulled right for FinTech
+                    />
+                    
+                    {/* FADE MASK: Adjusted to ensure button area (right side) is clear */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-[#121212] via-[#121212]/40 to-transparent w-[70%] z-10" />
+                </div>
+
+                {/* --- CARD CONTENT --- */}
+                <div className="relative z-20 flex items-center w-full px-6">
+                    
+                    {/* Date Badge */}
+                    <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-black/40 backdrop-blur-xl border border-white/10 flex flex-col items-center justify-center shadow-lg">
+                        <span className="text-[8px] font-black uppercase text-gray-500 tracking-tighter">
+                            {event.displayDate.split(' ')[0]}
+                        </span>
+                        <span className="text-lg font-bold text-white leading-none">
+                            {event.displayDate.split(' ')[1]}
+                        </span>
+                    </div>
+
+                    {/* Text Details */}
+                    <div className="ml-5 flex-grow">
+                        <h4 className="text-lg font-bold text-white tracking-tight">
+                            {event.title}
+                        </h4>
+                        <div className="flex items-center gap-4 mt-1">
+                            <div className="flex items-center gap-1.5 text-[10px] text-gray-400 font-bold uppercase tracking-wider">
+                                <Clock size={12} className="text-purple-500/80" />
+                                {event.time}
                             </div>
+                            <div className="flex items-center gap-1.5 text-[10px] text-gray-400 font-bold uppercase tracking-wider">
+                                <MapPin size={12} className="text-blue-500/80" />
+                                {event.venue}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* --- ACCESS BUTTON: Increased visibility with solid background and higher Z-index --- */}
+                    <div className="ml-auto relative z-30"> {/* 👈 High z-index to stay above artwork */}
+                        <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            className="px-5 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-[9px] font-black uppercase tracking-[0.15em] text-white hover:bg-white hover:text-black hover:border-white transition-all duration-300 shadow-[0_4px_12px_rgba(0,0,0,0.5)]"
+                        >
+                            Access
+                        </motion.button>
+                    </div>
+                </div>
+            </motion.div>
+        );
+    })}
+</div>
                         </motion.div>
                     </div>
                 </div>
