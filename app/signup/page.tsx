@@ -8,7 +8,7 @@ import { Loader2, CheckCircle2, AlertCircle, ArrowLeft } from 'lucide-react';
 import dynamic from 'next/dynamic';
 
 const ColorBends = dynamic(() => import('@/components/ColorBends'), { ssr: false });
-
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://mes-backend-47zl.onrender.com';
 // --- CONSTANTS & TYPES ---
 type UserType = 'MIT' | 'NON_MIT';
 
@@ -90,7 +90,7 @@ export default function SignupPage() {
     };
 
     try {
-      const res = await fetch('http://localhost:8080/auth/register', {
+      const res = await fetch(`${BACKEND_URL}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -118,9 +118,10 @@ export default function SignupPage() {
     setLoading(true);
 
     try {
-      const res = await fetch('http://localhost:8080/auth/verify-otp', {
+      const res = await fetch(`${BACKEND_URL}/auth/verify-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', // Ensures the session cookie is saved after verification
         body: JSON.stringify({ 
           email: formData.personalEmail, 
           otp: otpValue 
@@ -145,11 +146,11 @@ export default function SignupPage() {
   // --- 3. RESEND OTP FUNCTION ---
   const handleResend = async () => {
     try {
-        await fetch('http://localhost:8080/auth/resend-otp', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: formData.personalEmail }),
-        });
+      await fetch(`${BACKEND_URL}/auth/resend-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: formData.personalEmail }),
+    });
         setStatus({ message: 'OTP Resent!', type: 'success' });
     } catch (err) {
         setStatus({ message: 'Failed to resend code', type: 'error' });

@@ -12,7 +12,7 @@ import { Loader2, Ticket as TicketIcon, Calendar, CheckCircle2, Clock, MapPin, A
 import dynamic from 'next/dynamic';
 
 const ColorBends = dynamic(() => import('@/components/ColorBends'), { ssr: false });
-
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://mes-backend-47zl.onrender.com';
 // --- SUCCESS OVERLAY COMPONENT ---
 const SuccessOverlay = ({ onClose }: { onClose: () => void }) => (
     <motion.div 
@@ -175,7 +175,7 @@ function DashboardContent() {
             merchId: merchId,
             custEmail: user?.personalEmail || "test@example.com",
             custMobile: user?.phone || "9999999999",
-            returnUrl: `http://localhost:8080/payment/callback`,
+            returnUrl: `${BACKEND_URL}/payment/callback`,
         };
 
         try {
