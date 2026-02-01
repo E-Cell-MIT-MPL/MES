@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2, ArrowRight, CheckCircle2, AlertCircle, ArrowLeft } from 'lucide-react';
 import dynamic from 'next/dynamic';
 
+
 const ColorBends = dynamic(() => import('@/components/ColorBends'), { ssr: false });
 
 // --- CONSTANTS & TYPES ---
