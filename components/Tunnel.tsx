@@ -174,14 +174,14 @@ export default function Tunnel() {
           }}
         >
           {/* TEXT CONTENT */}
-          <TunnelText text="WELCOME TO" zOffset={-500} tunnelZ={z} color="#a855f7" /> 
-          <TunnelText text="MES 2026" zOffset={-1800} tunnelZ={z} color="#3b82f6" /> 
+          <TunnelText text="WELCOME TO" zOffset={-500} tunnelZ={z} color="#ffffff" /> 
+          <TunnelText text="MES 2026" zOffset={-1800} tunnelZ={z} color="#ffffff" /> 
           
           <TunnelText 
             text={<>EXPECT<br/>THE<br/>UNEXPECTED</>} 
             zOffset={-3200} 
             tunnelZ={z} 
-            color="#ec4899" 
+            color="#ffffff" 
             multiLine={true} 
           />
 
