@@ -419,7 +419,7 @@ export  function ExpandingSection() {
                     {/* TEXT: TAKE THE LEAP (Visible on Black BG) */}
                     <div className="absolute bottom-12 left-12 z-30 pointer-events-none md:bottom-20 md:left-20">
                         <h2 
-                            className="font-serif-display italic font-bold text-white text-7xl md:text-9xl leading-none tracking-tighter"
+                            className="font-serif-display italic font-bold text-fuchsia-900 text-7xl md:text-9xl leading-none tracking-tighter"
                             style={{
                                 opacity: Math.max(0, (timeline - 0.6) * 5),
                                 transform: `translateY(${(timeline - 0.6) > 0 ? '0' : '40px'})`,
