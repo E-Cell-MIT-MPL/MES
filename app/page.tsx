@@ -10,7 +10,11 @@ import Image from "next/image";
 import Tunnel from "../components/Tunnel";
 import Navbar from "@/components/Navbar";
 import CardSwap, { Card, CardSwapHandle } from "../components/CardsSwap";
-import { Check, ArrowUpRight, Linkedin } from "lucide-react"; 
+import { Check, ArrowUpRight,MapPin, 
+  Instagram, 
+  Linkedin, 
+  Youtube, 
+  Twitter } from "lucide-react"; 
 
 // ... [BlurReveal Component - Keep as is] ...
 function BlurReveal({ children, delay = 0, className = "" }: { children: React.ReactNode, delay?: number, className?: string }) {
@@ -680,10 +684,97 @@ export default function Home() {
 
 
 
-      <footer className="relative z-30 border-t border-white/10 px-6 md:px-16 py-12 md:py-20 bg-[#050505]">
-         <div className="text-center md:text-left">
-            <h3 className="font-bold text-2xl">MES 2026</h3>
-            <p className="text-gray-500 text-sm mt-2">© 2026 Manipal Entrepreneurship Summit</p>
+      {/* =========================================
+          PROFESSIONAL FOOTER
+      ========================================= */}
+      <footer className="relative z-30 border-t border-white/10 bg-[#050505] pt-20 pb-10">
+         <div className="max-w-7xl mx-auto px-6">
+            
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-8 mb-16">
+
+               {/* BRAND COLUMN (Span 4) */}
+               <div className="md:col-span-4 flex flex-col gap-6">
+                  <div>
+                     <h3 className="font-serif-display italic font-bold text-3xl text-white mb-2">MES 2026</h3>
+                     <p className="text-gray-400 text-sm leading-relaxed">
+                        Empowering Innovation • Building the Future
+                     </p>
+                  </div>
+                  
+                  {/* Social Links */}
+                  <div className="flex gap-4">
+                     {[
+                        { icon: Instagram, href: "#" },
+                        { icon: Linkedin, href: "#" },
+                        { icon: Youtube, href: "#" },
+                        { icon: Twitter, href: "#" } // Using Twitter icon for X
+                     ].map((social, i) => (
+                        <a key={i} href={social.href} className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 hover:bg-white hover:text-black hover:border-white transition-all duration-300">
+                           <social.icon size={18} />
+                        </a>
+                     ))}
+                  </div>
+               </div>
+
+               {/* CONTACT COLUMN (Span 5) */}
+               <div className="md:col-span-5 grid grid-cols-1 sm:grid-cols-2 gap-8">
+                  {/* Chairperson */}
+                  <div>
+                     <h4 className="text-purple-400 font-mono text-xs tracking-widest uppercase mb-4">Chairperson</h4>
+                     <p className="font-bold text-white text-sm mb-1">Bhavesh Changulani</p>
+                     <a href="tel:+916386098299" className="text-gray-500 text-xs hover:text-white transition-colors font-mono tracking-wide">+91 63860 98299</a>
+                  </div>
+
+                  {/* PR Team */}
+                  <div>
+                     <h4 className="text-purple-400 font-mono text-xs tracking-widest uppercase mb-4">PR & Outreach</h4>
+                     <div className="flex flex-col gap-4">
+                        <div>
+                           <p className="font-bold text-white text-sm mb-1">Sanchit Sood</p>
+                           <a href="tel:+919872093930" className="text-gray-500 text-xs hover:text-white transition-colors font-mono tracking-wide">+91 98720 93930</a>
+                        </div>
+                        <div>
+                           <p className="font-bold text-white text-sm mb-1">Ahmed</p>
+                           <a href="tel:+918849148474" className="text-gray-500 text-xs hover:text-white transition-colors font-mono tracking-wide">+91 88491 48474</a>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+
+               {/* LOCATION COLUMN (Span 3) */}
+               <div className="md:col-span-3">
+                  <h4 className="text-purple-400 font-mono text-xs tracking-widest uppercase mb-4">Location</h4>
+                  <div className="flex gap-3 items-start">
+                     <MapPin className="text-gray-600 mt-1 flex-shrink-0" size={16} />
+                     <address className="not-italic text-gray-400 text-sm leading-relaxed">
+                        E-Cell MIT Manipal<br/>
+                        Innovation Centre<br/>
+                        MIT Rd, Eshwar Nagar<br/>
+                        Manipal, Karnataka 576104
+                     </address>
+                  </div>
+                  <div className="mt-6 pl-7">
+                     <a 
+                        href="https://goo.gl/maps/YourMapLink" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 text-white text-[10px] font-bold uppercase tracking-widest hover:text-purple-400 transition-colors border-b border-white/20 pb-0.5 hover:border-purple-400"
+                     >
+                        View on Google Maps <ArrowUpRight size={12} />
+                     </a>
+                  </div>
+               </div>
+
+            </div>
+
+            {/* BOTTOM BAR */}
+            <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+               <p className="text-gray-600 text-xs">© 2026 E-Cell MIT Manipal. All rights reserved.</p>
+               <div className="flex gap-6">
+                  <a href="#" className="text-gray-600 text-xs hover:text-white transition-colors">Privacy Policy</a>
+                  <a href="#" className="text-gray-600 text-xs hover:text-white transition-colors">Terms of Service</a>
+               </div>
+            </div>
          </div>
       </footer>
     </div>
