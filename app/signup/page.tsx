@@ -4,9 +4,8 @@ import { useState, ChangeEvent, FormEvent, InputHTMLAttributes, useEffect } from
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2, ArrowRight, CheckCircle2, AlertCircle, ArrowLeft } from 'lucide-react';
+import { Loader2, CheckCircle2, AlertCircle, ArrowLeft } from 'lucide-react';
 import dynamic from 'next/dynamic';
-
 
 const ColorBends = dynamic(() => import('@/components/ColorBends'), { ssr: false });
 
@@ -38,6 +37,8 @@ export default function SignupPage() {
   // --- FORM STATE ---
   const [userType, setUserType] = useState<UserType>('MIT');
   const [loading, setLoading] = useState(false);
+  
+  // Logic Control for OTP Switching
   const [showOtp, setShowOtp] = useState(false);
   const [otpValue, setOtpValue] = useState('');
   
@@ -71,7 +72,7 @@ export default function SignupPage() {
     if (status.message) setStatus({ message: '', type: null });
   };
 
-  // --- 1. REGISTER FUNCTION ---
+  // --- 1. REGISTER FUNCTION (Connects to Backend) ---
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -99,6 +100,7 @@ export default function SignupPage() {
 
       if (res.ok) {
         setStatus({ message: 'Account created! Check email for OTP.', type: 'success' });
+        // This triggers the view switch to OTP Form
         setTimeout(() => setShowOtp(true), 1500);
       } else {
         setStatus({ message: data.message || 'Registration failed', type: 'error' });
@@ -155,79 +157,94 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen w-full bg-[#050505] font-sans p-2 md:p-4 selection:bg-purple-500/30">
+    <div className="flex items-center justify-center min-h-screen w-full bg-[#050505] font-sans p-0 md:p-4 selection:bg-purple-500/30">
       
-      {/* --- FLOATING CARD --- */}
-      <div className="relative w-[96vw] max-w-[1600px] h-[92vh] bg-[#0a0a0a] rounded-[30px] overflow-hidden flex shadow-2xl border border-white/5">
+      {/* --- MAIN CARD --- */}
+      {/* Mobile: Full Screen | Desktop: Floating Card */}
+      <div className="relative w-full h-full md:w-[96vw] md:max-w-[1600px] md:h-[92vh] bg-[#0a0a0a] md:rounded-[30px] overflow-hidden flex flex-col lg:flex-row shadow-2xl md:border border-white/5">
         
-        {/* --- LEFT SIDE: VISUALS (60%) --- */}
-        <div className="hidden lg:block w-[60%] h-full relative overflow-hidden bg-black">
+        {/* --- 1. VISUALS HEADER / SIDEBAR --- */}
+        {/* Mobile: Top 35% height | Desktop: Left 60% width */}
+        <div className="relative w-full h-[35vh] lg:h-full lg:w-[60%] bg-black flex-shrink-0">
+            
+            {/* BACK BUTTON */}
             <Link 
                 href="/"
-                className="absolute top-8 right-8 z-30 flex items-center gap-2 px-4 py-2 rounded-full bg-black/20 backdrop-blur-md border border-white/10 text-xs font-bold uppercase tracking-wider text-white hover:bg-white/10 transition-all duration-300 group"
+                className="absolute top-6 left-6 lg:top-8 lg:left-auto lg:right-8 z-30 flex items-center gap-2 px-4 py-2 rounded-full bg-black/20 backdrop-blur-md border border-white/10 text-xs font-bold uppercase tracking-wider text-white hover:bg-white/10 transition-all duration-300 group"
             >
                 <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
-                Back to website
+                <span className="hidden lg:inline">Back to website</span>
+                <span className="lg:hidden">Back</span>
             </Link>
 
-            <div className="absolute inset-0 opacity-90">
+            {/* WAVES ANIMATION */}
+            <div className="absolute inset-0 w-full h-full opacity-90 lg:scale-110 origin-center pointer-events-none">
                 <ColorBends colors={['#7e22ce', '#3b82f6', '#000000']} speed={0.25} />
             </div>
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/20" />
 
-            <div className="absolute bottom-12 left-12 z-20 max-w-lg">
+            {/* GRADIENT OVERLAY */}
+            <div className="absolute inset-0 bg-gradient-to-b lg:bg-gradient-to-t from-black/60 via-transparent to-black/20 pointer-events-none" />
+
+            {/* DESKTOP CONTENT SLIDER (Hidden on Mobile) */}
+            <div className="hidden lg:block absolute bottom-12 left-12 z-20 max-w-lg">
                 <div className="h-[140px] flex items-end">
-                <AnimatePresence mode='wait'>
-                    <motion.div
-                        key={currentSlide}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -20 }}
-                        transition={{ duration: 0.5, ease: "easeInOut" }}
-                    >
-                        <h2 className="text-5xl xl:text-6xl font-serif-display italic font-bold mb-4 text-white leading-tight">
-                            {SLIDES[currentSlide].title}
-                        </h2>
-                        <p className="text-gray-400 text-sm xl:text-base leading-relaxed max-w-sm">
-                            {SLIDES[currentSlide].desc}
-                        </p>
-                    </motion.div>
-                </AnimatePresence>
+                    <AnimatePresence mode='wait'>
+                        <motion.div
+                            key={currentSlide}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -20 }}
+                            transition={{ duration: 0.5, ease: "easeInOut" }}
+                        >
+                            <h2 className="text-6xl font-serif-display italic font-bold mb-4 text-white leading-tight">
+                                {SLIDES[currentSlide].title}
+                            </h2>
+                            <p className="text-gray-400 text-base leading-relaxed max-w-sm">
+                                {SLIDES[currentSlide].desc}
+                            </p>
+                        </motion.div>
+                    </AnimatePresence>
                 </div>
-                
                 <div className="flex gap-2 mt-8">
                     {SLIDES.map((_, index) => (
-                        <div 
-                            key={index}
-                            className={`h-1 rounded-full transition-all duration-500 ${index === currentSlide ? 'w-8 bg-white' : 'w-2 bg-white/30'}`}
-                        />
+                        <div key={index} className={`h-1 rounded-full transition-all duration-500 ${index === currentSlide ? 'w-8 bg-white' : 'w-2 bg-white/30'}`} />
                     ))}
                 </div>
             </div>
+
+            {/* MOBILE HEADER TITLE (Visible only on mobile) */}
+            <div className="lg:hidden absolute bottom-10 left-6 z-20">
+                <h1 className="text-4xl font-serif-display italic font-bold text-white leading-none">
+                    MES 2026
+                </h1>
+                <p className="text-purple-200/80 text-xs mt-1 font-medium tracking-wide">
+                    Future Starts Here.
+                </p>
+            </div>
         </div>
 
-        {/* --- RIGHT SIDE: FORM (40%) --- */}
-        <div className="w-full lg:w-[40%] h-full bg-[#0E0E0E] flex flex-col justify-center px-8 md:px-16 py-8 relative overflow-y-auto [&::-webkit-scrollbar]:w-[4px] [&::-webkit-scrollbar-thumb]:bg-white/10 [&::-webkit-scrollbar-track]:bg-transparent">
+        {/* --- 2. FORM SECTION --- */}
+        {/* Mobile: Bottom Sheet style | Desktop: Right Side */}
+        <div className="relative flex-1 w-full lg:w-[40%] bg-[#0E0E0E] flex flex-col px-6 md:px-16 py-8 lg:py-8 
+                        rounded-t-[30px] lg:rounded-none -mt-6 lg:mt-0 z-10 
+                        overflow-y-auto [&::-webkit-scrollbar]:w-[4px] [&::-webkit-scrollbar-thumb]:bg-white/10 [&::-webkit-scrollbar-track]:bg-transparent">
             
-            <div className="lg:hidden mb-8 flex justify-between items-center">
-                <Link href="/" className="text-sm text-gray-400 hover:text-white flex items-center gap-2">
-                    <ArrowLeft size={16} /> Back
-                </Link>
-                <span className="font-serif-display italic font-bold text-xl">MES 2026</span>
-            </div>
+            {/* Sheet Handle for Mobile Aesthetic */}
+            <div className="lg:hidden w-12 h-1.5 bg-white/10 rounded-full mx-auto mb-6 flex-shrink-0" />
 
-            <div className="w-full max-w-md mx-auto">
-                <h2 className="text-3xl font-bold text-white mb-2">
-                    {showOtp ? 'Verify OTP' : 'Create account'}
-                </h2>
-                
-                <p className="text-gray-500 text-xs mb-8">
-                    {showOtp ? (
-                        <>Code sent to <span className="text-white font-bold">{formData.personalEmail}</span></>
-                    ) : (
-                        <>Already have an account? <Link href="/login" className="text-purple-400 hover:text-purple-300 font-medium transition-colors">Log in</Link></>
-                    )}
-                </p>
+            <div className="w-full max-w-md mx-auto my-auto">
+                <div className="mb-6">
+                    <h2 className="text-2xl lg:text-3xl font-bold text-white mb-2">
+                        {showOtp ? 'Verify OTP' : 'Create account'}
+                    </h2>
+                    <p className="text-gray-500 text-xs">
+                        {showOtp ? (
+                            <>Code sent to <span className="text-white font-bold">{formData.personalEmail}</span></>
+                        ) : (
+                            <>Already have an account? <Link href="/login" className="text-purple-400 hover:text-purple-300 font-medium transition-colors">Log in</Link></>
+                        )}
+                    </p>
+                </div>
 
                 {/* STATUS MESSAGE */}
                 <AnimatePresence mode='wait'>
@@ -237,9 +254,7 @@ export default function SignupPage() {
                             animate={{ opacity: 1, y: 0, height: 'auto' }}
                             exit={{ opacity: 0, height: 0 }}
                             className={`mb-6 p-3 rounded-lg flex items-center gap-3 text-xs font-medium border ${
-                                status.type === 'error' 
-                                ? 'bg-red-500/5 border-red-500/20 text-red-400' 
-                                : 'bg-green-500/5 border-green-500/20 text-green-400'
+                                status.type === 'error' ? 'bg-red-500/5 border-red-500/20 text-red-400' : 'bg-green-500/5 border-green-500/20 text-green-400'
                             }`}
                         >
                             {status.type === 'error' ? <AlertCircle size={14} /> : <CheckCircle2 size={14} />}
@@ -250,25 +265,25 @@ export default function SignupPage() {
 
                 <AnimatePresence mode="wait">
                     {!showOtp ? (
-                        // --- REGISTER FORM ---
+                        // ===========================
+                        // REGISTER FORM
+                        // ===========================
                         <motion.form 
                             key="register"
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            className="space-y-4" 
+                            className="space-y-4 pb-10 lg:pb-0" 
                             onSubmit={handleSubmit}
                         >
-                            <div className="grid grid-cols-2 p-1 bg-[#1a1a1a] rounded-xl mb-6">
+                            <div className="grid grid-cols-2 p-1 bg-[#1a1a1a] rounded-xl mb-6 border border-white/5">
                                 {(['MIT', 'NON_MIT'] as UserType[]).map((type) => (
                                     <button 
                                         key={type}
                                         type="button" 
                                         onClick={() => setUserType(type)} 
-                                        className={`py-2 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all duration-300 ${
-                                            userType === type 
-                                            ? 'bg-[#2a2a2a] text-white shadow-sm' 
-                                            : 'text-gray-500 hover:text-gray-300'
+                                        className={`py-2.5 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all duration-300 ${
+                                            userType === type ? 'bg-[#2a2a2a] text-white shadow-sm' : 'text-gray-500 hover:text-gray-300'
                                         }`}
                                     >
                                         {type === 'MIT' ? 'MIT Student' : 'Guest'}
@@ -295,18 +310,20 @@ export default function SignupPage() {
                             <button 
                                 type="submit" 
                                 disabled={loading} 
-                                className="w-full mt-6 bg-[#6d28d9] hover:bg-[#5b21b6] text-white py-3.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all duration-300 shadow-[0_0_20px_rgba(109,40,217,0.3)] hover:shadow-[0_0_30px_rgba(109,40,217,0.5)] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                className="w-full mt-4 bg-[#6d28d9] hover:bg-[#5b21b6] text-white py-4 rounded-xl font-bold text-xs uppercase tracking-wider transition-all duration-300 shadow-[0_0_20px_rgba(109,40,217,0.3)] hover:shadow-[0_0_30px_rgba(109,40,217,0.5)] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                             >
                                 {loading ? <Loader2 className="animate-spin" size={16} /> : 'Create Account'}
                             </button>
                         </motion.form>
                     ) : (
-                        // --- OTP FORM ---
+                        // ===========================
+                        // OTP FORM
+                        // ===========================
                         <motion.form 
                             key="otp"
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
-                            className="space-y-6 pt-4" 
+                            className="space-y-6 pt-4 pb-10 lg:pb-0" 
                             onSubmit={handleVerify}
                         >
                             <div>
@@ -326,7 +343,7 @@ export default function SignupPage() {
                             <button 
                                 type="submit" 
                                 disabled={loading} 
-                                className="w-full bg-[#6d28d9] hover:bg-[#5b21b6] text-white py-3.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all shadow-[0_0_20px_rgba(109,40,217,0.3)] flex items-center justify-center gap-2"
+                                className="w-full bg-[#6d28d9] hover:bg-[#5b21b6] text-white py-4 rounded-xl font-bold text-xs uppercase tracking-wider transition-all shadow-[0_0_20px_rgba(109,40,217,0.3)] flex items-center justify-center gap-2"
                             >
                                 {loading ? <Loader2 className="animate-spin" size={16} /> : 'Verify Email'}
                             </button>
@@ -343,7 +360,6 @@ export default function SignupPage() {
                 </AnimatePresence>
             </div>
         </div>
-
       </div>
     </div>
   );
