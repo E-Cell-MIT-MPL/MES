@@ -9,7 +9,7 @@ import Prism from "../components/Prism";
 import Image from "next/image";
 import Tunnel from "../components/Tunnel";
 import Navbar from "@/components/Navbar";
-import CardSwap, { Card, CardSwapHandle } from "../components/CardsSwap";
+import CardSwap, { Card, CardSwapHandle } from '../components/CardsSwap'; 
 import { Check, ArrowUpRight,MapPin, 
   Instagram, 
   Linkedin, 
@@ -163,167 +163,157 @@ function EventsPage() {
   );
 }
 
-// =========================================
-// EXPANDING SECTION (FIXED BOX SHAPE)
-// =========================================
-// =========================================
-// EXPANDING SECTION (FAST SCROLL FIX)
-// =========================================
-// =========================================
-// EXPANDING SECTION (AGGRESSIVE SWAP LOGIC)
-// =========================================
+
+// import CardSwap, { Card } from '@/components/CardSwap'; 
+
+
 export function ExpandingSection() {
   const containerRef = useRef<HTMLDivElement>(null);
   const cardSwapRef = useRef<CardSwapHandle>(null);
   const [progress, setProgress] = useState(0);
-  const [isMobile, setIsMobile] = useState(false); 
+  const [isMobile, setIsMobile] = useState(false);
   const lastIndexRef = useRef(0);
 
-  // Detect mobile for box shape
   useEffect(() => {
-      const checkMobile = () => setIsMobile(window.innerWidth < 768);
-      checkMobile();
-      window.addEventListener('resize', checkMobile);
-      return () => window.removeEventListener('resize', checkMobile);
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    const handleScroll = () => {
+      if (!containerRef.current) return;
+      const rect = containerRef.current.getBoundingClientRect();
+      const totalDistance = rect.height - window.innerHeight;
+      const scrolled = -rect.top;
+      setProgress(Math.max(0, Math.min(1, scrolled / totalDistance)));
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener('resize', checkMobile);
+    };
   }, []);
 
-  useEffect(() => {
-      const handleScroll = () => {
-          if (!containerRef.current) return;
-          const rect = containerRef.current.getBoundingClientRect();
-          // Calculate how far we've scrolled into the section
-          const totalDistance = rect.height - window.innerHeight;
-          const scrolled = -rect.top;
-          
-          // Normalize to 0 to 1
-          let newProgress = Math.max(0, Math.min(1, scrolled / totalDistance));
-          setProgress(newProgress);
-      };
-      
-      window.addEventListener("scroll", handleScroll, { passive: true });
-      return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  // Animation Timelines
-  const timeline = progress * 2.5; 
+  const timeline = progress * 2.5;
   const expansionCap = Math.min(1, timeline);
-  // Standard ease for the box expansion
   const ease = (t: number) => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
   const easedBox = ease(expansionCap);
   const isLocked = expansionCap >= 0.99;
 
-  // --- AGGRESSIVE CARD LOGIC ---
-  // 0.00 - 0.15: Card 1 (Very start)
-  // 0.15 - 0.45: Card 2 (Appears quickly)
-  // 0.45 - 1.00: Card 3 (Appears before halfway and stays)
+  // --- CARD SWAP TRIGGER LOGIC ---
   let activeCardIndex = 0;
   if (progress > 0.15) activeCardIndex = 1;
   if (progress > 0.45) activeCardIndex = 2;
 
   useEffect(() => {
-      if (activeCardIndex !== lastIndexRef.current) {
-          cardSwapRef.current?.triggerSwap();
-          lastIndexRef.current = activeCardIndex;
-      }
-  }, [activeCardIndex]);
+    // We only trigger the GSAP swap on desktop to prevent mobile lag
+    if (!isMobile && activeCardIndex !== lastIndexRef.current) {
+      cardSwapRef.current?.triggerSwap();
+      lastIndexRef.current = activeCardIndex;
+    }
+  }, [activeCardIndex, isMobile]);
 
   return (
-      // Height: 350vh (Fast but smooth)
-      <section ref={containerRef} className="relative h-[350vh] bg-[#ffffff] z-20 font-sans">
-          <div className="sticky top-0 h-[100dvh] w-full flex items-center overflow-hidden">
-              <div 
-                  className="absolute overflow-hidden z-20 border border-white/5 shadow-2xl transition-colors duration-1000 ease-in-out"
-                  style={{ 
-                      backgroundColor: '#FFD9DA',
-                      width: isLocked ? '100%' : (isMobile ? `${85 + easedBox * 15}%` : `${45 + easedBox * 55}%`), 
-                      height: isLocked ? '100dvh' : `${50 + easedBox * 50}vh`,
-                      top: '50%',
-                      left: isLocked ? '0' : (isMobile ? `${7.5 * (1 - easedBox)}%` : `${10 * (1 - easedBox)}%`),
-                      transform: isLocked ? 'translate(0, -50%)' : 'translateY(-50%)',
-                      borderRadius: isLocked ? '0px' : `${40 * (1 - easedBox)}px`
-                  }}
-              >
-                  <div className="absolute inset-0 opacity-[0.1] pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
+    <section ref={containerRef} className="relative h-[350vh] bg-white z-20 font-sans">
+      <div className="sticky top-0 h-[100dvh] w-full flex items-center overflow-hidden">
+        <div
+          className="absolute overflow-hidden z-20 border border-white/5 shadow-2xl transition-colors duration-1000 ease-in-out"
+          style={{
+            backgroundColor: '#FFD9DA', // THE PINK BACKGROUND
+            width: isLocked ? '100%' : (isMobile ? `${85 + easedBox * 15}%` : `${45 + easedBox * 55}%`),
+            height: isLocked ? '100dvh' : `${50 + easedBox * 50}vh`,
+            top: '50%',
+            left: isLocked ? '0' : (isMobile ? `${7.5 * (1 - easedBox)}%` : `${10 * (1 - easedBox)}%`),
+            transform: 'translateY(-50%)',
+            borderRadius: isLocked ? '0px' : `${40 * (1 - easedBox)}px`
+          }}
+        >
+          <div className="absolute inset-0 opacity-[0.1] pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
 
-                  {/* Vision Text */}
-                  <div 
-                      className="absolute top-16 md:top-20 left-8 md:left-24 z-30 pointer-events-none"
-                      style={{ 
-                          opacity: Math.max(0, 1 - (timeline - 0.3) * 10),
-                          transform: `translateY(${(timeline - 0.2) > 0 ? '0' : '20px'})`,
-                          transition: 'all 0.5s ease-out'
-                      }}
-                  >
-                      <p className="text-rose-600 font-mono text-[10px] tracking-[0.4em] uppercase mb-2">The Mission // 01</p>
-                      <h2 className="font-serif-display italic text-black text-5xl md:text-8xl leading-none">The Vision.</h2>
-                  </div>
-
-                  {/* Leap Text */}
-                  <div className="absolute bottom-16 md:bottom-20 left-8 md:left-20 z-30 pointer-events-none">
-                      <h2 
-                          className="font-serif-display italic font-bold text-fuchsia-900 text-6xl md:text-9xl leading-none tracking-tighter"
-                          style={{
-                              opacity: Math.max(0, (timeline - 0.6) * 5),
-                              transform: `translateY(${(timeline - 0.6) > 0 ? '0' : '40px'})`,
-                              transition: 'all 0.6s cubic-bezier(0.22, 1, 0.36, 1)'
-                          }}
-                      >
-                          Take the Leap.
-                      </h2>
-                  </div>
-
-                  {/* Card Swap Container */}
-                  <div 
-                      className="absolute top-[50%] md:top-[55%] right-0 md:right-16 -translate-y-1/2 z-30 pointer-events-auto w-full md:w-auto flex justify-center scale-90 md:scale-100"
-                      style={{
-                          opacity: Math.max(0, (timeline - 0.4) * 5),
-                          transition: 'opacity 0.5s ease-out'
-                      }}
-                  >
-                      <CardSwap ref={cardSwapRef} width={400} height={420} easing="elastic">
-                          {/* Card 1: Capital */}
-                          <Card customClass="bg-[#111] border border-white/10 overflow-hidden rounded-[32px] shadow-2xl">
-                              <div className="relative w-full h-full p-8 flex flex-col justify-between">
-                                  <div className="w-10 h-10 rounded-full bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400 font-bold">01</div>
-                                  <div>
-                                      <h3 className="text-white text-4xl font-serif-display italic mb-2">Capital</h3>
-                                      <p className="text-gray-400 text-xs leading-relaxed font-light">Connecting student-led ventures with serious VC backing.</p>
-                                  </div>
-                                  <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-rose-500 blur-[80px] opacity-20" />
-                              </div>
-                          </Card>
-                          
-                          {/* Card 2: Community */}
-                          <Card customClass="bg-[#111] border border-white/10 overflow-hidden rounded-[32px] shadow-2xl">
-                              <div className="relative w-full h-full p-8 flex flex-col justify-between">
-                                  <div className="w-10 h-10 rounded-full bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-purple-400 font-bold">02</div>
-                                  <div>
-                                      <h3 className="text-white text-4xl font-serif-display italic mb-2">Community</h3>
-                                      <p className="text-gray-400 text-xs leading-relaxed font-light">A massive network of 30,000+ students and alumni.</p>
-                                  </div>
-                                  <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-purple-500 blur-[80px] opacity-20" />
-                              </div>
-                          </Card>
-                          
-                          {/* Card 3: Career */}
-                          <Card customClass="bg-[#111] border border-white/10 overflow-hidden rounded-[32px] shadow-2xl">
-                              <div className="relative w-full h-full p-8 flex flex-col justify-between">
-                                  <div className="w-10 h-10 rounded-full bg-blue-500/20 border border-blue-500/40 flex items-center justify-center text-blue-400 font-bold">03</div>
-                                  <div>
-                                      <h3 className="text-white text-4xl font-serif-display italic mb-2">Career</h3>
-                                      <p className="text-gray-400 text-xs leading-relaxed font-light">Bridging the gap between engineering and entrepreneurship.</p>
-                                  </div>
-                                  <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-blue-500 blur-[80px] opacity-20" />
-                              </div>
-                          </Card>
-                      </CardSwap>
-                  </div>
-              </div>
+          {/* ==========================================
+              VISION TEXT (TOP LEFT)
+          ========================================== */}
+          <div
+            className="absolute top-16 md:top-20 left-8 md:left-24 z-30 pointer-events-none"
+            style={{
+              // If timeline is < 0.8, keep it visible. Once we lock (1.0), fade it out.
+              opacity: Math.max(0, 1 - (timeline - 0.7) * 5), 
+              transform: `translateY(${(timeline < 0.1) ? '20px' : '0px'})`,
+              transition: 'all 0.6s cubic-bezier(0.22, 1, 0.36, 1)'
+            }}
+          >
+            <p className="text-rose-600 font-mono text-[10px] tracking-[0.4em] uppercase mb-2">The Mission // 01</p>
+            <h2 className="font-serif-display italic text-black text-5xl md:text-8xl leading-none">The Vision.</h2>
           </div>
-      </section>
+
+          {/* ==========================================
+              LEAP TEXT (BOTTOM LEFT)
+          ========================================== */}
+          <div className="absolute bottom-16 md:bottom-20 left-8 md:left-20 z-30 pointer-events-none">
+            <h2
+              className="font-serif-display italic font-bold text-fuchsia-900 text-6xl md:text-9xl leading-none tracking-tighter"
+              style={{
+                // Appears as we scroll further down
+                opacity: Math.max(0, (timeline - 0.5) * 4),
+                transform: `translateY(${(timeline > 0.5) ? '0' : '40px'})`,
+                transition: 'all 0.8s cubic-bezier(0.22, 1, 0.36, 1)'
+              }}
+            >
+              Take the Leap.
+            </h2>
+          </div>
+
+          {/* ==========================================
+              CARDS CONTAINER (RIGHT)
+          ========================================== */}
+          <div
+            className="absolute top-[50%] md:top-[55%] right-0 md:right-16 -translate-y-1/2 z-40 pointer-events-auto w-full md:w-auto flex justify-center"
+            style={{
+              opacity: Math.max(0, (timeline - 0.4) * 5),
+              scale: isMobile ? 0.85 : 1,
+              transition: 'opacity 0.5s ease-out'
+            }}
+          >
+            <CardSwap 
+                ref={cardSwapRef} 
+                width={isMobile ? 320 : 400} 
+                height={isMobile ? 380 : 420}
+                easing={isMobile ? 'linear' : 'elastic'}
+            >
+              <Card customClass="bg-[#111] border border-white/10 overflow-hidden rounded-[32px] shadow-2xl">
+                <div className="relative w-full h-full p-8 flex flex-col justify-between">
+                  <div className="w-10 h-10 rounded-full bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400 font-bold">01</div>
+                  <div>
+                    <h3 className="text-white text-4xl font-serif-display italic mb-2">Capital</h3>
+                    <p className="text-gray-400 text-xs leading-relaxed font-light">Connecting student-led ventures with serious VC backing.</p>
+                  </div>
+                </div>
+              </Card>
+              <Card customClass="bg-[#111] border border-white/10 overflow-hidden rounded-[32px] shadow-2xl">
+                <div className="relative w-full h-full p-8 flex flex-col justify-between">
+                  <div className="w-10 h-10 rounded-full bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-purple-400 font-bold">02</div>
+                  <div>
+                    <h3 className="text-white text-4xl font-serif-display italic mb-2">Community</h3>
+                    <p className="text-gray-400 text-xs leading-relaxed font-light">A massive network of 30,000+ students and alumni.</p>
+                  </div>
+                </div>
+              </Card>
+              <Card customClass="bg-[#111] border border-white/10 overflow-hidden rounded-[32px] shadow-2xl">
+                <div className="relative w-full h-full p-8 flex flex-col justify-between">
+                  <div className="w-10 h-10 rounded-full bg-blue-500/20 border border-blue-500/40 flex items-center justify-center text-blue-400 font-bold">03</div>
+                  <div>
+                    <h3 className="text-white text-4xl font-serif-display italic mb-2">Career</h3>
+                    <p className="text-gray-400 text-xs leading-relaxed font-light">Bridging the gap between engineering and entrepreneurship.</p>
+                  </div>
+                </div>
+              </Card>
+            </CardSwap>
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }
-
 // ... [Timeline Data & Component - Keep as is] ...
 const TIMELINE_DATA = [
   { title: "Conceptiō", tag: "FLAGSHIP", color: "bg-pink-500", items: [{ date: "11 Dec - 07 Jan", label: "Ideation Round", desc: "Pitch Deck submission." }, { date: "11 Jan - 27 Jan", label: "PoC Workshop", desc: "Build a working prototype." }, { date: "07 Feb", label: "Final Pitching", desc: "7-minute pitch to judges." }] },

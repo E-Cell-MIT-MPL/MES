@@ -1,12 +1,9 @@
 import axios from 'axios';
 
 const apiClient = axios.create({
-  // 👇 CRITICAL: Must point to your Backend Port (8080), not Frontend (3000)
-  baseURL: 'http://localhost:8080', 
-  
-  // 👇 CRITICAL: Allows cookies to be sent/received (for your JWT)
-  withCredentials: true, 
-  
+  // It checks for the environment variable first; if missing, it falls back to localhost
+  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080',
+  withCredentials: true, // 👈 REQUIRED for your JWT cookies to work
   headers: {
     'Content-Type': 'application/json',
   },
