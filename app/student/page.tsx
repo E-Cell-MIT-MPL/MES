@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, Suspense } from 'react'; // 👈 Added Suspense import
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import QRCode from 'qrcode';
@@ -83,9 +83,10 @@ const calculateTimeLeft = () => {
     };
 };
 
-export default function StudentDashboard() {
+// 👇 1. RENAMED THE MAIN LOGIC COMPONENT TO "DashboardContent"
+function DashboardContent() {
     const router = useRouter();
-    const searchParams = useSearchParams();
+    const searchParams = useSearchParams(); // This is what needs Suspense!
     const { user, loading: authLoading } = useAuth();
     const [tickets, setTickets] = useState<Ticket[]>([]);
     const [qrUrl, setQrUrl] = useState<string | null>(null);
@@ -231,13 +232,9 @@ export default function StudentDashboard() {
                 {showSuccess && <SuccessOverlay onClose={() => setShowSuccess(false)} />}
             </AnimatePresence>
 
-            {/* FIX 1: Changed h-[92vh] to min-h-[85vh] and removed overflow-hidden.
-               This allows the card to grow and triggers normal browser scrolling.
-            */}
             <div className="relative w-[96vw] max-w-[1600px] min-h-[85vh] bg-[#0a0a0a] rounded-[30px] overflow-hidden flex flex-col lg:flex-row shadow-2xl border border-white/5 my-10">
                 
                 {/* --- LEFT SIDE: STICKY VISUALS --- */}
-                {/* FIX 2: Made this sticky so it stays visible while you scroll the content on the right */}
                 <div className="hidden lg:block w-[35%] bg-black border-r border-white/5 relative">
                     <div className="sticky top-0 h-screen max-h-[85vh] overflow-hidden">
                         <Link 
@@ -316,7 +313,6 @@ export default function StudentDashboard() {
                 </div>
 
                 {/* --- RIGHT SIDE: CONTENT --- */}
-                {/* FIX 3: Removed overflow-y-auto and fixed height. It now expands naturally. */}
                 <div className="w-full lg:w-[65%] min-h-full bg-[#0E0E0E] flex flex-col">
                     <div className="p-8 md:p-12 pb-6 flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-white/5">
                         <div>
@@ -470,10 +466,43 @@ export default function StudentDashboard() {
                                     );
                                 })}
                             </div>
+                        </div>
+                    </div>
+
+                    {/* --- ACCESS BUTTON: Increased visibility with solid background and higher Z-index --- */}
+                    <div className="ml-auto relative z-30"> {/* 👈 High z-index to stay above artwork */}
+                        <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            className="px-5 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-[9px] font-black uppercase tracking-[0.15em] text-white hover:bg-white hover:text-black hover:border-white transition-all duration-300 shadow-[0_4px_12px_rgba(0,0,0,0.5)]"
+                        >
+                            Access
+                        </motion.button>
+                    </div>
+                </div>
+            </motion.div>
+        );
+    })}
+</div>
                         </motion.div>
                     </div>
                 </div>
-         </div>
+            </div>
         </div>
+    );
+}
+
+// 👇 2. EXPORT THE WRAPPER WITH SUSPENSE
+export default function StudentDashboard() {
+    return (
+        <Suspense 
+            fallback={
+                <div className="min-h-screen bg-[#050505] flex items-center justify-center text-white">
+                    <Loader2 className="w-8 h-8 text-purple-500 animate-spin" />
+                </div>
+            }
+        >
+            <DashboardContent />
+        </Suspense>
     );
 }
