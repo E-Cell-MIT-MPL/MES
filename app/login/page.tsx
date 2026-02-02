@@ -51,32 +51,24 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
 
-    try {
-      const response = await fetch(`${BACKEND_URL}/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        // MANDATORY: Tells the browser to save/send the JWT cookie
-        credentials: "include", 
-        body: JSON.stringify({ email, password }),
-      });
+    // Replace your fetch call with this in handleLogin
+try {
+  const response = await apiClient.post('/auth/login', { 
+    email, 
+    password 
+  });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        console.log("Login successful, redirecting...");
-        // Use window.location to force a full refresh into the dashboard
-        // This ensures the new cookie is picked up immediately
-        window.location.href = '/student'; 
-      } else {
-        setError(data.message || "Login failed.");
-        setLoading(false);
-      }
-    } catch (err) {
-      console.error("DEBUG LOGIN ERROR:", err);
-      setError("Server is waking up. Please try again in 10 seconds.");
-      setLoading(false);
-    }
-  };
+  // Axios puts the body in .data and throws on non-2xx codes
+  if (response.status === 200) {
+    console.log("Login successful, redirecting...");
+    window.location.href = '/student'; 
+  }
+} catch (err) {
+  // Axios errors are handled here
+  const errorMessage = err instanceof Error ? err.message : "Login failed.";
+  setError(errorMessage);
+  setLoading(false);
+}
 
   return (
     <div className="flex items-center justify-center min-h-screen w-full bg-[#050505] font-sans p-0 md:p-4 selection:bg-blue-500/30">
