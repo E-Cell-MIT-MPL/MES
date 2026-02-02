@@ -352,7 +352,7 @@ export default function SignupPage() {
                             : "text-gray-500 hover:text-gray-300"
                         }`}
                       >
-                        {type === "MIT" ? "MIT Student" : "Guest"}
+                        {type === "MIT" ? "MAHE" : "NON-MAHE"}
                       </button>
                     ))}
                   </div>
