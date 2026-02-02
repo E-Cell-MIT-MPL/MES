@@ -57,12 +57,14 @@ export default function LoginPage() {
 
       if (response.status === 200) {
         console.log("Login successful, redirecting...");
-        window.location.href = '/student'; 
+        // Use router.push instead of window.location.href to maintain state
+        router.push('/student'); 
       }
     } catch (err: any) {
       // Improved error message display
       const errorMessage = err.response?.data?.message || "Invalid credentials or server error.";
       setError(errorMessage);
+    } finally {
       setLoading(false);
     }
   }; // <--- THIS WAS MISSING
