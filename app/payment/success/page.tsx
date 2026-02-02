@@ -3,7 +3,7 @@
 import React, { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { CheckCircle, Loader2 } from "lucide-react";
-import apiClient from "@/app/lib/api-client";
+import apiClient from "@/lib/api-client";
 
 function PaymentSuccessClient() {
   const router = useRouter();

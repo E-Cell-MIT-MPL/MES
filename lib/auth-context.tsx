@@ -7,6 +7,7 @@ interface User {
   regNumber?: string;
   userType: 'MIT' | 'NON_MIT';
   personalEmail: string;
+  phone: string;
 }
 
 interface AuthContextType {

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Calendar, MapPin, Ticket, Loader2 } from "lucide-react";
-import apiClient from "../lib/api-client";
+import apiClient from "../../lib/api-client";
 
 const EVENT_DATA = {
     id: "mes-conclave-2026",
