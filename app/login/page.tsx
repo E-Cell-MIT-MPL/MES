@@ -10,9 +10,6 @@ import dynamic from 'next/dynamic';
 
 const ColorBends = dynamic(() => import('@/components/ColorBends'), { ssr: false });
 
-// Ensure this matches your Render URL in the dashboard environment variables
-// Remove the localhost fallback so it doesn't default to your laptop's address
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://mes-backend-47zl.onrender.com";
 const SLIDES = [
   {
     title: <>Welcome Back,<br />Innovator.</>,
@@ -52,24 +49,23 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
 
-    // Replace your fetch call with this in handleLogin
-try {
-  const response = await apiClient.post('/auth/login', { 
-    email, 
-    password 
-  });
+    try {
+      const response = await apiClient.post('/auth/login', { 
+        email, 
+        password 
+      });
 
-  // Axios puts the body in .data and throws on non-2xx codes
-  if (response.status === 200) {
-    console.log("Login successful, redirecting...");
-    window.location.href = '/student'; 
-  }
-} catch (err) {
-  // Axios errors are handled here
-  const errorMessage = err instanceof Error ? err.message : "Login failed.";
-  setError(errorMessage);
-  setLoading(false);
-}
+      if (response.status === 200) {
+        console.log("Login successful, redirecting...");
+        window.location.href = '/student'; 
+      }
+    } catch (err: any) {
+      // Improved error message display
+      const errorMessage = err.response?.data?.message || "Invalid credentials or server error.";
+      setError(errorMessage);
+      setLoading(false);
+    }
+  }; // <--- THIS WAS MISSING
 
   return (
     <div className="flex items-center justify-center min-h-screen w-full bg-[#050505] font-sans p-0 md:p-4 selection:bg-blue-500/30">
@@ -177,9 +173,8 @@ function InputField({ label, ...props }: InputFieldProps) {
             />
             <label className="absolute left-4 top-1.5 text-[10px] font-bold uppercase tracking-wider text-gray-500 transition-all duration-200 peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-xs peer-placeholder-shown:text-gray-600 peer-placeholder-shown:font-medium peer-placeholder-shown:normal-case peer-placeholder-shown:tracking-normal peer-focus:top-1.5 peer-focus:text-[10px] peer-focus:font-bold peer-focus:uppercase peer-focus:tracking-wider peer-focus:text-blue-400 pointer-events-none">
                 {label}
-]            </label>
+            </label>
         </div>
       </div>
     );
-}};
-
+}
