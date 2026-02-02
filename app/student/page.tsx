@@ -5,8 +5,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import QRCode from "qrcode";
 import Script from "next/script";
-import apiClient from "../lib/api-client";
-import { useAuth } from "../lib/auth-context";
+import apiClient from "../../lib/api-client";
+import { useAuth } from "../../lib/auth-context";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Loader2,

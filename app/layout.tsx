@@ -3,7 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 // 1. Import the provider
 import Lenis from 'lenis'
-import { AuthProvider } from "./lib/auth-context"; 
+import { AuthProvider } from "../lib/auth-context"; 
 import SmoothScroll from "../components/SmoothScroll";
 
 const geistSans = Geist({

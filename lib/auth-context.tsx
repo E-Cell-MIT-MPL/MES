@@ -1,5 +1,5 @@
 'use client';
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useMemo } from 'react';
 import apiClient from './api-client';
 
 interface User {
@@ -14,6 +14,7 @@ interface AuthContextType {
   loading: boolean;
   login: (userData: any) => void;
   logout: () => void;
+  checkUserSession: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -22,27 +23,37 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Inside checkUserSession in auth-context.tsx
-const checkUserSession = async () => {
+  const checkUserSession = async () => {
     try {
-        const res = await apiClient.get('/auth/me');
-        if (res.data.success) {
-            setUser(res.data.data);
-        } else {
-            setUser(null);
-        }
+      const res = await apiClient.get('/auth/me');
+      if (res.data.success) {
+        setUser(res.data.data);
+      } else {
+        setUser(null);
+      }
     } catch (err) {
-        console.error("Session check failed", err);
-        setUser(null); // Clear user if request fails
+      console.error("Session check failed", err);
+      setUser(null);
     } finally {
-        setLoading(false); // ALWAYS set loading to false here
+      setLoading(false);
     }
-};
+  };
 
-  useEffect(() => { checkUserSession(); }, []);
+  useEffect(() => {
+    checkUserSession();
+  }, []);
+
+  // Use useMemo so the object reference doesn't change on every render
+  const value = useMemo(() => ({
+    user,
+    loading,
+    login: setUser,
+    logout: () => setUser(null),
+    checkUserSession
+  }), [user, loading]); 
 
   return (
-    <AuthContext.Provider value={{ user, loading, login: setUser, logout: () => setUser(null) }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );

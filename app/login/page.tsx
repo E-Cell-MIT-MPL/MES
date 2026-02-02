@@ -5,8 +5,10 @@ import { useRouter } from "next/navigation";
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2, ArrowLeft, AlertCircle, ArrowRight } from 'lucide-react';
-import apiClient from "../lib/api-client";
+import apiClient from "../../lib/api-client";
 import dynamic from 'next/dynamic';
+import { useAuth } from "../../lib/auth-context";
+
 
 const ColorBends = dynamic(() => import('@/components/ColorBends'), { ssr: false });
 
@@ -36,6 +38,7 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [currentSlide, setCurrentSlide] = useState(0);
   const router = useRouter();
+  const { checkUserSession } = useAuth();
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -56,12 +59,27 @@ export default function LoginPage() {
       });
 
       if (response.status === 200) {
-        console.log("Login successful, redirecting...");
-        // Use router.push instead of window.location.href to maintain state
+        console.log("Login success! Fetching user session...");
+        
+        // CRITICAL CHECK: Ensure this function exists before calling
+        if (typeof checkUserSession === 'function') {
+            await checkUserSession();
+        } else {
+            console.error("checkUserSession function is missing from Context!");
+        }
+
         router.push('/student'); 
       }
     } catch (err: any) {
-      // Improved error message display
+      // DEBUG LOGGING
+      console.error("Login Error Details:", err); // <--- Check your browser console!
+
+      // If it's a code error (TypeError), don't say "Invalid Credentials"
+      if (!err.response) {
+         setError("App Error: " + err.message); 
+         return;
+      }
+
       const errorMessage = err.response?.data?.message || "Invalid credentials or server error.";
       setError(errorMessage);
     } finally {
