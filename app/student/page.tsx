@@ -207,19 +207,23 @@ function DashboardContent() {
       merchId: merchId,
       custEmail: user?.personalEmail || "test@example.com",
       custMobile: user?.phone || "9999999999",
-      returnUrl: `https://mes26.ecellmit.in/payment/callback`,
+      returnUrl: `https://mes26.ecellmit.in/student?status=success`, // Redirect back to dashboard
     };
 
     try {
-      // @ts-ignore
-      if (typeof AtomPaynetz === "undefined") {
-        alert("Payment Gateway is still loading. Please try again.");
+      // 1. Check for the CORRECT SDK name on the window object
+      const AtomSDK = (window as any).AtomPaynxt; 
+
+      if (!AtomSDK) {
+        alert("Payment Gateway script not found. Please refresh.");
         return;
       }
-      // @ts-ignore
-      const atom = new AtomPaynetz(options, "uat");
+
+      // 2. Initialize the SDK
+      new AtomSDK(options, "uat"); // Use "prod" when you go live
     } catch (error) {
       console.error("Atom SDK Error:", error);
+      alert("Failed to initialize payment window.");
     }
   };
 
