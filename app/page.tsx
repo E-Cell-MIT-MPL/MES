@@ -717,7 +717,7 @@ export default function Home() {
 
                   {/* PR Team */}
                   <div>
-                     <h4 className="text-purple-400 font-mono text-xs tracking-widest uppercase mb-4">PR & Outreach</h4>
+                     <h4 className="text-purple-400 font-mono text-xs tracking-widest uppercase mb-4">PR & Tech</h4>
                      <div className="flex flex-col gap-4">
                         <div>
                            <p className="font-bold text-white text-sm mb-1">Sanchit Sood</p>
