@@ -23,10 +23,10 @@ function StockChart({ color, isMobile }: { color: "green" | "red", isMobile: boo
     ctx.scale(dpr, dpr);
 
     // Only enable expensive glow on PC
-    if (!isMobile) {
-        ctx.shadowBlur = 20;
-        ctx.shadowColor = color === "green" ? "#4ade80" : "#f87171";
-    }
+    // if (!isMobile) {
+    //     ctx.shadowBlur = 20;
+    //     ctx.shadowColor = color === "green" ? "#4ade80" : "#f87171";
+    // }
 
     const generateData = () => {
       const p = []; let v = 200;
