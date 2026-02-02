@@ -207,7 +207,7 @@ function DashboardContent() {
       merchId: merchId,
       custEmail: user?.personalEmail || "test@example.com",
       custMobile: user?.phone || "9999999999",
-      returnUrl: `http://localhost:8080/payment/callback`,
+      returnUrl: `https://mes26.ecellmit.in/payment/callback`,
     };
 
     try {

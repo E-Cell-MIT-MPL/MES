@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2, ArrowLeft, AlertCircle, ArrowRight } from 'lucide-react';
+import apiClient from "../lib/api-client";
 import dynamic from 'next/dynamic';
 
 const ColorBends = dynamic(() => import('@/components/ColorBends'), { ssr: false });

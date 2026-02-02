@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const apiClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000',
+  baseURL: process.env.REACT_APP_API_URL ?? 'https://mes-backend-47zl.onrender.com',
   withCredentials: true, // Required for HttpOnly cookies
   headers: {
     'Content-Type': 'application/json',
