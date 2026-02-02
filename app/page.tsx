@@ -575,7 +575,7 @@ function TicketCard() {
                 <div className="mb-auto"><h3 className="text-white/40 font-serif-display italic text-2xl tracking-widest">MES 2026</h3></div>
                 <div className="py-8">
                     <p className="text-indigo-200 text-xs font-mono uppercase mb-2 tracking-[0.2em]">Admit One</p>
-                    <div className="flex items-start justify-center text-white leading-none drop-shadow-2xl"><span className="text-3xl mt-2 text-indigo-300 font-serif">₹</span><span className="text-7xl md:text-8xl font-black tracking-tighter">499</span></div>
+                    <div className="flex items-start justify-center text-white leading-none drop-shadow-2xl"><span className="text-3xl mt-2 text-indigo-300 font-serif">₹</span><span className="text-7xl md:text-8xl font-black tracking-tighter">250</span></div>
                 </div>
                 <div className="mt-auto w-full">
                     <button onClick={() => console.log("Replace this with handleBuyTicket()")} className="group relative w-full px-8 py-4 bg-white text-black font-bold text-lg rounded-xl overflow-hidden transition-all hover:scale-[1.02] active:scale-[0.98] shadow-[0_0_30px_rgba(255,255,255,0.2)]">
