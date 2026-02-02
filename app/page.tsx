@@ -5,6 +5,7 @@ import { PerspectiveCamera } from "@react-three/drei";
 import { useRef, useEffect, useState } from "react";
 import { useScroll, useSpring, useTransform, motion, useInView, useAnimation, Variants } from "framer-motion";
 import { HeroBusinessman } from '../components/BussinessModel'; 
+import { useRouter } from "next/navigation";
 import Prism from "../components/Prism";
 import Image from "next/image";
 import Tunnel from "../components/Tunnel";
@@ -165,8 +166,6 @@ function EventsPage() {
 
 
 // import CardSwap, { Card } from '@/components/CardSwap'; 
-
-
 export function ExpandingSection() {
   const containerRef = useRef<HTMLDivElement>(null);
   const cardSwapRef = useRef<CardSwapHandle>(null);
@@ -206,12 +205,13 @@ export function ExpandingSection() {
   if (progress > 0.45) activeCardIndex = 2;
 
   useEffect(() => {
-    // We only trigger the GSAP swap on desktop to prevent mobile lag
-    if (!isMobile && activeCardIndex !== lastIndexRef.current) {
+    // UPDATED: Removed "!isMobile" check. 
+    // Now it auto-swaps on BOTH mobile and desktop based on scroll.
+    if (activeCardIndex !== lastIndexRef.current) {
       cardSwapRef.current?.triggerSwap();
       lastIndexRef.current = activeCardIndex;
     }
-  }, [activeCardIndex, isMobile]);
+  }, [activeCardIndex]); // Removed isMobile dependency as it's no longer used in logic
 
   return (
     <section ref={containerRef} className="relative h-[350vh] bg-white z-20 font-sans">
@@ -408,7 +408,7 @@ export function SponsorFooter() {
         </div>
 
         {/* --- 2. INNOVATION PARTNER (Left Side Mobile) --- */}
-        <div className="col-span-1 md:col-span-1 md:order-1 w-full flex flex-col items-center gap-2">
+        <div className="col-span-1 mb-3 md:col-span-1 md:order-1 w-full flex flex-col items-center gap-2">
           <p className="text-gray-400 text-[10px] uppercase tracking-[0.1em] opacity-80">
             Innovation Partner
           </p>
@@ -432,12 +432,15 @@ export function SponsorFooter() {
              
              {/* MTL Block */}
              <div className="flex flex-col items-center gap-1">
-                <div className="relative w-16 h-8 md:w-20 md:h-10">
+                <div className="relative w-16 h-16 md:w-20 md:h-20">
                     <Image src="/images/Manipal-Technologies-Limited.png" alt="MTL" fill className="object-contain" />
                 </div>
                 {/* Fixed: Smaller text on mobile (text-[8px]) prevents overlap */}
                 <span className="font-sans text-gray-300 text-[8px] md:text-sm font-bold uppercase tracking-wide leading-tight max-w-[80px]">
-                    Manipal Technologies
+                    Manipal
+                </span>
+                <span className="font-sans mr-7 text-gray-300 text-[8px] md:text-sm font-bold uppercase tracking-wide leading-tight max-w-[80px]">
+                    Technologies
                 </span>
              </div>
 
@@ -446,10 +449,10 @@ export function SponsorFooter() {
 
              {/* KNND Block */}
              <div className="flex flex-col items-center gap-1">
-                <div className="relative w-8 h-8 md:w-10 md:h-10 bg-white/90 rounded-full p-1">
+                <div className="mt-4 relative w-8 h-8 md:w-10 md:h-10 bg-white/90 rounded-full p-1">
                     <Image src="/images/KNND-Associates-Logo.png" alt="KNND" fill className="object-contain" />
                 </div>
-                <span className="font-sans text-gray-300 text-[8px] md:text-sm font-bold uppercase tracking-wide leading-tight">
+                <span className="mt-6 font-sans text-gray-300 text-[8px] md:text-sm font-bold uppercase tracking-wide leading-tight">
                     KNND Associates
                 </span>
              </div>
@@ -517,9 +520,11 @@ export function SpeakersSection() {
   );
 }
 
-function TicketCard() {
+export function TicketCard() {
   const cardRef = useRef<HTMLDivElement>(null);
   const [rotate, setRotate] = useState({ x: 0, y: 0 });
+  const router = useRouter(); // 👈 INITIALIZED ROUTER
+
   const onMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const card = cardRef.current;
     if (!card) return;
@@ -532,59 +537,154 @@ function TicketCard() {
     const rotateY = (centerX - x) / 25;
     setRotate({ x: rotateX, y: rotateY });
   };
-  const onMouseLeave = () => { setRotate({ x: 0, y: 0 }); };
 
+  const onMouseLeave = () => {
+    setRotate({ x: 0, y: 0 });
+  };
+
+  // Placeholder for your buy function
+  const handleBuyTicket = () => {
+    router.push("/signup");
+  };
+  
   return (
-    <motion.div ref={cardRef} onMouseMove={onMouseMove} onMouseLeave={onMouseLeave} style={{ transform: `perspective(1000px) rotateX(${rotate.x}deg) rotateY(${rotate.y}deg)` }} className="relative w-full max-w-5xl mx-auto transition-transform duration-300 ease-out will-change-transform">
+    <motion.div
+      ref={cardRef}
+      onMouseMove={onMouseMove}
+      onMouseLeave={onMouseLeave}
+      style={{
+        transform: `perspective(1000px) rotateX(${rotate.x}deg) rotateY(${rotate.y}deg)`,
+      }}
+      className="relative w-full max-w-5xl mx-auto transition-transform duration-300 ease-out will-change-transform"
+    >
       <div className="absolute -inset-4 bg-gradient-to-r from-purple-600/40 via-pink-600/40 to-blue-600/40 rounded-[2.5rem] blur-3xl opacity-50" />
-      <div className="relative flex flex-col md:flex-row h-full md:h-[480px] bg-[#0a0a0a] border border-white/10 rounded-3xl overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)]">
+      
+      {/* ========================================== */}
+      {/* DESKTOP VIEW: Image Pass (Hidden on Mobile) */}
+      {/* ========================================== */}
+      <div className="hidden md:block relative h-[333px] w-full bg-[#0a0a0a] border border-white/10 rounded-3xl overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)] group">
+        {/* Changed object-cover to object-contain to fit the image properly */}
+        <img 
+            src="/images/pass.jpg" 
+            alt="MES 2026 Pass" 
+            className="w-full h-full object-contain"
+        />
+        
+        {/* Overlay Button to ensure functionality persists on Desktop */}
+        <div className="absolute bottom-2 right-3 z-20">
+             <button 
+                onClick={handleBuyTicket} 
+                className="px-16 py-6 bg-white text-black font-bold text-lg rounded-xl transition-all hover:scale-105 hover:bg-gray-200 shadow-[0_0_20px_rgba(255,255,255,0.3)]"
+             >
+                Buy Pass
+             </button>
+        </div>
+      </div>
+
+      {/* ========================================== */}
+      {/* MOBILE VIEW: Original Design (Hidden on Desktop) */}
+      {/* ========================================== */}
+      <div className="block md:hidden relative flex-col h-full bg-[#0a0a0a] border border-white/10 rounded-3xl overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)]">
         <div className="flex-1 relative overflow-hidden bg-[#050505]">
-            <div className="absolute inset-0 bg-cover bg-center opacity-80 mix-blend-hard-light" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1964&auto=format&fit=crop')` }} />
-            <div className="absolute inset-0 bg-gradient-to-r from-black via-black/60 to-transparent" />
-            <div className="absolute inset-0 opacity-30 mix-blend-overlay pointer-events-none" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E")` }} />
-            <div className="relative z-10 flex flex-col h-full justify-between p-8 md:p-12">
-                <div>
-                    <div className="flex items-center gap-3 mb-6">
-                        <div className="px-4 py-1.5 rounded-full border border-yellow-500/30 bg-yellow-500/10 backdrop-blur-md flex items-center gap-2 shadow-[0_0_15px_rgba(234,179,8,0.2)]">
-                            <div className="w-2 h-2 rounded-full bg-yellow-400 animate-pulse" />
-                            <span className="text-yellow-200 text-xs font-bold tracking-widest uppercase text-shadow">Access Granted</span>
-                        </div>
-                    </div>
-                    <h2 className="text-4xl md:text-6xl font-serif-display italic mb-3 text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-yellow-100 to-amber-300 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">All Access Pass</h2>
-                    <p className="text-purple-100/90 text-base md:text-lg font-light max-w-md tracking-wide">Unlock the full spectrum of MES 2026.</p>
+          <div
+            className="absolute inset-0 bg-cover bg-center opacity-80 mix-blend-hard-light"
+            style={{
+              backgroundImage: `url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1964&auto=format&fit=crop')`,
+            }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-black via-black/60 to-transparent" />
+          <div
+            className="absolute inset-0 opacity-30 mix-blend-overlay pointer-events-none"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E")`,
+            }}
+          />
+          <div className="relative z-10 flex flex-col h-full justify-between p-8">
+            <div>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="px-4 py-1.5 rounded-full border border-yellow-500/30 bg-yellow-500/10 backdrop-blur-md flex items-center gap-2 shadow-[0_0_15px_rgba(234,179,8,0.2)]">
+                  <div className="w-2 h-2 rounded-full bg-yellow-400 animate-pulse" />
+                  <span className="text-yellow-200 text-xs font-bold tracking-widest uppercase text-shadow">
+                    Access Granted
+                  </span>
                 </div>
-                <div className="mt-8 space-y-4">
-                    {["Access to all Speaker Sessions", "Entry to Flagship Competitions", "Exclusive Networking Lunch", "MES 2026 Official Swag Kit", "Certificate of Participation"].map((feature, i) => (
-                        <div key={i} className="flex items-center gap-3 text-white/90 group">
-                            <div className="flex-shrink-0 w-6 h-6 rounded-full bg-black/40 border border-yellow-500/50 flex items-center justify-center group-hover:border-yellow-400 transition-colors shadow-lg backdrop-blur-sm"><Check className="w-3.5 h-3.5 text-yellow-300" /></div>
-                            <span className="text-sm md:text-base font-medium drop-shadow-md">{feature}</span>
-                        </div>
-                    ))}
-                </div>
+              </div>
+              <h2 className="text-4xl font-serif-display italic mb-3 text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-yellow-100 to-amber-300 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
+                All Access Pass
+              </h2>
+              <p className="text-purple-100/90 text-base font-light max-w-md tracking-wide">
+                Unlock the full spectrum of MES 2026.
+              </p>
             </div>
-        </div>
-        <div className="relative hidden md:flex flex-col items-center justify-center w-0 bg-transparent z-20">
-            <div className="absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-[2px] border-l-2 border-dashed border-white/30 h-full" />
-            <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-8 h-8 bg-[#000000] rounded-full z-20" />
-            <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-8 h-8 bg-[#000000] rounded-full z-20" />
-        </div>
-        <div className="w-full md:w-[380px] bg-indigo-950 relative overflow-hidden border-t md:border-t-0 border-white/10 flex flex-col z-10">
-             <div className="absolute inset-0 bg-cover bg-center opacity-40 mix-blend-overlay" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1964&auto=format&fit=crop')` }} />
-             <div className="absolute inset-0 opacity-20 mix-blend-overlay pointer-events-none" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E")` }} />
-             <div className="relative z-10 p-8 md:p-12 flex flex-col h-full justify-center items-center text-center">
-                <div className="mb-auto"><h3 className="text-white/40 font-serif-display italic text-2xl tracking-widest">MES 2026</h3></div>
-                <div className="py-8">
-                    <p className="text-indigo-200 text-xs font-mono uppercase mb-2 tracking-[0.2em]">Admit One</p>
-                    <div className="flex items-start justify-center text-white leading-none drop-shadow-2xl"><span className="text-3xl mt-2 text-indigo-300 font-serif">₹</span><span className="text-7xl md:text-8xl font-black tracking-tighter">250</span></div>
+            <div className="mt-8 space-y-4">
+              {[
+                "Access to all Speaker Sessions",
+                "Entry to Flagship Competitions",
+                "Exclusive Networking Lunch",
+                "MES 2026 Official Swag Kit",
+                "Certificate of Participation",
+              ].map((feature, i) => (
+                <div key={i} className="flex items-center gap-3 text-white/90 group">
+                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-black/40 border border-yellow-500/50 flex items-center justify-center group-hover:border-yellow-400 transition-colors shadow-lg backdrop-blur-sm">
+                    <Check className="w-3.5 h-3.5 text-yellow-300" />
+                  </div>
+                  <span className="text-sm font-medium drop-shadow-md">
+                    {feature}
+                  </span>
                 </div>
-                <div className="mt-auto w-full">
-                    <button onClick={() => console.log("Replace this with handleBuyTicket()")} className="group relative w-full px-8 py-4 bg-white text-black font-bold text-lg rounded-xl overflow-hidden transition-all hover:scale-[1.02] active:scale-[0.98] shadow-[0_0_30px_rgba(255,255,255,0.2)]">
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-gray-200 to-transparent -translate-x-[100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-in-out" />
-                        <span className="relative z-10 group-hover:text-black transition-colors flex items-center justify-center gap-2">Secure Your Pass</span>
-                    </button>
-                    <p className="mt-4 text-[10px] text-indigo-300/60 uppercase tracking-widest font-medium">Official Entry • Non-Transferable</p>
-                </div>
-             </div>
+              ))}
+            </div>
+          </div>
+        </div>
+        
+        {/* Mobile Ticket Stub Section */}
+        <div className="w-full bg-indigo-950 relative overflow-hidden border-t border-white/10 flex flex-col z-10">
+          <div
+            className="absolute inset-0 bg-cover bg-center opacity-40 mix-blend-overlay"
+            style={{
+              backgroundImage: `url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1964&auto=format&fit=crop')`,
+            }}
+          />
+          <div
+            className="absolute inset-0 opacity-20 mix-blend-overlay pointer-events-none"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E")`,
+            }}
+          />
+          <div className="relative z-10 p-8 flex flex-col h-full justify-center items-center text-center">
+            <div className="mb-auto">
+              <h3 className="text-white/40 font-serif-display italic text-2xl tracking-widest">
+                MES 2026
+              </h3>
+            </div>
+            <div className="py-8">
+              <p className="text-indigo-200 text-xs font-mono uppercase mb-2 tracking-[0.2em]">
+                Admit One
+              </p>
+              <div className="flex items-start justify-center text-white leading-none drop-shadow-2xl">
+                <span className="text-3xl mt-2 text-indigo-300 font-serif">
+                  ₹
+                </span>
+                <span className="text-7xl font-black tracking-tighter">
+                  250
+                </span>
+              </div>
+            </div>
+            <div className="mt-auto w-full">
+              <button
+                onClick={handleBuyTicket}
+                className="group relative w-full px-8 py-4 bg-white text-black font-bold text-lg rounded-xl overflow-hidden transition-all hover:scale-[1.02] active:scale-[0.98] shadow-[0_0_30px_rgba(255,255,255,0.2)]"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-gray-200 to-transparent -translate-x-[100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-in-out" />
+                <span className="relative z-10 group-hover:text-black transition-colors flex items-center justify-center gap-2">
+                  Secure Your Pass
+                </span>
+              </button>
+              <p className="mt-4 text-[10px] text-indigo-300/60 uppercase tracking-widest font-medium">
+                Official Entry • Non-Transferable
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </motion.div>

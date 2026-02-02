@@ -9,7 +9,6 @@ import apiClient from "../../lib/api-client";
 import dynamic from 'next/dynamic';
 import { useAuth } from "../../lib/auth-context";
 
-
 const ColorBends = dynamic(() => import('@/components/ColorBends'), { ssr: false });
 
 const SLIDES = [
@@ -59,51 +58,53 @@ export default function LoginPage() {
       });
 
       if (response.status === 200) {
-        console.log("Login success! Fetching user session...");
-        
-        // CRITICAL CHECK: Ensure this function exists before calling
         if (typeof checkUserSession === 'function') {
             await checkUserSession();
-        } else {
-            console.error("checkUserSession function is missing from Context!");
         }
-
         router.push('/student'); 
       }
     } catch (err: any) {
-      // DEBUG LOGGING
-      console.error("Login Error Details:", err); // <--- Check your browser console!
-
-      // If it's a code error (TypeError), don't say "Invalid Credentials"
+      console.error("Login Error Details:", err);
       if (!err.response) {
          setError("App Error: " + err.message); 
          return;
       }
-
       const errorMessage = err.response?.data?.message || "Invalid credentials or server error.";
       setError(errorMessage);
     } finally {
       setLoading(false);
     }
-  }; // <--- THIS WAS MISSING
+  }; 
 
   return (
     <div className="flex items-center justify-center min-h-screen w-full bg-[#050505] font-sans p-0 md:p-4 selection:bg-blue-500/30">
-      <div className="relative w-full h-full md:w-[96vw] md:max-w-[1600px] md:h-[92vh] bg-[#0a0a0a] md:rounded-[30px] overflow-hidden flex flex-col lg:flex-row shadow-2xl md:border border-white/5">
+      
+      {/* CONTAINER: 
+          Mobile: h-[100dvh] (Full screen vertical)
+          Desktop: md:h-[92vh] (Floating card) 
+      */}
+      <div className="relative w-full h-[100dvh] md:w-[96vw] md:max-w-[1600px] md:h-[92vh] bg-[#0a0a0a] md:rounded-[30px] overflow-hidden flex flex-col lg:flex-row shadow-2xl md:border border-white/5">
         
-        {/* LEFT SIDE: VISUALS */}
-        <div className="relative w-full h-[35vh] lg:h-full lg:w-[60%] bg-black flex-shrink-0">
-            <Link href="/" className="absolute top-6 left-6 lg:top-8 lg:left-auto lg:right-8 z-30 flex items-center gap-2 px-4 py-2 rounded-full bg-black/20 backdrop-blur-md border border-white/10 text-xs font-bold uppercase tracking-wider text-white hover:bg-white/10 transition-all duration-300 group">
-                <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
+        {/* --- LEFT SIDE: VISUALS --- */}
+        {/* Mobile: h-[38vh] (Tall header for visuals)
+            Desktop: lg:h-full (Full height sidebar) 
+        */}
+        <div className="relative w-full h-[38vh] lg:h-full lg:w-[60%] bg-black flex-shrink-0">
+            
+            {/* Back Button */}
+            <Link href="/" className="absolute top-6 left-6 lg:top-8 lg:left-auto lg:right-8 z-30 flex items-center gap-2 px-5 py-2.5 rounded-full bg-black/40 backdrop-blur-xl border border-white/10 text-xs font-bold uppercase tracking-wider text-white hover:bg-white/10 transition-all duration-300 group">
+                <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
                 <span className="hidden lg:inline">Back to website</span>
-                <span className="lg:hidden">Back</span>
+                <span className="lg:hidden">Home</span>
             </Link>
 
             <div className="absolute inset-0 opacity-80 lg:scale-110">
                 <ColorBends colors={['#0ea5e9', '#10b981', '#000000']} speed={0.2} />
             </div>
-            <div className="absolute inset-0 bg-gradient-to-b lg:bg-gradient-to-t from-black/60 via-transparent to-black/30" />
+            
+            <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/90 lg:bg-gradient-to-t lg:from-black/60 lg:to-black/30" />
 
+            {/* Desktop Slides */}
             <div className="hidden lg:block absolute bottom-12 left-12 z-20 max-w-lg">
                 <div className="h-[140px] flex items-end"> 
                     <AnimatePresence mode='wait'>
@@ -130,30 +131,59 @@ export default function LoginPage() {
                 </div>
             </div>
 
-            <div className="lg:hidden absolute bottom-10 left-6 z-20">
-                <h1 className="text-4xl font-serif-display italic font-bold text-white leading-none">MES 2026</h1>
-                <p className="text-blue-200/80 text-xs mt-1 font-medium tracking-wide">Welcome Back.</p>
+            {/* Mobile Branding */}
+            <div className="lg:hidden absolute bottom-12 left-6 z-20">
+                <motion.div 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                >
+                  <h1 className="text-5xl font-serif-display italic font-bold text-white leading-none drop-shadow-lg">MES 2026</h1>
+                  <p className="text-blue-200/90 text-sm mt-2 font-medium tracking-wide flex items-center gap-2">
+                    <span className="w-8 h-[1px] bg-blue-400"></span>
+                    Student Portal
+                  </p>
+                </motion.div>
             </div>
         </div>
 
-        {/* RIGHT SIDE: FORM */}
-        <div className="relative flex-1 w-full lg:w-[40%] bg-[#0E0E0E] flex flex-col px-6 md:px-16 py-8 lg:py-8 rounded-t-[30px] lg:rounded-none -mt-6 lg:mt-0 z-10 overflow-y-auto">
-            <div className="lg:hidden w-12 h-1.5 bg-white/10 rounded-full mx-auto mb-6 flex-shrink-0" />
+        {/* --- RIGHT SIDE: FORM --- */}
+        {/* MOBILE STYLES (Restored): 
+            -mt-8 (Negative margin for sheet effect)
+            rounded-t-[35px] (Deep curve)
+            border-t (Highlight top edge)
+            shadow-[...] (Depth)
+            
+            DESKTOP STYLES (Kept Sexy):
+            lg:mt-0 (No overlap)
+            lg:rounded-none (Flat side)
+            lg:border-none
+            lg:shadow-none
+        */}
+        <div className="relative flex-1 w-full lg:w-[40%] bg-[#0E0E0E] flex flex-col px-6 md:px-16 pt-10 pb-6 lg:py-8 
+                        rounded-t-[35px] lg:rounded-none -mt-8 lg:mt-0 z-10 
+                        overflow-y-auto border-t border-white/10 lg:border-none shadow-[0_-10px_40px_rgba(0,0,0,0.5)] lg:shadow-none">
+            
+            {/* Mobile Pull Indicator */}
+            <div className="lg:hidden w-12 h-1 bg-white/20 rounded-full mx-auto mb-8 flex-shrink-0" />
+            
             <div className="w-full max-w-sm mx-auto my-auto">
-                <h2 className="text-3xl font-bold text-white mb-2">Sign In</h2>
-                <p className="text-gray-500 text-xs mb-8">
-                    Don't have an account? <Link href="/signup" className="text-blue-400 hover:text-blue-300 font-medium transition-colors">Create one now</Link>
-                </p>
+                <div className="mb-8">
+                    <h2 className="text-3xl font-bold text-white mb-2 tracking-tight">Sign In</h2>
+                    <p className="text-gray-500 text-sm">
+                        Don't have an account? <Link href="/signup" className="text-blue-400 hover:text-blue-300 font-medium transition-colors underline decoration-blue-400/30 underline-offset-4">Create one</Link>
+                    </p>
+                </div>
 
                 <AnimatePresence mode='wait'>
                     {error && (
                         <motion.div 
                             initial={{ opacity: 0, y: -10 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="mb-6 p-3 rounded-lg flex items-center gap-3 text-xs font-medium border bg-red-500/5 border-red-500/20 text-red-400"
+                            className="mb-6 p-4 rounded-xl flex items-start gap-3 text-xs font-medium border bg-red-500/10 border-red-500/20 text-red-300"
                         >
-                            <AlertCircle size={14} />
-                            {error}
+                            <AlertCircle size={16} className="mt-0.5 shrink-0" />
+                            <span>{error}</span>
                         </motion.div>
                     )}
                 </AnimatePresence>
@@ -162,17 +192,17 @@ export default function LoginPage() {
                     <InputField label="Email Address" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="john@example.com" />
                     <div className="space-y-1">
                         <InputField label="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="••••••••" />
-                        <div className="flex justify-end">
-                            <Link href="/forgot-password" university-context="true" className="text-[10px] text-gray-500 hover:text-white transition-colors mt-1">Forgot password?</Link>
+                        <div className="flex justify-end pt-1">
+                            <Link href="/forgot-password" university-context="true" className="text-xs text-gray-500 hover:text-white transition-colors py-2">Forgot password?</Link>
                         </div>
                     </div>
 
                     <button 
                         type="submit" 
                         disabled={loading} 
-                        className="group w-full mt-6 bg-[#0ea5e9] hover:bg-[#0284c7] text-white py-4 rounded-xl font-bold text-xs uppercase tracking-wider transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50"
+                        className="group w-full mt-4 bg-gradient-to-r from-[#0ea5e9] to-[#0284c7] hover:from-[#0284c7] hover:to-[#0369a1] text-white py-4 rounded-xl font-bold text-sm uppercase tracking-wider transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 shadow-[0_0_20px_rgba(14,165,233,0.3)] hover:shadow-[0_0_30px_rgba(14,165,233,0.5)]"
                     >
-                        {loading ? <Loader2 className="animate-spin" size={16} /> : <>Login <ArrowRight size={14} /></>}
+                        {loading ? <Loader2 className="animate-spin" size={20} /> : <>Access Dashboard <ArrowRight size={16} /></>}
                     </button>
                 </form>
             </div>
@@ -188,10 +218,11 @@ function InputField({ label, ...props }: InputFieldProps) {
         <div className="relative group">
             <input
             {...props}
-            className="peer w-full rounded-xl px-4 py-3.5 pt-5 pb-2 text-sm bg-[#1a1a1a] border border-[#333] text-white placeholder-transparent focus:outline-none focus:border-blue-500 focus:bg-[#202020] transition-all duration-200"
+            // text-base on mobile prevents iOS zoom. md:text-sm reverts to smaller text on desktop.
+            className="peer w-full rounded-xl px-4 py-4 pt-6 pb-2 text-base md:text-sm bg-[#151515] border border-[#252525] text-white placeholder-transparent focus:outline-none focus:border-blue-500 focus:bg-[#1a1a1a] transition-all duration-200"
             placeholder={props.placeholder}
             />
-            <label className="absolute left-4 top-1.5 text-[10px] font-bold uppercase tracking-wider text-gray-500 transition-all duration-200 peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-xs peer-placeholder-shown:text-gray-600 peer-placeholder-shown:font-medium peer-placeholder-shown:normal-case peer-placeholder-shown:tracking-normal peer-focus:top-1.5 peer-focus:text-[10px] peer-focus:font-bold peer-focus:uppercase peer-focus:tracking-wider peer-focus:text-blue-400 pointer-events-none">
+            <label className="absolute left-4 top-2 text-[10px] font-bold uppercase tracking-wider text-gray-500 transition-all duration-200 peer-placeholder-shown:top-4 peer-placeholder-shown:text-sm peer-placeholder-shown:text-gray-600 peer-placeholder-shown:font-medium peer-placeholder-shown:normal-case peer-placeholder-shown:tracking-normal peer-focus:top-2 peer-focus:text-[10px] peer-focus:font-bold peer-focus:uppercase peer-focus:tracking-wider peer-focus:text-blue-400 pointer-events-none">
                 {label}
             </label>
         </div>

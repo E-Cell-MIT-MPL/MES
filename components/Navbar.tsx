@@ -4,8 +4,9 @@ import GlassPill from './GlassPill';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, ArrowLeft } from 'lucide-react';
+// 👇 1. Import 'Variants' type here
+import { motion, AnimatePresence, Variants } from 'framer-motion';
+import { Menu, X, ArrowLeft, ArrowUpRight } from 'lucide-react';
 
 const Navbar = () => {
   const [isDarkBackground, setIsDarkBackground] = useState(true);
@@ -16,20 +17,11 @@ const Navbar = () => {
       const scrollY = window.scrollY;
       const windowHeight = window.innerHeight;
 
-      // --- COLOR LOGIC FIX ---
-      // 1. Calculate how many "screens" down the White (Expanding) section starts.
-      //    Hero (1) + Speakers (1) + Events (1) = Starts at 3.0
-      //    (Adjust this number 3.0 if you add/remove sections before the white one)
+      // --- COLOR LOGIC ---
       const whiteSectionStart = windowHeight * 5.0; 
-      
-      // 2. The white section is approx 500vh tall.
       const whiteSectionEnd = whiteSectionStart + (windowHeight * 3.5); 
-
-      // 3. Are we currently inside the White Zone?
       const isInWhiteSection = scrollY > (whiteSectionStart - windowHeight * 0.1) && scrollY < whiteSectionEnd;
 
-      // 4. If we are in the White Zone, Text = BLACK (isDarkBackground = false).
-      //    Otherwise (Hero, Speakers, Tickets), Text = WHITE (isDarkBackground = true).
       setIsDarkBackground(!isInWhiteSection);
     };
 
@@ -46,6 +38,35 @@ const Navbar = () => {
     }
   }, [isMobileMenuOpen]);
 
+  // 👇 2. Add ': Variants' type annotation
+  const containerVariants: Variants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.2
+      }
+    },
+    exit: {
+      opacity: 0,
+      transition: {
+        staggerChildren: 0.05,
+        staggerDirection: -1
+      }
+    }
+  };
+
+  // 👇 3. Add ': Variants' type annotation
+  const itemVariants: Variants = {
+    hidden: { y: 20, opacity: 0 },
+    show: { 
+        y: 0, 
+        opacity: 1, 
+        transition: { type: "spring", stiffness: 300, damping: 24 } 
+    }
+  };
+
   return (
     <>
     <nav className="fixed top-0 left-0 w-full z-[50000] pointer-events-none">
@@ -57,7 +78,6 @@ const Navbar = () => {
           className="relative z-[50002] cursor-pointer transition-opacity hover:opacity-80 flex-shrink-0 flex items-center" 
           onClick={() => setIsMobileMenuOpen(false)}
         >
-          {/* FIX: Increased mobile height to h-16 (64px) and width to w-32 to make it big again */}
           <div className="relative h-16 w-32 md:w-40 md:h-20">
             <Image 
                 src="/images/MES 2026 logo 4.png" 
@@ -89,22 +109,18 @@ const Navbar = () => {
         </div>
 
         {/* --- RIGHT: BUTTON (DESKTOP ONLY) --- */}
-        {/* --- RIGHT: BUTTON (DESKTOP ONLY) --- */}
         <div className="hidden md:flex items-center ml-auto z-50">
           <Link 
             href="/signup"
             className="group relative px-6 py-2 rounded-full font-bold text-sm text-white shadow-lg transition-all duration-300 hover:scale-105 active:scale-95 hover:shadow-[0_0_25px_rgba(219,39,119,0.4)] overflow-hidden"
             style={{
-              // Dark Pink / Rose Gradient
               background: 'linear-gradient(135deg, #831843 0%, #db2777 100%)', 
               border: isDarkBackground 
                 ? '1px solid rgba(255, 255, 255, 0.15)' 
                 : '1px solid rgba(0, 0, 0, 0.1)',
             }}
           >
-            {/* Hover Shine Effect */}
             <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-            
             <span className="relative z-10 tracking-widest flex items-center gap-2">
               GET TICKETS
             </span>
@@ -112,23 +128,18 @@ const Navbar = () => {
         </div>
 
         {/* --- RIGHT: MOBILE CONTROLS --- */}
-        {/* --- RIGHT: MOBILE CONTROLS --- */}
         <div className="md:hidden ml-auto z-[50003] flex items-center gap-3">
             {!isMobileMenuOpen && (
                 <Link 
                     href="/signup"
                     className="group relative px-4 py-2 rounded-full font-bold text-[10px] uppercase tracking-widest text-white shadow-lg transition-all duration-300 active:scale-95 overflow-hidden whitespace-nowrap"
                     style={{
-                        // Same Dark Pink Gradient
                         background: 'linear-gradient(135deg, #831843 0%, #db2777 100%)',
                         border: '1px solid rgba(255, 255, 255, 0.15)',
-                        // Adjusted shadow for mobile to match the pink theme
                         boxShadow: '0 4px 15px rgba(219, 39, 119, 0.3)'
                     }}
                 >
-                    {/* Shine Effect */}
                     <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-                    
                     <span className="relative z-10">
                         Get Tickets
                     </span>
@@ -148,44 +159,91 @@ const Navbar = () => {
     <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="fixed inset-0 z-[50001] bg-[#050505] flex flex-col items-center justify-center md:hidden"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            className="fixed inset-0 z-[50001] bg-[#050505] flex flex-col md:hidden overflow-hidden"
           >
-            <button 
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="absolute top-24 left-6 flex items-center gap-2 text-gray-400 text-xs font-mono uppercase tracking-widest hover:text-white"
-            >
-                <ArrowLeft size={14} /> Back
-            </button>
-
-            <div className="flex flex-col items-center gap-8 mb-12">
-              {['SPEAKERS', 'EVENTS', 'TIMELINE', 'PASSES'].map((item) => (
-                <a 
-                  key={item}
-                  href={`#${item.toLowerCase()}`}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="text-4xl font-serif-display italic font-bold text-white hover:text-purple-500 transition-colors tracking-wide"
-                >
-                  {item}
-                </a>
-              ))}
+            {/* Background Effects */}
+            <div className="absolute inset-0 z-0">
+                 {/* Noise Texture */}
+                 <div className="absolute inset-0 opacity-20 pointer-events-none" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E")` }} />
+                 {/* Gradients */}
+                 <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-purple-600/20 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2" />
+                 <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-pink-600/10 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/2" />
             </div>
 
-            <div className="flex flex-col gap-4 w-64">
-              <Link 
-                href="/login"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="w-full py-4 border border-white/20 rounded-xl text-center text-white font-bold uppercase tracking-widest hover:bg-white/5 transition-colors text-sm"
-              >
-                Log In
-              </Link>
+            <div className="relative z-10 flex flex-col h-full px-8 pt-32 pb-12">
+                
+                {/* Back/Close Label */}
+                <button 
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="absolute top-28 left-8 flex items-center gap-2 text-white/40 text-[10px] font-mono uppercase tracking-widest hover:text-white transition-colors"
+                >
+                    <ArrowLeft size={12} /> Close Menu
+                </button>
+
+                {/* Navigation Links */}
+                <motion.div 
+                    variants={containerVariants}
+                    initial="hidden"
+                    animate="show"
+                    exit="exit"
+                    className="flex flex-col gap-6 mt-8"
+                >
+                    {['SPEAKERS', 'EVENTS', 'TIMELINE', 'PASSES'].map((item, index) => (
+                        <motion.a 
+                            key={item}
+                            variants={itemVariants}
+                            href={`#${item.toLowerCase()}`}
+                            onClick={() => setIsMobileMenuOpen(false)}
+                            className="group relative flex items-center justify-between py-2 border-b border-white/5"
+                        >
+                            <span className="text-5xl font-serif-display italic font-bold text-transparent bg-clip-text bg-gradient-to-r from-white via-white to-gray-500 group-hover:to-white transition-all tracking-wide">
+                                {item}
+                            </span>
+                            <div className="flex items-center gap-4">
+                                <span className="text-xs font-mono text-white/20 group-hover:text-purple-400 transition-colors">
+                                    0{index + 1}
+                                </span>
+                                <ArrowUpRight className="text-white/20 group-hover:text-purple-400 group-hover:-translate-y-1 group-hover:translate-x-1 transition-all duration-300" size={20} />
+                            </div>
+                        </motion.a>
+                    ))}
+                </motion.div>
+
+                {/* Footer / CTA */}
+                <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.5 }}
+                    className="mt-auto"
+                >
+                    <Link 
+                        href="/login"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="w-full relative group block"
+                    >
+                         <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl opacity-50 blur group-hover:opacity-100 transition duration-500"></div>
+                         <div className="relative w-full py-5 bg-[#0a0a0a] rounded-xl flex items-center justify-center gap-3 border border-white/10 group-hover:bg-black/80 transition-all">
+                            <span className="text-white font-bold uppercase tracking-widest text-sm">Log In / Sign Up</span>
+                            <ArrowUpRight size={16} className="text-purple-400" />
+                         </div>
+                    </Link>
+                    
+                    <div className="mt-8 flex justify-between items-end">
+                         <div>
+                            <p className="text-[10px] text-white/30 font-mono uppercase tracking-widest mb-1">Manipal</p>
+                            <p className="text-[10px] text-white/30 font-mono uppercase tracking-widest">Entrepreneurship Summit</p>
+                         </div>
+                         <p className="text-[10px] text-white/30 font-mono uppercase tracking-widest">2026</p>
+                    </div>
+                </motion.div>
             </div>
           </motion.div>
         )}
-      </AnimatePresence>
+    </AnimatePresence>
     </>
   );
 };

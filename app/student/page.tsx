@@ -269,10 +269,9 @@ function DashboardContent() {
         )}
       </AnimatePresence>
 
-      <div className="relative w-[96vw] max-w-[1600px] min-h-[85vh] bg-[#0a0a0a] rounded-[30px] overflow-hidden flex flex-col lg:flex-row shadow-2xl border border-white/5 my-10">
-        {/* --- LEFT SIDE: STICKY VISUALS --- */}
-        <div className="hidden lg:block w-[35%] bg-black border-r border-white/5 relative">
-          <div className="sticky top-0 h-screen max-h-[85vh] overflow-hidden">
+      <div className="relative w-full md:w-[96vw] max-w-[1600px] min-h-screen md:min-h-[85vh] bg-[#0a0a0a] md:rounded-[30px] overflow-hidden flex flex-col lg:flex-row shadow-2xl border-none md:border border-white/5 my-0 md:my-10">        {/* --- LEFT SIDE: STICKY VISUALS --- */}
+        <div className="w-full lg:w-[35%] bg-black lg:border-r border-b lg:border-b-0 border-white/5 relative">          <div className="relative lg:sticky top-0 h-[500px] lg:h-screen lg:max-h-[85vh] overflow-hidden">
+          
             <Link
               href="/"
               className="absolute top-8 left-8 z-30 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-white/60 hover:text-white transition-all duration-300 group"
@@ -292,8 +291,7 @@ function DashboardContent() {
             </div>
             <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/80" />
 
-            <div className="absolute inset-0 flex flex-col items-center justify-center z-20 p-8">
-              <motion.div
+            <div className="absolute inset-0 flex flex-col items-center justify-start pt-24 md:justify-center md:pt-8 md:p-8 z-20">              <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
@@ -336,7 +334,7 @@ function DashboardContent() {
                         )}
                       </div>
 
-                      <div className="absolute -bottom-3 left-1/2 -translate-x-1/2">
+                      <div className="absolute -bottom-10 left-1/2 -translate-x-1/2">
                         <span
                           className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest border backdrop-blur-xl shadow-lg flex items-center gap-2 whitespace-nowrap ${
                             hasPaidTicket
@@ -553,17 +551,6 @@ function DashboardContent() {
         </div>
 
         {/* --- ACCESS BUTTON: Increased visibility with solid background and higher Z-index --- */}
-        <div className="ml-auto relative z-30">
-          {" "}
-          {/* 👈 High z-index to stay above artwork */}
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="px-5 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-[9px] font-black uppercase tracking-[0.15em] text-white hover:bg-white hover:text-black hover:border-white transition-all duration-300 shadow-[0_4px_12px_rgba(0,0,0,0.5)]"
-          >
-            Access
-          </motion.button>
-        </div>
       </div>
     </div>
   );
