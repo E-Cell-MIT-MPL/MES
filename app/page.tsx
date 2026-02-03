@@ -11,11 +11,14 @@ import Image from "next/image";
 import Tunnel from "../components/Tunnel";
 import Navbar from "@/components/Navbar";
 import CardSwap, { Card, CardSwapHandle } from '../components/CardsSwap'; 
+
 import { Check, ArrowUpRight,MapPin, 
   Instagram, 
   Linkedin, 
   Youtube, 
   Twitter } from "lucide-react"; 
+import { homedir } from "os";
+  
 
 // ... [BlurReveal Component - Keep as is] ...
 function BlurReveal({ children, delay = 0, className = "" }: { children: React.ReactNode, delay?: number, className?: string }) {
@@ -55,6 +58,27 @@ function BlurReveal({ children, delay = 0, className = "" }: { children: React.R
 // ... [REAL_EVENTS Data - Keep as is] ...
 const REAL_EVENTS = [
   { 
+    date: "12 Feb", 
+    title: "Inauguration", 
+    desc: "The official inauguration marking the beginning of the event series.", 
+    link: "#", 
+    image: "/images/inauguration.jpg"
+  },
+  {
+    date: "14 Feb",
+    title: "Innovation Mela",
+    desc: "A vibrant exhibition of innovative ideas, prototypes, and creative projects.",
+    link: "#",
+    image: "/images/innovationmela.jpg"
+  },
+  {
+    date: "13 Feb",
+    title: "Pitch Tank",
+    desc: "Startup-style pitch sessions where teams present ideas to a judging panel.",
+    link: "#", 
+    image: "/images/pitchtank.jpg"
+  },
+  { 
     date: "7 Feb", 
     title: "Conceptio Ideathon", 
     desc: "A high-energy ideation sprint where teams brainstorm, validate, and pitch innovative solutions.", 
@@ -66,13 +90,14 @@ const REAL_EVENTS = [
     title: "Money Quest", 
     desc: "A finance-focused challenge testing strategy, risk-taking, and decision-making skills.", 
     link: "https://unstop.com/", 
-    image:"https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?q=80&w=800&auto=format&fit=crop"  },
+    image: "https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?q=80&w=800&auto=format&fit=crop"
+  },
   { 
     date: "11 Feb", 
     title: "Blind Spot", 
     desc: "Blindspot is a hands-on investment decision-making competition in (MES) 2026 on Unstop, with a ₹25,000 prize pool and rounds running from January 26, 2026..", 
     link: "#", 
-    image: "https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=800&auto=format&fit=crop"
+    image: "/images/blindspot.jpg"
   },
   { 
     date: "11 Feb", 
@@ -88,28 +113,6 @@ const REAL_EVENTS = [
     link: "#", 
     image: "/images/postmortum.png"
   },
-  { 
-    date: "12 Feb", 
-    title: "Inauguration", 
-    desc: "The official inauguration marking the beginning of the event series.", 
-    link: "#", 
-    image: "/images/inauguration.jpg"
-  },
-  {
-    date: "13 Feb",
-    title: "Pitch Tank",
-    desc: "Startup-style pitch sessions where teams present ideas to a judging panel.",
-    link: "#", 
-    image: "/images/pitchtank.jpg"
-  },
- {
-  date: "14 Feb",
-  title: "Innovation Mela",
-  desc: "A vibrant exhibition of innovative ideas, prototypes, and creative projects.",
-  link: "#",
-  image: "/images/innovationmela.jpg"
-},
-
   {
     date: "14 Feb",
     title: "Case Maze",
@@ -491,47 +494,49 @@ export function SponsorFooter() {
 //  They work fine, just need to be imported or present in the file.)
 // ... [REAL_SPEAKERS Array] ...
 const REAL_SPEAKERS = [
-  {
-    name: "Sahiba Bali",
-    role: "Actor & Content Creator",
-    company: "Bollywood / Digital",
-    image: "https://www.hindustantimes.com/ht-img/img/2025/06/19/1600x900/Bali-starred-in-the-2019-show--Bard-of-Blood--and-_1750357025009.jpg?q=80&w=800&auto=format&fit=crop",
-    color: "bg-pink-500",
-    gradient: "from-pink-400 to-rose-600",
-    linkedin: "https://in.linkedin.com/in/sahibabali",
-  },
-  {
-    name: "Parul Gulati",
-    role: "Founder",
-    company: "Nish Hair",
-    image: "https://images.indianexpress.com/2024/03/parul-g-1.jpg?q=80&w=800&auto=format&fit=crop",
-    color: "bg-purple-500",
-    gradient: "from-violet-400 to-purple-600",
-    linkedin: "https://in.linkedin.com/in/parul-gulati-44709681",
-  },
-  {
-    name: "Gaurav Taneja",
-    role: "YouTuber & Entrepreneur",
-    company: "Flying Beast",
-    image: "https://img.etimg.com/thumb/width-1200,height-900,imgsize-51008,resizemode-75,msid-117012117/magazines/panache/shark-tank-india-4-iitian-turned-youtuber-gaurav-taneja-reveals-why-needs-sharks-despite-earning-rs-1-crore-in-1-hour.jpg?q=80&w=800&auto=format&fit=crop",
-    color: "bg-orange-500",
-    gradient: "from-orange-400 to-red-500",
-    linkedin: "https://in.linkedin.com/in/gaurav-taneja-75a80a13",
-  },
-  {
+   {
     name: "Shantanu Deshpande",
     role: "Founder & CEO",
     company: "Bombay Shaving Company",
-    image: "https://neon.fund/wp-content/uploads/2021/07/Shantanu-Deshpande-CEO-Founder-Bombay-Shaving-Company.jpg?q=80&w=800&auto=format&fit=crop",
+    image: "/images/shantanu.jpeg",
     color: "bg-gray-800",
     gradient: "from-gray-700 to-gray-900",
     linkedin: "https://in.linkedin.com/in/shantanudeshpandebsc",
   },
   {
+    name: "Sahiba Bali",
+    role: "Actor & Content Creator",
+    company: "Bollywood / Digital",
+    image: "/images/sahiba.jpeg",
+    color: "bg-pink-500",
+    gradient: "from-pink-400 to-rose-600",
+    linkedin: "https://in.linkedin.com/in/sahibabali",
+  },
+    {
+    name: "Gaurav Taneja",
+    role: "YouTuber & Entrepreneur",
+    company: "Flying Beast",
+    image: "/images/gaurav.jpeg",
+    color: "bg-orange-500",
+    gradient: "from-orange-400 to-red-500",
+    linkedin: "https://in.linkedin.com/in/gaurav-taneja-75a80a13",
+  },
+  {
+    name: "Parul Gulati",
+    role: "Founder",
+    company: "Nish Hair",
+    image: "/images/parul.jpeg",
+    color: "bg-purple-500",
+    gradient: "from-violet-400 to-purple-600",
+    linkedin: "https://in.linkedin.com/in/parul-gulati-44709681",
+  },
+
+ 
+  {
     name: "Ankur Warikoo",
     role: "Entrepreneur & Author",
     company: "Warikoo",
-    image: "https://elevatesociety.com/wp-content/uploads/Ankur-Warikoo.jpg?q=80&w=800&auto=format&fit=crop",
+    image: "/images/ankur.jpeg",
     color: "bg-indigo-500",
     gradient: "from-indigo-400 to-purple-600",
     linkedin: "https://in.linkedin.com/in/warikoo",
@@ -617,150 +622,84 @@ export function TicketCard() {
     router.push("/signup");
   };
   
-  return (
-    <motion.div
-      ref={cardRef}
-      onMouseMove={onMouseMove}
-      onMouseLeave={onMouseLeave}
-      style={{
-        transform: `perspective(1000px) rotateX(${rotate.x}deg) rotateY(${rotate.y}deg)`,
-      }}
-      className="relative w-full max-w-5xl mx-auto transition-transform duration-300 ease-out will-change-transform"
-    >
-      <div className="absolute -inset-4 bg-gradient-to-r from-purple-600/40 via-pink-600/40 to-blue-600/40 rounded-[2.5rem] blur-3xl opacity-50" />
-      
-      {/* ========================================== */}
-      {/* DESKTOP VIEW: Image Pass (Hidden on Mobile) */}
-      {/* ========================================== */}
-      <div className="hidden md:block relative h-[333px] w-full bg-[#0a0a0a] border border-white/10 rounded-3xl overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)] group">
-        {/* Changed object-cover to object-contain to fit the image properly */}
-        <img 
-            src="/images/MES WEB PASS.jpg" 
-            alt="MES 2026 Pass" 
-            className="w-full h-full object-contain"
-        />
-        
-       {/* Overlay Button to ensure functionality persists on Desktop */}
-       {/* <div className="absolute bottom-2 right-3 z-20">
-             <button 
-                onClick={handleBuyTicket} 
-                className="px-16 py-6 bg-white text-black font-bold text-lg rounded-xl transition-all hover:scale-105 hover:bg-gray-200 shadow-[0_0_20px_rgba(255,255,255,0.3)]"
-             >
-                Buy Pass
-             </button>
-        </div>
-        */}
-      </div>
-      
+return (
+  <motion.div
+    ref={cardRef}
+    onMouseMove={onMouseMove}
+    onMouseLeave={onMouseLeave}
+    style={{
+      transform: `perspective(1000px) rotateX(${rotate.x}deg) rotateY(${rotate.y}deg)`,
+    }}
+    className="relative w-full max-w-5xl mx-auto transition-transform duration-300 ease-out will-change-transform"
+  >
+    {/* Glow */}
+    <div className="absolute -inset-4 bg-gradient-to-r from-purple-600/40 via-pink-600/40 to-blue-600/40 rounded-[2.5rem] blur-3xl opacity-50" />
 
-      {/* ========================================== */}
-      {/* MOBILE VIEW: Original Design (Hidden on Desktop) */}
-      {/* ========================================== */}
-      <div className="block md:hidden relative flex-col h-full bg-[#0a0a0a] border border-white/10 rounded-3xl overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)]">
-        <div className="flex-1 relative overflow-hidden bg-[#050505]">
-          <div
-            className="absolute inset-0 bg-cover bg-center opacity-80 mix-blend-hard-light"
-            style={{
-              backgroundImage: `url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1964&auto=format&fit=crop')`,
-            }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-black via-black/60 to-transparent" />
-          <div
-            className="absolute inset-0 opacity-30 mix-blend-overlay pointer-events-none"
-            style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E")`,
-            }}
-          />
-          <div className="relative z-10 flex flex-col h-full justify-between p-8">
-            <div>
-              <div className="flex items-center gap-3 mb-6">
-                <div className="px-4 py-1.5 rounded-full border border-yellow-500/30 bg-yellow-500/10 backdrop-blur-md flex items-center gap-2 shadow-[0_0_15px_rgba(234,179,8,0.2)]">
-                  <div className="w-2 h-2 rounded-full bg-yellow-400 animate-pulse" />
-                  <span className="text-yellow-200 text-xs font-bold tracking-widest uppercase text-shadow">
-                    Access Granted
-                  </span>
-                </div>
-              </div>
-              <h2 className="text-4xl font-serif-display italic mb-3 text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-yellow-100 to-amber-300 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
-                All Access Pass
-              </h2>
-              <p className="text-purple-100/90 text-base font-light max-w-md tracking-wide">
-                Unlock the full spectrum of MES 2026.
-              </p>
-            </div>
-            <div className="mt-8 space-y-4">
-              {[
-                "Access to all Speaker Sessions",
-                "Entry to Flagship Competitions",
-                "Exclusive Networking Lunch",
-                "MES 2026 Official Swag Kit",
-                "Certificate of Participation",
-              ].map((feature, i) => (
-                <div key={i} className="flex items-center gap-3 text-white/90 group">
-                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-black/40 border border-yellow-500/50 flex items-center justify-center group-hover:border-yellow-400 transition-colors shadow-lg backdrop-blur-sm">
-                    <Check className="w-3.5 h-3.5 text-yellow-300" />
-                  </div>
-                  <span className="text-sm font-medium drop-shadow-md">
-                    {feature}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-        
-        {/* Mobile Ticket Stub Section */}
-        <div className="w-full bg-indigo-950 relative overflow-hidden border-t border-white/10 flex flex-col z-10">
-          <div
-            className="absolute inset-0 bg-cover bg-center opacity-40 mix-blend-overlay"
-            style={{
-              backgroundImage: `url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1964&auto=format&fit=crop')`,
-            }}
-          />
-          <div
-            className="absolute inset-0 opacity-20 mix-blend-overlay pointer-events-none"
-            style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E")`,
-            }}
-          />
-          <div className="relative z-10 p-8 flex flex-col h-full justify-center items-center text-center">
-            <div className="mb-auto">
-              <h3 className="text-white/40 font-serif-display italic text-2xl tracking-widest">
-                MES 2026
-              </h3>
-            </div>
-            <div className="py-8">
-              <p className="text-indigo-200 text-xs font-mono uppercase mb-2 tracking-[0.2em]">
-                Admit One
-              </p>
-              <div className="flex items-start justify-center text-white leading-none drop-shadow-2xl">
-                <span className="text-3xl mt-2 text-indigo-300 font-serif">
-                  ₹
-                </span>
-                <span className="text-7xl font-black tracking-tighter">
-                  250
-                </span>
-              </div>
-            </div>
-            <div className="mt-auto w-full">
-              <button
-                onClick={handleBuyTicket}
-                className="group relative w-full px-8 py-4 bg-white text-black font-bold text-lg rounded-xl overflow-hidden transition-all hover:scale-[1.02] active:scale-[0.98] shadow-[0_0_30px_rgba(255,255,255,0.2)]"
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-gray-200 to-transparent -translate-x-[100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-in-out" />
-                <span className="relative z-10 group-hover:text-black transition-colors flex items-center justify-center gap-2">
-                  Secure Your Pass
-                </span>
-              </button>
-              <p className="mt-4 text-[10px] text-indigo-300/60 uppercase tracking-widest font-medium">
-                Official Entry • Non-Transferable
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </motion.div>
-  );
+    {/* ========================================== */}
+    {/* DESKTOP VIEW (ONLY DESKTOP) */}
+    {/* ========================================== */}
+    <div className="hidden md:block relative w-full overflow-hidden rounded-3xl">
+      <img
+        src="/images/MES WEB PASS.jpg"
+        alt="MES 2026 Pass"
+        className="w-full h-auto object-contain"
+      />
+
+      {/* BUY Button */}
+      <button
+        onClick={homedir}
+        className="
+          absolute 
+          right-[5%] 
+          bottom-[2%]
+          px-10 py-3
+          bg-yellow-400
+          text-black
+          font-bold
+          text-lg
+          rounded-xl
+          shadow-[0_0_25px_rgba(234,179,8,0.6)]
+          hover:scale-105
+          hover:bg-yellow-300
+          transition-all
+          active:scale-95
+        "
+      >
+        SOON!
+      </button>
+    </div>
+
+    {/* ========================================== */}
+    {/* MOBILE VIEW (ONLY MOBILE) */}
+    {/* ========================================== */}
+    <div className="block md:hidden relative w-full h-[520px] rounded-3xl overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)]">
+      <img
+        src="/images/mobilewebpass.jpg"
+        alt="MES 2026 Mobile Pass"
+        className="absolute inset-0 w-full h-full object-cover"
+      />
+      <button
+        onClick={homedir}
+        className="
+          absolute 
+          right-[7%] 
+          bottom-[6%]
+          px-12 py-4
+          bg-yellow-400
+          text-black
+          font-bold
+          text-base
+          rounded-lg
+          shadow-[0_0_20px_rgba(234,179,8,0.6)]
+          active:scale-95
+          transition-all
+        "
+      >
+        SOON
+      </button>
+    </div>
+  </motion.div>
+);
 }
 
 export function PassesSection() {
