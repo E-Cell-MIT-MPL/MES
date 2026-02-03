@@ -72,23 +72,17 @@ const Navbar = () => {
     <nav className="fixed top-0 left-0 w-full z-[50000] pointer-events-none">
       <div className="relative flex items-center px-6 md:px-8 py-4 md:py-6 pointer-events-auto min-h-[80px] md:min-h-[88px]">
         
-        {/* --- LEFT: LOGO --- */}
-        <a 
-          href="#hero" 
-          className="relative z-[50002] cursor-pointer transition-opacity hover:opacity-80 flex-shrink-0 flex items-center" 
-          onClick={() => setIsMobileMenuOpen(false)}
-        >
-          <div className="relative h-16 w-32 md:w-40 md:h-20">
-            <Image 
-                src="/images/MES 2026 logo 4.png" 
-                alt="MES 2026" 
-                fill
-                className="object-contain object-left"
-                priority
-                sizes="(max-width: 768px) 128px, 160px"
-            />
-          </div>
-        </a>
+          {/* --- LEFT: LOGO --- */}
+<div className="relative h-20 w-40 md:h-28 md:w-56 flex items-center">
+  <Image 
+    src="/images/MES 2026 logo 4.png" 
+    alt="MES 2026" 
+    fill
+    className="object-contain object-left"
+    priority
+    sizes="(max-width: 768px) 160px, 224px"
+  />
+</div>
 
         {/* --- CENTER: PILLS (DESKTOP ONLY) --- */}
         <div className="hidden md:block absolute left-1/2 -translate-x-1/2 z-40">
@@ -111,7 +105,7 @@ const Navbar = () => {
         {/* --- RIGHT: BUTTON (DESKTOP ONLY) --- */}
         <div className="hidden md:flex items-center ml-auto z-50">
           <Link 
-            href="/signup"
+            href="#"
             className="group relative px-6 py-2 rounded-full font-bold text-sm text-white shadow-lg transition-all duration-300 hover:scale-105 active:scale-95 hover:shadow-[0_0_25px_rgba(219,39,119,0.4)] overflow-hidden"
             style={{
               background: 'linear-gradient(135deg, #831843 0%, #db2777 100%)', 
@@ -122,7 +116,7 @@ const Navbar = () => {
           >
             <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
             <span className="relative z-10 tracking-widest flex items-center gap-2">
-              GET TICKETS
+             COMING SOON
             </span>
           </Link>
         </div>

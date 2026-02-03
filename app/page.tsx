@@ -58,8 +58,8 @@ const REAL_EVENTS = [
     date: "7 Feb", 
     title: "Conceptio Ideathon", 
     desc: "A high-energy ideation sprint where teams brainstorm, validate, and pitch innovative solutions.", 
-    link: "https://unstop.com/", 
-    image: "https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=800&auto=format&fit=crop"
+    link: "https://unstop.com/competitions/conceptio-manipal-entrepreneurship-summit-2026-manipal-institute-of-technology-manipal-1607202", 
+    image: "/images/conceptio.jpg"
   },
   { 
     date: "10 Feb", 
@@ -68,53 +68,54 @@ const REAL_EVENTS = [
     link: "https://unstop.com/", 
     image:"https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?q=80&w=800&auto=format&fit=crop"  },
   { 
-    date: "10 Feb", 
-    title: "Exclusive Workshop", 
-    desc: "A hands-on, expert-led workshop offering deep insights and practical takeaways.", 
+    date: "11 Feb", 
+    title: "Blind Spot", 
+    desc: "Blindspot is a hands-on investment decision-making competition in (MES) 2026 on Unstop, with a ₹25,000 prize pool and rounds running from January 26, 2026..", 
     link: "#", 
     image: "https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=800&auto=format&fit=crop"
   },
   { 
     date: "11 Feb", 
-    title: "Innovation Policy", 
+    title: "Innovation Policy Consertum", 
     desc: "A consortium-style discussion on innovation frameworks, governance, and policy impact.", 
     link: "#", 
-    image: "https://images.unsplash.com/photo-1577962917302-cd874c4e31d2?q=80&w=800&auto=format&fit=crop"
+    image: "/images/ipc.jpg"
   },
   { 
     date: "11 Feb", 
     title: "Postmortem", 
     desc: "An analytical postmortem session uncovering blind spots, failures, and lessons from real cases.", 
     link: "#", 
-    image: "https://images.unsplash.com/photo-1606326608606-aa0b62935f2b?q=80&w=800&auto=format&fit=crop"
+    image: "/images/postmortum.png"
   },
   { 
     date: "12 Feb", 
     title: "Inauguration", 
     desc: "The official inauguration marking the beginning of the event series.", 
     link: "#", 
-    image: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=800&auto=format&fit=crop"
+    image: "/images/inauguration.jpg"
   },
   {
     date: "13 Feb",
     title: "Pitch Tank",
     desc: "Startup-style pitch sessions where teams present ideas to a judging panel.",
     link: "#", 
-    image: "https://images.unsplash.com/photo-1559136555-9303baea8ebd?q=80&w=800&auto=format&fit=crop"
+    image: "/images/pitchtank.jpg"
   },
-  {
-    date: "14 Feb",
-    title: "Innovation Mela",
-    desc: "A vibrant exhibition of innovative ideas, prototypes, and creative projects.",
-    link: "#",
-    image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=800&auto=format&fit=crop"
-  },
+ {
+  date: "14 Feb",
+  title: "Innovation Mela",
+  desc: "A vibrant exhibition of innovative ideas, prototypes, and creative projects.",
+  link: "#",
+  image: "/images/innovationmela.jpg"
+},
+
   {
     date: "14 Feb",
     title: "Case Maze",
     desc: "A competitive case-solving challenge designed to test analytical thinking.",
     link: "#",
-    image: "https://images.unsplash.com/photo-1616628188859-7a11abb6fcc9?q=80&w=800&auto=format&fit=crop"
+    image: "/images/casemaze.jpg"
   }
 ];
 
@@ -259,7 +260,7 @@ export function ExpandingSection() {
                 transition: 'all 0.8s cubic-bezier(0.22, 1, 0.36, 1)'
               }}
             >
-              Take the Leap.
+            TAKE THE LEAP.
             </h2>
           </div>
 
@@ -280,33 +281,61 @@ export function ExpandingSection() {
                 height={isMobile ? 380 : 420}
                 easing={isMobile ? 'linear' : 'elastic'}
             >
-              <Card customClass="bg-[#111] border border-white/10 overflow-hidden rounded-[32px] shadow-2xl">
-                <div className="relative w-full h-full p-8 flex flex-col justify-between">
-                  <div className="w-10 h-10 rounded-full bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400 font-bold">01</div>
-                  <div>
-                    <h3 className="text-white text-4xl font-serif-display italic mb-2">Capital</h3>
-                    <p className="text-gray-400 text-xs leading-relaxed font-light">Connecting student-led ventures with serious VC backing.</p>
-                  </div>
-                </div>
-              </Card>
-              <Card customClass="bg-[#111] border border-white/10 overflow-hidden rounded-[32px] shadow-2xl">
-                <div className="relative w-full h-full p-8 flex flex-col justify-between">
-                  <div className="w-10 h-10 rounded-full bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-purple-400 font-bold">02</div>
-                  <div>
-                    <h3 className="text-white text-4xl font-serif-display italic mb-2">Community</h3>
-                    <p className="text-gray-400 text-xs leading-relaxed font-light">A massive network of 30,000+ students and alumni.</p>
-                  </div>
-                </div>
-              </Card>
-              <Card customClass="bg-[#111] border border-white/10 overflow-hidden rounded-[32px] shadow-2xl">
-                <div className="relative w-full h-full p-8 flex flex-col justify-between">
-                  <div className="w-10 h-10 rounded-full bg-blue-500/20 border border-blue-500/40 flex items-center justify-center text-blue-400 font-bold">03</div>
-                  <div>
-                    <h3 className="text-white text-4xl font-serif-display italic mb-2">Career</h3>
-                    <p className="text-gray-400 text-xs leading-relaxed font-light">Bridging the gap between engineering and entrepreneurship.</p>
-                  </div>
-                </div>
-              </Card>
+             <Card customClass="bg-[#111] border border-white/10 overflow-hidden rounded-[32px] shadow-2xl">
+  <div className="relative w-full h-full p-8 flex flex-col justify-between">
+    {/* Background Image / Decorative Image */}
+    <div className="absolute inset-0 opacity-40 grayscale hover:grayscale-0 transition-all duration-500">
+      <img 
+        src="/images/capital.jpg" 
+        alt="Capital" 
+        className="w-full h-full object-cover"
+      />
+    </div>
+    
+    {/* Content Overlay */}
+    <div className="relative z-10 w-10 h-10 rounded-full bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400 font-bold">01</div>
+    <div className="relative z-10">
+      <h3 className="text-white text-4xl font-serif-display italic mb-2">Capital</h3>
+      <p className="text-gray-400 text-xs leading-relaxed font-light">Connecting student-led ventures with serious VC backing.</p>
+    </div>
+  </div>
+</Card>
+
+<Card customClass="bg-[#111] border border-white/10 overflow-hidden rounded-[32px] shadow-2xl">
+  <div className="relative w-full h-full p-8 flex flex-col justify-between">
+    <div className="absolute inset-0 opacity-40 grayscale hover:grayscale-0 transition-all duration-500">
+      <img 
+        src="/images/community.jpg" 
+        alt="Community" 
+        className="w-full h-full object-cover"
+      />
+    </div>
+    
+    <div className="relative z-10 w-10 h-10 rounded-full bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-purple-400 font-bold">02</div>
+    <div className="relative z-10">
+      <h3 className="text-white text-4xl font-serif-display italic mb-2">Community</h3>
+      <p className="text-gray-400 text-xs leading-relaxed font-light">A massive network of 30,000+ students and alumni.</p>
+    </div>
+  </div>
+</Card>
+
+<Card customClass="bg-[#111] border border-white/10 overflow-hidden rounded-[32px] shadow-2xl">
+  <div className="relative w-full h-full p-8 flex flex-col justify-between">
+    <div className="absolute inset-0 opacity-40 grayscale hover:grayscale-0 transition-all duration-500">
+      <img 
+        src="/images/career.jpg" 
+        alt="Career" 
+        className="w-full h-full object-cover"
+      />
+    </div>
+    
+    <div className="relative z-10 w-10 h-10 rounded-full bg-blue-500/20 border border-blue-500/40 flex items-center justify-center text-blue-400 font-bold">03</div>
+    <div className="relative z-10">
+      <h3 className="text-white text-4xl font-serif-display italic mb-2">Career</h3>
+      <p className="text-gray-400 text-xs leading-relaxed font-light">Bridging the gap between engineering and entrepreneurship.</p>
+    </div>
+  </div>
+</Card>
             </CardSwap>
           </div>
         </div>
@@ -395,73 +424,66 @@ function TimelineCard({ phase }: { phase: any }) {
 // =========================================
 export function SponsorFooter() {
   return (
-    <div className="absolute bottom-0 w-full z-40 pb-12 pt-48 bg-gradient-to-t from-[#050505] via-[#050505] to-transparent pointer-events-auto">
-      
-      <div className="max-w-6xl mx-auto px-6 grid grid-cols-2 md:grid-cols-3 gap-y-8 gap-x-2 items-start md:items-center justify-items-center text-center">
-        
-        {/* --- 1. TITLE SPONSOR (Top Row Mobile) --- */}
-        <div className="col-span-2 md:col-span-1 md:order-2 w-full flex flex-col items-center gap-3">
-          <p className="text-purple-400 text-[10px] uppercase tracking-[0.2em] font-bold">Title Sponsor</p>
-          <div className="relative w-48 h-14 md:w-56 md:h-16">
-              <Image src="/images/Simnovus-logo-dark-background.png" alt="SiMNOVUS" fill className="object-contain"/>
-          </div>
+<div className="absolute bottom-0 w-full z-40 pb-12 pt-48 bg-gradient-to-t from-[#050505] via-[#050505] to-transparent pointer-events-auto">
+  <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-y-10 gap-x-4 items-start md:items-center justify-items-center text-center">
+    
+    {/* --- 1. INNOVATION PARTNER --- */}
+    <div className="col-span-1 flex flex-col items-center gap-2">
+      <p className="text-gray-400 text-[10px] uppercase tracking-[0.1em] opacity-80">Innovation Partner</p>
+      <div className="flex flex-col items-center">
+        <div className="relative w-14 h-14 md:w-16 md:h-16">
+          <Image src="/images/MIT Manipal Alumni Association Logo Transparent.png" alt="MITMAA" fill className="object-contain" />
         </div>
-
-        {/* --- 2. INNOVATION PARTNER (Left Side Mobile) --- */}
-        <div className="col-span-1 mb-3 md:col-span-1 md:order-1 w-full flex flex-col items-center gap-2">
-          <p className="text-gray-400 text-[10px] uppercase tracking-[0.1em] opacity-80">
-            Innovation Partner
-          </p>
-          <div className="flex flex-col items-center justify-center gap-1">
-             <div className="relative w-14 h-14 md:w-16 md:h-16">
-                 <Image src="/images/MIT Manipal Alumni Association Logo Transparent.png" alt="MITMAA" fill className="object-contain" />
-             </div>
-             <span className="font-serif-display text-white text-xs md:text-xl font-bold tracking-wider mt-1">
-                MITMAA
-             </span>
-          </div>
-        </div>
-
-        {/* --- 3. ASSOCIATES (Right Side Mobile) --- */}
-        <div className="col-span-1 md:col-span-1 md:order-3 w-full flex flex-col items-center gap-2">
-          <p className="text-gray-400 text-[10px] uppercase tracking-[0.1em] opacity-80">
-            Associates
-          </p>
-          
-          <div className="flex flex-row justify-center items-start gap-4 mt-1">
-             
-             {/* MTL Block */}
-             <div className="flex flex-col items-center gap-1">
-                <div className="relative w-16 h-16 md:w-20 md:h-20">
-                    <Image src="/images/Manipal-Technologies-Limited.png" alt="MTL" fill className="object-contain" />
-                </div>
-                {/* Fixed: Smaller text on mobile (text-[8px]) prevents overlap */}
-                <span className="font-sans text-gray-300 text-[8px] md:text-sm font-bold uppercase tracking-wide leading-tight max-w-[80px]">
-                    Manipal
-                </span>
-                <span className="font-sans mr-7 text-gray-300 text-[8px] md:text-sm font-bold uppercase tracking-wide leading-tight max-w-[80px]">
-                    Technologies
-                </span>
-             </div>
-
-             {/* Divider */}
-             <div className="w-[1px] h-8 bg-white/20 mt-1"></div>
-
-             {/* KNND Block */}
-             <div className="flex flex-col items-center gap-1">
-                <div className="mt-4 relative w-8 h-8 md:w-10 md:h-10 bg-white/90 rounded-full p-1">
-                    <Image src="/images/KNND-Associates-Logo.png" alt="KNND" fill className="object-contain" />
-                </div>
-                <span className="mt-6 font-sans text-gray-300 text-[8px] md:text-sm font-bold uppercase tracking-wide leading-tight">
-                    KNND Associates
-                </span>
-             </div>
-
-          </div>
-        </div>
-
+        <span className="font-serif-display text-white text-xs md:text-lg font-bold tracking-wider mt-1">MITMAA</span>
       </div>
     </div>
+
+    {/* --- 2. TITLE SPONSOR (Prominent on all screens) --- */}
+    <div className="col-span-2 md:col-span-1 order-first md:order-none w-full flex flex-col items-center gap-3">
+      <p className="text-purple-400 text-[10px] uppercase tracking-[0.2em] font-bold">Title Sponsor</p>
+      <div className="relative w-48 h-14 md:w-56 md:h-16">
+        <Image src="/images/Simnovus-logo-dark-background.png" alt="SiMNOVUS" fill className="object-contain"/>
+      </div>
+    </div>
+
+    {/* --- 3. MES PARTNER (MTL) --- */}
+    <div className="col-span-1 flex flex-col items-center gap-2">
+      <p className="text-gray-400 text-[10px] uppercase tracking-[0.1em] opacity-80">MES Partner</p>
+      <div className="flex flex-col items-center">
+        <div className="relative w-14 h-14 md:w-20 md:h-20">
+          <Image src="/images/Manipal-Technologies-Limited.png" alt="MTL" fill className="object-contain" />
+        </div>
+        <span className="text-gray-300 text-[8px] md:text-[10px] font-bold uppercase tracking-tight leading-tight max-w-[100px]">
+          Manipal Technologies Limited
+        </span>
+      </div>
+    </div>
+
+    {/* --- 4. EVENTS SPONSORS (Ananth & KNND) --- */}
+    <div className="col-span-2 md:col-span-1 flex flex-col items-center gap-2">
+      <p className="text-gray-400 text-[10px] uppercase tracking-[0.1em] opacity-80">Events Sponsors</p>
+      <div className="flex flex-row justify-center items-center gap-6">
+        {/* Ananth Logo */}
+        <div className="flex flex-col items-center">
+          <div className="relative w-16 h-12 md:w-20 md:h-14">
+            <Image src="/images/ananth.png" alt="Ananth" fill className="object-contain" />
+          </div>
+        </div>
+
+        <div className="w-[1px] h-8 bg-white/20"></div>
+
+        {/* KNND Block */}
+        <div className="flex flex-col items-center gap-1">
+          <div className="relative w-8 h-8 md:w-10 md:h-10 bg-white/90 rounded-full p-1">
+            <Image src="/images/KNND-Associates-Logo.png" alt="KNND" fill className="object-contain" />
+          </div>
+          <span className="text-gray-300 text-[8px] md:text-[10px] font-bold uppercase">KNND</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
   )
 }
 // ... [SpeakersSection & TicketCard - Keep as is] ...
@@ -469,12 +491,51 @@ export function SponsorFooter() {
 //  They work fine, just need to be imported or present in the file.)
 // ... [REAL_SPEAKERS Array] ...
 const REAL_SPEAKERS = [
-  { name: "Sam Altman", role: "CEO", company: "OpenAI", image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=800&auto=format&fit=crop", color: "bg-emerald-500", gradient: "from-emerald-400 to-green-600" },
-  { name: "Nithin Kamath", role: "Founder", company: "Zerodha", image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=800&auto=format&fit=crop", color: "bg-blue-500", gradient: "from-blue-400 to-indigo-600" },
-  { name: "Falguni Nayar", role: "CEO", company: "Nykaa", image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=800&auto=format&fit=crop", color: "bg-pink-500", gradient: "from-pink-400 to-rose-600" },
-  { name: "Kunnal Shah", role: "Founder", company: "CRED", image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=800&auto=format&fit=crop", color: "bg-white", gradient: "from-gray-200 to-white" },
-  { name: "Deepinder Goyal", role: "CEO", company: "Zomato", image: "https://images.unsplash.com/photo-1556157382-97eda2d62296?q=80&w=800&auto=format&fit=crop", color: "bg-red-500", gradient: "from-red-500 to-red-700" },
-  { name: "Mukesh Bansal", role: "Co-Founder", company: "Cure.fit", image: "https://images.unsplash.com/photo-1618077360395-f3068be8e001?q=80&w=800&auto=format&fit=crop", color: "bg-purple-500", gradient: "from-violet-400 to-purple-600" }
+  {
+    name: "Sahiba Bali",
+    role: "Actor & Content Creator",
+    company: "Bollywood / Digital",
+    image: "https://www.hindustantimes.com/ht-img/img/2025/06/19/1600x900/Bali-starred-in-the-2019-show--Bard-of-Blood--and-_1750357025009.jpg?q=80&w=800&auto=format&fit=crop",
+    color: "bg-pink-500",
+    gradient: "from-pink-400 to-rose-600",
+    linkedin: "https://in.linkedin.com/in/sahibabali",
+  },
+  {
+    name: "Parul Gulati",
+    role: "Founder",
+    company: "Nish Hair",
+    image: "https://images.indianexpress.com/2024/03/parul-g-1.jpg?q=80&w=800&auto=format&fit=crop",
+    color: "bg-purple-500",
+    gradient: "from-violet-400 to-purple-600",
+    linkedin: "https://in.linkedin.com/in/parul-gulati-44709681",
+  },
+  {
+    name: "Gaurav Taneja",
+    role: "YouTuber & Entrepreneur",
+    company: "Flying Beast",
+    image: "https://img.etimg.com/thumb/width-1200,height-900,imgsize-51008,resizemode-75,msid-117012117/magazines/panache/shark-tank-india-4-iitian-turned-youtuber-gaurav-taneja-reveals-why-needs-sharks-despite-earning-rs-1-crore-in-1-hour.jpg?q=80&w=800&auto=format&fit=crop",
+    color: "bg-orange-500",
+    gradient: "from-orange-400 to-red-500",
+    linkedin: "https://in.linkedin.com/in/gaurav-taneja-75a80a13",
+  },
+  {
+    name: "Shantanu Deshpande",
+    role: "Founder & CEO",
+    company: "Bombay Shaving Company",
+    image: "https://neon.fund/wp-content/uploads/2021/07/Shantanu-Deshpande-CEO-Founder-Bombay-Shaving-Company.jpg?q=80&w=800&auto=format&fit=crop",
+    color: "bg-gray-800",
+    gradient: "from-gray-700 to-gray-900",
+    linkedin: "https://in.linkedin.com/in/shantanudeshpandebsc",
+  },
+  {
+    name: "Ankur Warikoo",
+    role: "Entrepreneur & Author",
+    company: "Warikoo",
+    image: "https://elevatesociety.com/wp-content/uploads/Ankur-Warikoo.jpg?q=80&w=800&auto=format&fit=crop",
+    color: "bg-indigo-500",
+    gradient: "from-indigo-400 to-purple-600",
+    linkedin: "https://in.linkedin.com/in/warikoo",
+  },
 ];
 
 export function SpeakersSection() {
@@ -483,13 +544,22 @@ export function SpeakersSection() {
       <div className="absolute top-0 right-0 w-[300px] md:w-[500px] h-[300px] md:h-[500px] bg-purple-900/20 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-[300px] md:w-[500px] h-[300px] md:h-[500px] bg-blue-900/10 rounded-full blur-[120px] pointer-events-none" />
       <BlurReveal>
-        <div className="mb-16 md:mb-24 relative z-10 flex flex-col md:flex-row justify-between items-end gap-8">
-          <div>
-             <p className="text-blue-500 font-mono text-[10px] tracking-[0.4em] uppercase mb-4">The Network // 02</p>
-             <h2 className="text-5xl md:text-9xl font-serif-display italic font-bold text-white leading-[0.85]">The<br/>Speakers.</h2>
-          </div>
-          <p className="text-gray-400 text-base md:text-lg max-w-md font-light leading-relaxed mb-2 text-left md:text-left">Visionaries, disruptors, and titans of industry. These are the voices shaping the future.</p>
-        </div>
+   <div className="mb-16 md:mb-24 relative z-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-6 md:gap-8">
+  <div>
+    <p className="text-blue-500 font-mono text-[10px] tracking-[0.4em] uppercase mb-3">
+      The Network // 02
+    </p>
+
+    <h2 className="text-4xl sm:text-5xl md:text-9xl font-serif-display italic font-bold text-white leading-[0.95] md:leading-[0.85]">
+      The<br />Speakers.
+    </h2>
+  </div>
+
+  <p className="text-gray-400 text-sm sm:text-base md:text-lg max-w-md font-light leading-relaxed text-left">
+    Visionaries, disruptors, and titans of industry. These are the voices shaping the future.
+  </p>
+</div>
+
       </BlurReveal>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative z-10">
         {REAL_SPEAKERS.map((speaker, idx) => (
@@ -565,13 +635,13 @@ export function TicketCard() {
       <div className="hidden md:block relative h-[333px] w-full bg-[#0a0a0a] border border-white/10 rounded-3xl overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)] group">
         {/* Changed object-cover to object-contain to fit the image properly */}
         <img 
-            src="/images/pass.jpg" 
+            src="/images/MES WEB PASS.jpg" 
             alt="MES 2026 Pass" 
             className="w-full h-full object-contain"
         />
         
-        {/* Overlay Button to ensure functionality persists on Desktop */}
-        <div className="absolute bottom-2 right-3 z-20">
+       {/* Overlay Button to ensure functionality persists on Desktop */}
+       {/* <div className="absolute bottom-2 right-3 z-20">
              <button 
                 onClick={handleBuyTicket} 
                 className="px-16 py-6 bg-white text-black font-bold text-lg rounded-xl transition-all hover:scale-105 hover:bg-gray-200 shadow-[0_0_20px_rgba(255,255,255,0.3)]"
@@ -579,7 +649,9 @@ export function TicketCard() {
                 Buy Pass
              </button>
         </div>
+        */}
       </div>
+      
 
       {/* ========================================== */}
       {/* MOBILE VIEW: Original Design (Hidden on Desktop) */}
@@ -792,18 +864,19 @@ export default function Home() {
                   </div>
                   
                   {/* Social Links */}
-                  <div className="flex gap-4">
-                     {[
-                        { icon: Instagram, href: "#" },
-                        { icon: Linkedin, href: "#" },
-                        { icon: Youtube, href: "#" },
-                        { icon: Twitter, href: "#" } // Using Twitter icon for X
-                     ].map((social, i) => (
-                        <a key={i} href={social.href} className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 hover:bg-white hover:text-black hover:border-white transition-all duration-300">
-                           <social.icon size={18} />
-                        </a>
-                     ))}
-                  </div>
+            {/* Social Links */}
+<div className="flex gap-4">
+  {[
+    { icon: Instagram, href: "https://www.instagram.com/ecell.mit" },
+    { icon: Linkedin, href: "https://in.linkedin.com/company/ecellmit" },
+    { icon: Youtube, href: "https://www.youtube.com/channel/UCjxa0qInEzuaJR0adwh3VCQ" },
+    { icon: Twitter, href: "https://x.com/ecellmit" } // Using Twitter icon for X
+  ].map((social, i) => (
+    <a key={i} href={social.href} className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 hover:bg-white hover:text-black hover:border-white transition-all duration-300">
+      <social.icon size={18} />
+    </a>
+  ))}
+</div>
                </div>
 
                {/* CONTACT COLUMN (Span 5) */}
