@@ -121,8 +121,7 @@ export default function SignupPage() {
     };
 
     try {
-      const res = await fetch(`${BACKEND_URL}/auth/register`, {
-        method: "POST",
+      const res = await fetch("https://mes-backend-47zl.onrender.com/auth/register", {        method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
@@ -150,18 +149,24 @@ export default function SignupPage() {
   };
 
   // --- 2. VERIFY OTP FUNCTION ---
+  // --- 2. VERIFY OTP FUNCTION (Fixed) ---
   const handleVerify = async (e: FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
+    // 1. Clean the input (Remove accidental spaces)
+    const cleanOtp = otpValue.trim();
+    const cleanEmail = formData.personalEmail.trim().toLowerCase();
+
     try {
-      const res = await fetch(`${BACKEND_URL}/auth/verify-otp`, {
-        method: "POST",
+      const res = await fetch("https://mes-backend-47zl.onrender.com/auth/verify-otp", {        method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include", // Ensures the session cookie is saved after verification
+        credentials: "include", 
         body: JSON.stringify({
-          email: formData.personalEmail,
-          otp: otpValue,
+          email: cleanEmail,
+          // ⚠️ If your backend expects a Number, wrap this in parseInt(cleanOtp)
+          // For now, we send String which is standard for OTPs
+          otp: cleanOtp, 
         }),
       });
 
@@ -169,12 +174,18 @@ export default function SignupPage() {
 
       if (res.ok) {
         setStatus({ message: "Verified! Redirecting...", type: "success" });
-        setTimeout(() => router.push("/login"), 2000);
+        setTimeout(() => router.push("/login"), 1500);
       } else {
-        setStatus({ message: data.message || "Invalid OTP", type: "error" });
+        // Log the actual error for debugging
+        console.error("OTP Error Details:", data); 
+        setStatus({ 
+          message: data.message || "Incorrect OTP. Please try again.", 
+          type: "error" 
+        });
       }
     } catch (err) {
-      setStatus({ message: "Verification error.", type: "error" });
+      console.error("OTP Connection Error:", err);
+      setStatus({ message: "Connection error. Please try again.", type: "error" });
     } finally {
       setLoading(false);
     }
@@ -183,8 +194,7 @@ export default function SignupPage() {
   // --- 3. RESEND OTP FUNCTION ---
   const handleResend = async () => {
     try {
-      await fetch(`${BACKEND_URL}/auth/resend-otp`, {
-        method: "POST",
+      await fetch("https://mes-backend-47zl.onrender.com/auth/resend-otp", {        method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: formData.personalEmail }),
       });
