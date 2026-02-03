@@ -212,8 +212,9 @@ function DashboardContent() {
 
     try {
       // 1. Check for the CORRECT SDK name on the window object
-      const AtomSDK = (window as any).AtomPaynxt; 
-
+      const AtomSDK =
+      (window as any).AtomPaynetz || (window as any).AtomPaynxt;
+    
       if (!AtomSDK) {
         alert("Payment Gateway script not found. Please refresh.");
         return;
