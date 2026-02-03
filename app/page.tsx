@@ -569,7 +569,7 @@ export function SpeakersSection() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative z-10">
         {REAL_SPEAKERS.map((speaker, idx) => (
           <BlurReveal key={idx} delay={idx * 0.1}>
-            <div className="group relative h-[500px] md:h-[600px] w-full rounded-[2.5rem] overflow-hidden bg-[#0a0a0a] border border-white/5 hover:border-white/20 transition-all duration-700">
+            <div className="group relative min-h-[85vh] max-h-[90vh] md:h-[600px] w-full rounded-[2.5rem] overflow-hidden bg-[#0a0a0a] border border-white/5 hover:border-white/20 transition-all duration-700">
               <div className="absolute inset-0 z-0">
                   <Image src={speaker.image} alt={speaker.name} fill className="object-cover transition-all duration-700 group-hover:scale-110 grayscale group-hover:grayscale-0 opacity-80 group-hover:opacity-100" />
                   <div className="absolute inset-0 opacity-[0.2] bg-[url('https://grainy-gradients.vercel.app/noise.svg')] mix-blend-overlay" />
