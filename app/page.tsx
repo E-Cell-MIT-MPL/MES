@@ -650,7 +650,7 @@ return (
         onClick={homedir}
         className="
           absolute 
-          right-[5%] 
+          right-[4%] 
           bottom-[2%]
           px-10 py-3
           bg-yellow-400
@@ -659,7 +659,7 @@ return (
           text-lg
           rounded-xl
           shadow-[0_0_25px_rgba(234,179,8,0.6)]
-          
+
           hover:scale-105
           hover:bg-yellow-300
           transition-all
@@ -683,7 +683,7 @@ return (
         onClick={homedir}
         className="
           absolute 
-          right-[7%] 
+          right-[4%] 
           bottom-[6%]
           px-12 py-4
           bg-yellow-400
@@ -696,7 +696,7 @@ return (
           transition-all
         "
       >
-        SOON
+        SOON!
       </button>
     </div>
   </motion.div>
