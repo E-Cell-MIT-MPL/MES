@@ -220,7 +220,7 @@ function DashboardContent() {
       }
 
       // 2. Initialize the SDK
-      new AtomSDK(options, "prod"); // Use "prod" when you go live
+      new AtomSDK(options, "uat"); // Use "prod" when you go live
     } catch (error) {
       console.error("Atom SDK Error:", error);
       alert("Failed to initialize payment window.");
