@@ -548,45 +548,89 @@ export function SpeakersSection() {
     <div className="w-full max-w-7xl mx-auto px-6 py-20 md:py-32 relative">
       <div className="absolute top-0 right-0 w-[300px] md:w-[500px] h-[300px] md:h-[500px] bg-purple-900/20 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-[300px] md:w-[500px] h-[300px] md:h-[500px] bg-blue-900/10 rounded-full blur-[120px] pointer-events-none" />
+      
       <BlurReveal>
-   <div className="mb-16 md:mb-24 relative z-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-6 md:gap-8">
-  <div>
-    <p className="text-blue-500 font-mono text-[10px] tracking-[0.4em] uppercase mb-3">
-      The Network // 02
-    </p>
-
-    <h2 className="text-4xl sm:text-5xl md:text-9xl font-serif-display italic font-bold text-white leading-[0.95] md:leading-[0.85]">
-      The<br />Speakers.
-    </h2>
-  </div>
-
-  <p className="text-gray-400 text-sm sm:text-base md:text-lg max-w-md font-light leading-relaxed text-left">
-    Visionaries, disruptors, and titans of industry. These are the voices shaping the future.
-  </p>
-</div>
-
+        <div className="mb-16 md:mb-24 relative z-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-6 md:gap-8">
+          <div>
+            <p className="text-blue-500 font-mono text-[10px] tracking-[0.4em] uppercase mb-3">
+              The Network // 02
+            </p>
+            <h2 className="text-4xl sm:text-5xl md:text-9xl font-serif-display italic font-bold text-white leading-[0.95] md:leading-[0.85]">
+              The<br />Speakers.
+            </h2>
+          </div>
+          <p className="text-gray-400 text-sm sm:text-base md:text-lg max-w-md font-light leading-relaxed text-left">
+            Visionaries, disruptors, and titans of industry. These are the voices shaping the future.
+          </p>
+        </div>
       </BlurReveal>
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative z-10">
         {REAL_SPEAKERS.map((speaker, idx) => (
           <BlurReveal key={idx} delay={idx * 0.1}>
             <div className="group relative min-h-[85vh] max-h-[90vh] md:h-[600px] w-full rounded-[2.5rem] overflow-hidden bg-[#0a0a0a] border border-white/5 hover:border-white/20 transition-all duration-700">
+              
+              {/* Background Image Logic */}
               <div className="absolute inset-0 z-0">
-                  <Image src={speaker.image} alt={speaker.name} fill className="object-cover transition-all duration-700 group-hover:scale-110 grayscale group-hover:grayscale-0 opacity-80 group-hover:opacity-100" />
-                  <div className="absolute inset-0 opacity-[0.2] bg-[url('https://grainy-gradients.vercel.app/noise.svg')] mix-blend-overlay" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-90 group-hover:opacity-70 transition-opacity duration-500" />
+                <Image 
+                  src={speaker.image} 
+                  alt={speaker.name} 
+                  fill 
+                  className="object-cover transition-all duration-700 
+                    /* Mobile: Full color and visible */
+                    grayscale-0 opacity-100 scale-110 
+                    /* PC: Grayscale until hover */
+                    md:grayscale md:opacity-80 md:scale-100
+                    md:group-hover:grayscale-0 md:group-hover:opacity-100 md:group-hover:scale-110" 
+                />
+                <div className="absolute inset-0 opacity-[0.2] bg-[url('https://grainy-gradients.vercel.app/noise.svg')] mix-blend-overlay" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-90 md:group-hover:opacity-70 transition-opacity duration-500" />
               </div>
-              <div className={`absolute -bottom-10 -right-10 w-64 h-64 rounded-full blur-[100px] opacity-0 group-hover:opacity-50 transition-opacity duration-700 ${speaker.color}`} />
+
+              {/* Glowing Blur Circle */}
+              <div className={`absolute -bottom-10 -right-10 w-64 h-64 rounded-full blur-[100px] transition-opacity duration-700 ${speaker.color} 
+                /* Mobile: Always visible */
+                opacity-50 
+                /* PC: Only on hover */
+                md:opacity-0 md:group-hover:opacity-50`} 
+              />
+
               <div className="absolute inset-0 p-8 md:p-10 flex flex-col justify-between z-10">
-                <div className="flex justify-between items-start translate-y-[-20px] opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
-                   <div className="px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/10"><span className="text-xs font-bold text-white uppercase tracking-widest">{speaker.company}</span></div>
-                   <div className="w-12 h-12 rounded-full bg-white text-black flex items-center justify-center hover:bg-blue-500 hover:text-white transition-colors cursor-pointer"><Linkedin size={20} /></div>
+                {/* Top Header: Company & LinkedIn */}
+                <div className="flex justify-between items-start transition-all duration-500
+                  /* Mobile: Always visible and in position */
+                  translate-y-0 opacity-100 
+                  /* PC: Hidden until hover */
+                  md:translate-y-[-20px] md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100">
+                  <div className="px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/10">
+                    <span className="text-xs font-bold text-white uppercase tracking-widest">{speaker.company}</span>
+                  </div>
+                  <div className="w-12 h-12 rounded-full bg-white text-black flex items-center justify-center hover:bg-blue-500 hover:text-white transition-colors cursor-pointer">
+                    <Linkedin size={20} />
+                  </div>
                 </div>
-                <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                   <p className="text-gray-400 font-mono text-[10px] uppercase tracking-[0.3em] mb-3 border-l-2 border-white/20 pl-3">{speaker.role}</p>
-                   <h3 className="text-5xl md:text-6xl font-serif-display italic font-bold text-white leading-[0.85] mb-6">{speaker.name.split(' ').map((n, i) => (<span key={i} className="block">{n}</span>))}</h3>
-                   <div className={`h-[2px] w-12 group-hover:w-full transition-all duration-700 bg-gradient-to-r ${speaker.gradient}`} />
+
+                {/* Bottom Info: Role and Name */}
+                <div className="transform transition-transform duration-500
+                  /* Mobile: Always in position */
+                  translate-y-0 
+                  /* PC: Slide up on hover */
+                  md:translate-y-4 md:group-hover:translate-y-0">
+                  <p className="text-gray-400 font-mono text-[10px] uppercase tracking-[0.3em] mb-3 border-l-2 border-white/20 pl-3">{speaker.role}</p>
+                  <h3 className="text-5xl md:text-6xl font-serif-display italic font-bold text-white leading-[0.85] mb-6">
+                    {speaker.name.split(' ').map((n, i) => (<span key={i} className="block">{n}</span>))}
+                  </h3>
+                  
+                  {/* Decorative Line */}
+                  <div className={`h-[2px] transition-all duration-700 bg-gradient-to-r ${speaker.gradient} 
+                    /* Mobile: Full width */
+                    w-full 
+                    /* PC: Grows from small to full */
+                    md:w-12 md:group-hover:w-full`} 
+                  />
                 </div>
               </div>
+
             </div>
           </BlurReveal>
         ))}
@@ -688,8 +732,8 @@ return (
     className="
       absolute 
       /* Using percentages relative to the aspect-ratio container */
-      right-[8%] 
-      bottom-[9%]
+      right-[-55%] 
+      bottom-[-82%]
       w-[42%] 
       py-4
       bg-yellow-400
