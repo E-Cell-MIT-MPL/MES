@@ -673,32 +673,38 @@ return (
     {/* ========================================== */}
     {/* MOBILE VIEW (ONLY MOBILE) */}
     {/* ========================================== */}
-    <div className="block md:hidden relative w-full h-[520px] rounded-3xl overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)]">
-      <img
-        src="/images/mobilewebpass.jpg"
-        alt="MES 2026 Mobile Pass"
-        className="absolute inset-0 w-full h-full object-cover"
-      />
-      <button
-        onClick={homedir}
-        className="
-          absolute 
-          right-[4%] 
-          bottom-[6%]
-          px-12 py-4
-          bg-yellow-400
-          text-black
-          font-bold
-          text-base
-          rounded-lg
-          shadow-[0_0_20px_rgba(234,179,8,0.6)]
-          active:scale-95
-          transition-all
-        "
-      >
-        SOON!
-      </button>
-    </div>
+{/* ========================================== */}
+{/* MOBILE VIEW (ONLY MOBILE) */}
+{/* ========================================== */}
+<div className="block md:hidden relative w-full aspect-[430/620] rounded-3xl overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)]">
+  <img
+    src="/images/mobilewebpass.jpg"
+    alt="MES 2026 Mobile Pass"
+    /* object-fill ensures the image matches the container exactly */
+    className="absolute inset-0 w-full h-full object-fill"
+  />
+  <button
+    onClick={homedir}
+    className="
+      absolute 
+      /* Using percentages relative to the aspect-ratio container */
+      right-[8%] 
+      bottom-[9%]
+      w-[42%] 
+      py-4
+      bg-yellow-400
+      text-black
+      font-bold
+      text-base
+      rounded-lg
+      shadow-[0_0_20px_rgba(234,179,8,0.6)]
+      active:scale-95
+      transition-all
+    "
+  >
+    SOON!
+  </button>
+</div>
   </motion.div>
 );
 }
