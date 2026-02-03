@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-// 1. Import the provider
-import Lenis from 'lenis'
 import Script from "next/script";
 import { AuthProvider } from "../lib/auth-context"; 
 import SmoothScroll from "../components/SmoothScroll";
@@ -18,22 +16,25 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "MES 2026 | Student Dashboard", // Updated for your project
+  title: "MES 2026 | Student Dashboard",
   description: "Management Event System for Manipal Entrepreneurship Summit",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{ children: React.ReactNode; }>) {
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        {/* 2. Load the Atom SDK */}
-        <Script 
-          src="https://psa.atomtech.in/staticdata/ots/js/atomcheckout.js" 
-          strategy="beforeInteractive" 
-        />
         
+        {/* ✅ LOAD ATOM SDK ONCE */}
+        <Script
+          src={process.env.NEXT_PUBLIC_ATOM_CDN_URL}
+          strategy="beforeInteractive"
+        />
+
         <AuthProvider>
           <SmoothScroll>
             {children}

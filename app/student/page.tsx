@@ -4,7 +4,6 @@ import { useEffect, useState, useCallback, Suspense } from "react"; // 👈 Adde
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import QRCode from "qrcode";
-import Script from "next/script";
 import apiClient from "../../lib/api-client";
 import { useAuth } from "../../lib/auth-context";
 import { motion, AnimatePresence } from "framer-motion";
@@ -204,28 +203,23 @@ function DashboardContent() {
   const openAtomPay = (token: string, merchId: string) => {
     const options = {
       atomTokenId: token,
-      merchId: merchId,
+      merchId,
       custEmail: user?.personalEmail || "test@example.com",
       custMobile: user?.phone || "9999999999",
-      returnUrl: `https://mes26.ecellmit.in/student?status=success`, // Redirect back to dashboard
+      returnUrl: "https://mes26.ecellmit.in/student?status=success",
     };
-
-    try {
-      // 1. Check for the CORRECT SDK name on the window object
-      const AtomSDK = (window as any).AtomPaynxt; 
-
-      if (!AtomSDK) {
-        alert("Payment Gateway script not found. Please refresh.");
-        return;
-      }
-
-      // 2. Initialize the SDK
-      new AtomSDK(options, "uat"); // Use "prod" when you go live
-    } catch (error) {
-      console.error("Atom SDK Error:", error);
-      alert("Failed to initialize payment window.");
+  
+    const AtomSDK =
+      (window as any).AtomPaynetz || (window as any).AtomPaynxt;
+  
+    if (!AtomSDK) {
+      alert("Payment SDK not loaded. Please refresh.");
+      return;
     }
+  
+    new AtomSDK(options, "uat"); // change to "prod" later
   };
+  
 
   const handleBuyTicket = async () => {
     setPaymentLoading(true);
@@ -258,11 +252,6 @@ function DashboardContent() {
 
   return (
     <div className="flex items-center justify-center min-h-screen w-full bg-[#050505] font-sans p-2 md:p-8 selection:bg-purple-500/30 text-white">
-      <Script
-        src={process.env.NEXT_PUBLIC_ATOM_CDN_URL}
-        strategy="lazyOnload"
-      />
-
       <AnimatePresence>
         {showSuccess && (
           <SuccessOverlay onClose={() => setShowSuccess(false)} />
