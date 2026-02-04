@@ -62,7 +62,7 @@ const REAL_EVENTS = [
     title: "Inauguration", 
     desc: "The official inauguration marking the beginning of the event series.", 
     link: "#", 
-    image: "/images/inauguration.jpg"
+    image: "/images/Inauguration.jpg"
   },
   {
     date: "14 Feb",
@@ -154,8 +154,8 @@ function EventsPage() {
                         <h3 className="text-3xl md:text-4xl font-serif-display italic font-bold text-white mb-3 leading-[0.9]">{event.title}</h3>
                         <p className="text-gray-300 text-sm font-light leading-relaxed line-clamp-2 mb-6 opacity-80 group-hover:opacity-100 transition-opacity">{event.desc}</p>
                         <div className="pt-6 border-t border-white/20 flex items-center justify-between">
-                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Flagship Event</span>
-                            <span className="text-sm font-bold text-white underline decoration-white/30 underline-offset-4 group-hover:decoration-white transition-all">Register</span>
+                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Event</span>
+                            <span className="text-sm font-bold text-white underline decoration-white/30 underline-offset-4 group-hover:decoration-white transition-all">Link</span>
                         </div>
                     </div>
                 </div>
