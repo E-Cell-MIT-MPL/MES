@@ -16,6 +16,7 @@ import {
   MapPin,
   ArrowLeft,
   Plus,
+  LogOut,
 } from "lucide-react";
 import dynamic from "next/dynamic";
 
@@ -125,6 +126,7 @@ function DashboardContent() {
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const fetchDashboardData = useCallback(async () => {
     try {
@@ -199,6 +201,18 @@ function DashboardContent() {
       setQrUrl(null);
     }
   }, [activeTicket, user]);
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    try {
+      await apiClient.post("/auth/logout");
+    } catch (error) {
+      console.error("Logout failed", error);
+    } finally {
+      // Force redirect to home/login
+      router.replace("/");
+      router.refresh();
+    }
+  };
 
   const openAtomPay = (token: string, merchId: string, txnId: string) => {
     const backendUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
@@ -389,7 +403,40 @@ function DashboardContent() {
                 Welcome, {user.name.split(" ")[0]}
               </h1>
             </div>
+          {/* ... inside the header div ... */}
+            
+            {/* 👇 BUTTON GROUP: LOGOUT + BUY TICKET */}
+            <div className="flex items-center gap-3">
+              {/* 👇 LOGOUT BUTTON */}
+              <button
+                onClick={handleLogout}
+                disabled={isLoggingOut}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-gray-400 text-xs font-bold uppercase tracking-wider hover:bg-red-500/10 hover:border-red-500/20 hover:text-red-400 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isLoggingOut ? (
+                  <>
+                    <Loader2 size={14} className="animate-spin" />
+                    <span className="hidden md:inline">Logging out...</span>
+                  </>
+                ) : (
+                  <>
+                    <LogOut size={14} />
+                    <span>Logout</span>
+                  </>
+                )}
+              </button>
 
+              {/* 👇 EXISTING GET PASS BUTTON (Keep this logic) */}
+              {!hasPaidTicket && (
+                <button
+                  onClick={handleBuyTicket}
+                  disabled={paymentLoading || isLoggingOut}
+                  className="group relative px-6 py-2.5 bg-white text-black rounded-xl font-bold text-xs uppercase tracking-widest hover:scale-105 transition-all duration-300 shadow-[0_0_20px_rgba(255,255,255,0.2)] disabled:opacity-70 disabled:cursor-not-allowed"
+                >
+                  {paymentLoading ? "Loading..." : "Get Pass"}
+                </button>
+              )}
+            </div>
             {!hasPaidTicket && (
               <button
                 onClick={handleBuyTicket}
