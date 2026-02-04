@@ -38,12 +38,6 @@ export default function LoginPage() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const router = useRouter();
   const { checkUserSession } = useAuth();
-  const { user } = useAuth();
-  useEffect(() => {
-    if (user && !loading) {
-      router.replace("/student");
-    }
-  }, [user, loading, router]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -81,11 +75,7 @@ export default function LoginPage() {
       setLoading(false);
     }
   }; 
-  if (loading) {
-    return <div className="loading-spinner..."></div>;
-  }
-  if (user) return null;
-  
+
   return (
     <div className="flex items-center justify-center min-h-screen w-full bg-[#050505] font-sans p-0 md:p-4 selection:bg-blue-500/30">
       
