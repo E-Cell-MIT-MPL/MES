@@ -426,16 +426,6 @@ function DashboardContent() {
                 )}
               </button>
 
-              {/* 👇 EXISTING GET PASS BUTTON (Keep this logic) */}
-              {!hasPaidTicket && (
-                <button
-                  onClick={handleBuyTicket}
-                  disabled={paymentLoading || isLoggingOut}
-                  className="group relative px-6 py-2.5 bg-white text-black rounded-xl font-bold text-xs uppercase tracking-widest hover:scale-105 transition-all duration-300 shadow-[0_0_20px_rgba(255,255,255,0.2)] disabled:opacity-70 disabled:cursor-not-allowed"
-                >
-                  {paymentLoading ? "Loading..." : "Get Pass"}
-                </button>
-              )}
             </div>
             {!hasPaidTicket && (
               <button
