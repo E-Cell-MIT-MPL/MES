@@ -202,12 +202,14 @@ function DashboardContent() {
 
   const openAtomPay = (token: string, merchId: string, txnId: string) => {
     const backendUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+    const frontendUrl = process.env.NEXT_PUBLIC_FRONTEND_URL || "http://localhost:5000";
     const options = {
       atomTokenId: token,
       merchId,
       custEmail: user?.personalEmail || "test@example.com",
       custMobile: user?.phone || "9999999999",
-      returnUrl: `${backendUrl}/payment/return?txnId=${txnId}`,
+      returnUrl: `${frontendUrl}/payment/success?txnId=${txnId}`,
+      callbackUrl: `${backendUrl}/payment/callback`,
     };
   
     const AtomSDK =
