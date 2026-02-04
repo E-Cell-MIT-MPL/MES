@@ -40,6 +40,12 @@ export default function LoginPage() {
   const { checkUserSession } = useAuth();
   const { user } = useAuth();
   useEffect(() => {
+    if (user && !loading) {
+      router.replace("/student");
+    }
+  }, [user, loading, router]);
+
+  useEffect(() => {
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % SLIDES.length);
     }, 4500);
@@ -75,18 +81,11 @@ export default function LoginPage() {
       setLoading(false);
     }
   }; 
-  
-  if (loading || user) {
-    return (
-      <div className="min-h-screen bg-[#050505] flex items-center justify-center text-white">
-        {/* You can import your Loader2 here */}
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-purple-500"></div>
-      </div>
-    );
+  if (loading) {
+    return <div className="loading-spinner..."></div>;
   }
+  if (user) return null;
   
-  
-
   return (
     <div className="flex items-center justify-center min-h-screen w-full bg-[#050505] font-sans p-0 md:p-4 selection:bg-blue-500/30">
       
