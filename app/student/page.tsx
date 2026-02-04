@@ -200,13 +200,14 @@ function DashboardContent() {
     }
   }, [activeTicket, user]);
 
-  const openAtomPay = (token: string, merchId: string) => {
+  const openAtomPay = (token: string, merchId: string, txnId: string) => {
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
     const options = {
       atomTokenId: token,
       merchId,
       custEmail: user?.personalEmail || "test@example.com",
       custMobile: user?.phone || "9999999999",
-      returnUrl: "https://mes26.ecellmit.in/student?status=success",
+      returnUrl: `${backendUrl}/payment/return?txnId=${txnId}`,
     };
   
     const AtomSDK =
@@ -217,7 +218,8 @@ function DashboardContent() {
       return;
     }
   
-    new AtomSDK(options, "uat"); // change to "prod" later
+    const environment = process.env.NEXT_PUBLIC_ATOM_ENV || "uat";
+    new AtomSDK(options, environment);
   };
   
 
@@ -230,8 +232,8 @@ function DashboardContent() {
       });
 
       const responseData = res.data.data || res.data;
-      if (responseData.atomTokenId) {
-        openAtomPay(responseData.atomTokenId, responseData.merchId);
+      if (responseData.atomTokenId && responseData.txnId) {
+        openAtomPay(responseData.atomTokenId, responseData.merchId, responseData.txnId);
       }
     } catch (error: any) {
       alert(`Payment Error: ${error.message}`);
