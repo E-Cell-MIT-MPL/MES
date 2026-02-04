@@ -204,7 +204,7 @@ function DashboardContent() {
   const handleLogout = async () => {
     setIsLoggingOut(true);
     try {
-      await apiClient.post("/auth/logout");
+      await apiClient.get("/auth/logout");
     } catch (error) {
       console.error("Logout failed", error);
     } finally {
