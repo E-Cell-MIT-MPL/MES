@@ -80,7 +80,7 @@ const REAL_EVENTS = [
   },
   { 
     date: "7 Feb", 
-    title: "Conceptio Ideathon", 
+    title: " Conceptiō Ideeathon", 
     desc: "A high-energy ideation sprint where teams brainstorm, validate, and pitch innovative solutions.", 
     link: "https://unstop.com/competitions/conceptio-manipal-entrepreneurship-summit-2026-manipal-institute-of-technology-manipal-1607202", 
     image: "/images/conceptio.jpg"
@@ -118,7 +118,7 @@ const REAL_EVENTS = [
     title: "Case Maze",
     desc: "A competitive case-solving challenge designed to test analytical thinking.",
     link: "",
-    image: "/images/casemaze.jpg"
+    image: "/images/casemazee.jpg"
   }
 ];
 
@@ -495,13 +495,13 @@ export function SponsorFooter() {
 // ... [REAL_SPEAKERS Array] ...
 const REAL_SPEAKERS = [
    {
-    name: "Shantanu Deshpande",
-    role: "Founder & CEO",
-    company: "Bombay Shaving Company",
-    image: "/images/shantanu.jpeg",
-    color: "bg-gray-800",
-    gradient: "from-gray-700 to-gray-900",
-    linkedin: "https://in.linkedin.com/in/shantanudeshpandebsc",
+      name: "Shantanu Deshpande",
+      role: "Founder & CEO",
+      company: "Bombay Shaving Company",
+      image: "/images/shantanu.jpeg",
+      color: "bg-gray-800",
+      gradient: "from-gray-700 to-gray-900",
+      linkedin: "https://in.linkedin.com/in/shantanudeshpandebsc",
   },
   {
     name: "Sahiba Bali",
@@ -535,7 +535,7 @@ const REAL_SPEAKERS = [
   {
     name: "Ankur Warikoo",
     role: "Entrepreneur & Author",
-    company: "Warikoo",
+    company: "WebVeda",
     image: "/images/ankur.jpeg",
     color: "bg-indigo-500",
     gradient: "from-indigo-400 to-purple-600",
@@ -588,9 +588,9 @@ export function SpeakersSection() {
               </div>
 
               {/* Glowing Blur Circle */}
-              <div className={`absolute -bottom-10 -right-10 w-64 h-64 rounded-full blur-[100px] transition-opacity duration-700 ${speaker.color} 
+              <div className={`absolute -bottom-10 -right-10 w-64 h-32 rounded-full blur-[100px] transition-opacity duration-700 ${speaker.color} 
                 /* Mobile: Always visible */
-                opacity-50 
+                opacity-50
                 /* PC: Only on hover */
                 md:opacity-0 md:group-hover:opacity-50`} 
               />
@@ -599,7 +599,7 @@ export function SpeakersSection() {
                 {/* Top Header: Company & LinkedIn */}
                 <div className="flex justify-between items-start transition-all duration-500
                   /* Mobile: Always visible and in position */
-                  translate-y-0 opacity-100 
+                  translate-y-0 opacity-0
                   /* PC: Hidden until hover */
                   md:translate-y-[-20px] md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100">
                   <div className="px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/10">
@@ -724,29 +724,34 @@ return (
   <img
     src="/images/mobilewebpass.jpg"
     alt="MES 2026 Mobile Pass"
-    /* object-fill ensures the image matches the container exactly */
-    className="absolute inset-0 w-full h-full object-fill"
+    className="absolute inset-0 w-full h-full object-cover" // Changed to object-cover for better scaling
   />
+  
   <button
-    onClick={handleBuyTicket}
+    onClick={(e) => {
+      e.stopPropagation(); // Prevents the click from bubbling to the card
+      handleBuyTicket();
+    }}
     className="
       absolute 
-      /* Using percentages relative to the aspect-ratio container */
-      right-[-55%] 
-      bottom-[-85%]
-      w-[38%] 
+      bottom-6 
+      left-1/2 
+      -translate-x-0
+      z-10
+      w-[40%] 
       py-4
       bg-yellow-400
       text-black
       font-bold
-      text-base
-      rounded-lg
-      shadow-[0_0_20px_rgba(234,179,8,0.6)]
+      text-lg
+      rounded-2xl
+      shadow-[0_10px_30px_rgba(234,179,8,0.4)]
       active:scale-95
       transition-all
+      pointer-events-auto
     "
   >
-   BUY
+    BUY NOW
   </button>
 </div>
   </motion.div>
