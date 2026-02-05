@@ -18,7 +18,7 @@ const SLIDES = [
   },
   {
     title: <>Resume Your<br />Journey.</>,
-    desc: "Pick up where you left off. The future is being built today."
+    desc: "Pick up where you left off. The future is being ltlt today."
   },
   {
     title: <>Ready to<br />Disrupt?</>,
@@ -189,7 +189,7 @@ export default function LoginPage() {
                 </AnimatePresence>
 
                 <form className="space-y-5" onSubmit={handleLogin}>
-                    <InputField label="Email Address" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="john@example.com" />
+                    <InputField label="Personal Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="john@example.com" />
                     <div className="space-y-1">
                         <InputField label="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="••••••••" />
                         <div className="flex justify-end pt-1">

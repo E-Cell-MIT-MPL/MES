@@ -6,7 +6,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
-// --- COLOR PALETTE ---
+// 1. COLORS & DATA DEFINITIONS (Ensures no "not found" errors)
 const COLORS = {
   bg: "#1B1F23",        
   cardBg: "#3D1E42",    
@@ -16,11 +16,9 @@ const COLORS = {
   textWhite: "#ffffff",
 };
 
-// --- DATA ---
 const EVENT_GROUPS = [
   {
     name: "Conceptiō",
-    tag: "Flagship",
     rounds: [
       { date: "11 Dec - 07 Jan", title: "Ideation Round", desc: "Pitch Deck submission (8-10 slides). Focus on Innovation & Impact." },
       { date: "11 Jan - 27 Jan", title: "PoC Workshop", desc: "Exclusive workshop to build a working prototype/mock-up." },
@@ -29,7 +27,6 @@ const EVENT_GROUPS = [
   },
   {
     name: "Pitch Tank",
-    tag: "Flagship",
     rounds: [
       { date: "16 Dec - 05 Jan", title: "Startup Submission", desc: "Submit detailed applications showcasing business models." },
       { date: "08 Jan - 20 Jan", title: "Video & Deck", desc: "Submit 3-min pitch video and 8-10 slide deck." },
@@ -38,36 +35,32 @@ const EVENT_GROUPS = [
   },
   {
     name: "Blindspot",
-    tag: "Case Study",
     rounds: [
-      { date: "26 Jan - 31 Jan", title: "Screening Desk", desc: "Identify key risks from a concise startup snapshot." },
-      { date: "02 Feb - 07 Feb", title: "Financials", desc: "Deep dive into financial performance and risk reprioritization." },
-      { date: "11 Feb", title: "The Verdict", desc: "Diagnose root causes and design corrective actions." }
+      { date: "26 Jan - 31 Jan", title: "Screening Desk", desc: "Identify key risks from a startup snapshot." },
+      { date: "02 Feb - 07 Feb", title: "Financials", desc: "Deep dive into financial performance." },
+      { date: "11 Feb", title: "The Verdict", desc: "Diagnose root causes and design actions." }
     ]
   },
   {
     name: "Case Maze",
-    tag: "Strategy",
     rounds: [
-      { date: "27 Jan - 30 Jan", title: "Elimination Quiz", desc: "Online MCQs on Finance, Business, and Logic." },
-      { date: "01 Feb - 08 Feb", title: "Case Submission", desc: "Submit solution presentation for a functional area challenge." },
+      { date: "27 Jan - 30 Jan", title: "Elimination Quiz", desc: "Online MCQs on Finance and Logic." },
+      { date: "01 Feb - 08 Feb", title: "Case Submission", desc: "Submit solution for a functional challenge." },
       { date: "14 Feb", title: "Final Pitch", desc: "Present strategy to expert panel." }
     ]
   },
   {
     name: "Money Quest",
-    tag: "Fun",
     rounds: [
       { date: "06 Feb - 07 Feb", title: "Quiz Round", desc: "Online finance quiz. Top 20 qualify." },
-      { date: "09 Feb", title: "The Auction", desc: "Treasure hunt + Strategic Auction. Earn rent from places you own." }
+      { date: "09 Feb", title: "The Auction", desc: "Treasure hunt + Strategic Auction." }
     ]
   },
   {
     name: "PostMortem",
-    tag: "Mystery",
     rounds: [
       { date: "05 Feb - 08 Feb", title: "Qualification Quiz", desc: "Online murder mystery reasoning test." },
-      { date: "11 Feb", title: "The Deduction", desc: "Solve the CEO's murder using deduction and strategy." }
+      { date: "11 Feb", title: "The Deduction", desc: "Solve the CEO's murder using deduction." }
     ]
   }
 ];
@@ -75,164 +68,132 @@ const EVENT_GROUPS = [
 export default function MESTimeline() {
   const containerRef = useRef<HTMLDivElement>(null);
   const lineRef = useRef<HTMLDivElement>(null);
+  const [isDesktop, setIsDesktop] = useState(false);
 
   useEffect(() => {
+    // Determine screen size on mount and resize
+    const handleResize = () => setIsDesktop(window.innerWidth >= 768);
+    handleResize();
+    window.addEventListener('resize', handleResize);
+
     const ctx = gsap.context(() => {
-      
-      // 1. Line Animation
-      gsap.fromTo(lineRef.current, 
-        { height: "0%" },
-        { 
-          height: "100%", 
-          ease: "none",
-          scrollTrigger: {
-            trigger: containerRef.current,
-            start: "top center", 
-            end: "bottom center", 
-            scrub: 1, 
-          }
-        }
-      );
-
-      // 2. Card/Dot Animation
-      const groups = gsap.utils.toArray('.timeline-group');
-      groups.forEach((group: any) => {
-        const dot = group.querySelector('.timeline-dot');
-        const card = group.querySelector('.timeline-card');
-
-        gsap.fromTo(dot,
-          { scale: 0, opacity: 0 },
+      if (isDesktop) {
+        // Line animation (Vertical - Desktop Only)
+        gsap.fromTo(lineRef.current, 
+          { height: "0%" },
           { 
-            scale: 1, 
-            opacity: 1, 
-            duration: 0.4, 
-            ease: "back.out(2)",
+            height: "100%", 
+            ease: "none",
             scrollTrigger: {
-              trigger: group,
-              start: "top 60%", 
-              toggleActions: "play reverse play reverse"
+              trigger: containerRef.current,
+              start: "top center", 
+              end: "bottom center", 
+              scrub: 1, 
             }
           }
         );
 
-        gsap.fromTo(card, 
-          { opacity: 0, x: 20 },
-          { 
-            opacity: 1, 
-            x: 0, 
-            duration: 0.6, 
-            ease: "power3.out",
-            scrollTrigger: {
-              trigger: group,
-              start: "top 70%",
-              toggleActions: "play reverse play reverse"
-            }
+        // Entrance animation for cards
+        gsap.utils.toArray('.timeline-group').forEach((group: any) => {
+          const card = group.querySelector('.timeline-card');
+          if (card) {
+            gsap.fromTo(card, 
+              { opacity: 0, y: 50 },
+              { 
+                opacity: 1, 
+                y: 0, 
+                scrollTrigger: {
+                  trigger: group,
+                  start: "top 85%",
+                  toggleActions: "play none none reverse"
+                }
+              }
+            );
           }
-        );
-      });
-
+        });
+      }
     }, containerRef);
 
-    return () => ctx.revert();
-  }, []);
+    return () => {
+      ctx.revert();
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [isDesktop]);
 
   return (
-    <div className="w-full min-h-screen" style={{ backgroundColor: COLORS.bg }}>
+    <div className="w-full min-h-screen selection:bg-pink-500/30 overflow-x-hidden" style={{ backgroundColor: COLORS.bg }}>
       
-      <div ref={containerRef} className="relative max-w-5xl mx-auto py-24 px-4 overflow-hidden">
+      <div ref={containerRef} className="relative max-w-7xl mx-auto py-12 md:py-32 px-4">
         
-        {/* --- THE LINE --- */}
-        {/* Mobile: Left aligned (left-8) | Desktop: Center aligned (md:left-1/2) */}
-        <div className="absolute top-0 left-8 md:left-1/2 -translate-x-1/2 w-1 h-full z-0 opacity-20"
-             style={{ backgroundColor: COLORS.textLight }}></div>
+        {/* DESKTOP UI ELEMENTS */}
+        <div className="hidden md:block absolute top-0 left-1/2 -translate-x-1/2 w-[2px] h-full z-0 opacity-10 bg-[#FFD9DA]" />
+        <div ref={lineRef} className="hidden md:block absolute top-0 left-1/2 -translate-x-1/2 w-[2px] z-0"
+             style={{ background: `linear-gradient(to bottom, ${COLORS.lineMain}, ${COLORS.lineDark})` }} />
 
-        <div ref={lineRef}
-             className="absolute top-0 left-8 md:left-1/2 -translate-x-1/2 w-1 z-0 shadow-[0_0_15px_rgba(234,82,151,0.8)]"
-             style={{ 
-               background: `linear-gradient(to bottom, ${COLORS.lineMain}, ${COLORS.lineDark})`,
-               height: "0%"
-             }}>
-        </div>
-
-        {/* --- EVENT GROUPS --- */}
-        <div className="flex flex-col gap-12 md:gap-24 relative z-10 pt-10">
-          {EVENT_GROUPS.map((event, i) => (
+        {/* MOBILE: flex-row + overflow-x-auto (Horizontal Scroll)
+            DESKTOP: md:flex-col (Vertical Scroll)
+        */}
+        <div className="flex flex-row md:flex-col gap-6 md:gap-32 overflow-x-auto md:overflow-visible no-scrollbar snap-x snap-mandatory relative z-10 pb-10">
+          
+          {EVENT_GROUPS.map((event: any, i: number) => (
             <div 
               key={i} 
-              // Mobile: Always flex-row. Desktop: Alternating flex-row / flex-row-reverse
-              className={`timeline-group flex w-full items-start relative ${
-                i % 2 !== 0 ? 'md:flex-row-reverse' : ''
+              className={`timeline-group flex-shrink-0 w-[85vw] md:w-full snap-center flex items-start relative ${
+                i % 2 !== 0 ? 'md:flex-row-reverse' : 'md:flex-row'
               }`}
             >
-              {/* 1. The Dot */}
-              {/* Mobile: Left aligned (left-8) | Desktop: Center aligned (md:left-1/2) */}
-              <div 
-                className="timeline-dot absolute left-8 md:left-1/2 -translate-x-1/2 top-0 w-6 h-6 rounded-full border-4 z-20 shadow-[0_0_20px_rgba(234,82,151,0.8)]"
-                style={{ 
-                  backgroundColor: COLORS.bg, 
-                  borderColor: COLORS.lineMain 
-                }}
-              />
+              {/* Vertical Dot (Desktop Only) */}
+              <div className="hidden md:block absolute left-1/2 -translate-x-1/2 top-0 w-5 h-5 rounded-full border-[3px] z-20 shadow-[0_0_15px_rgba(234,82,151,0.5)]"
+                   style={{ backgroundColor: COLORS.bg, borderColor: COLORS.lineMain }} />
 
-              {/* 2. The Card */}
-              {/* Mobile: Full width, pushed right (ml-16). Desktop: 45% width, margin reset. */}
-              <div 
-                className={`timeline-card w-full ml-16 md:ml-0 md:w-[45%] ${
-                  i % 2 === 0 ? 'md:text-right md:pr-8' : 'md:text-left md:pl-8'
-                } text-left`}
-              >
+              {/* The Card */}
+              <div className={`timeline-card w-full md:w-[45%] ${i % 2 === 0 ? 'md:text-right md:pr-12' : 'md:text-left md:pl-12'}`}>
                 
-                {/* Event Name Tag */}
-                <div 
-                  className={`inline-block px-4 py-1 rounded-full text-xs font-bold tracking-widest uppercase mb-4 shadow-lg ${
-                    // Mobile: Always left. Desktop: Alternates
-                    i % 2 === 0 ? 'md:ml-auto' : 'md:mr-auto'
-                  }`}
-                  style={{ backgroundColor: COLORS.lineMain, color: "#000" }}
-                >
+                <div className={`inline-block px-4 py-1 rounded-full text-[10px] font-black tracking-widest uppercase mb-4 shadow-lg ${
+                  i % 2 === 0 ? 'md:ml-auto' : 'md:mr-auto'
+                }`}
+                style={{ backgroundColor: COLORS.lineMain, color: "#1B1F23" }}>
                   {event.name}
                 </div>
 
-                {/* The Box */}
-                <div 
-                  className="rounded-2xl p-6 border backdrop-blur-sm transition-all hover:shadow-[0_0_30px_rgba(61,30,66,0.6)] group"
-                  style={{ 
-                    backgroundColor: `${COLORS.cardBg}E6`, 
-                    borderColor: COLORS.cardBg,
-                    // Mobile: Always Left Border. Desktop: Alternating borders.
-                    borderLeft: `4px solid ${COLORS.lineMain}`,
-                    // We override the inline style for desktop using a style object, but doing it via logic is cleaner:
-                  }}
-                >
-                  {/* Internal Rounds List */}
+                <div className="rounded-3xl p-6 md:p-8 border border-white/5 bg-[#252a30]/80 backdrop-blur-xl shadow-2xl h-full"
+                     style={{ borderLeft: `4px solid ${COLORS.lineMain}` }}>
+                  
                   <div className="flex flex-col gap-6">
-                    {event.rounds.map((round, r) => (
-                      <div key={r} className="border-b border-white/10 last:border-0 pb-4 last:pb-0">
-                        <div className="flex flex-col gap-1">
-                          <span className="font-mono text-xs opacity-70" style={{ color: COLORS.textLight }}>
-                            {round.date}
-                          </span>
-                          <h4 className="text-xl font-bold text-white group-hover:text-[#EA5297] transition-colors">
-                            {round.title}
-                          </h4>
-                          <p className="text-sm text-gray-300 leading-relaxed">
-                            {round.desc}
-                          </p>
-                        </div>
+                    {event.rounds.map((round: any, r: number) => (
+                      <div key={r} className="flex flex-col gap-2 border-b border-white/5 last:border-0 pb-4 last:pb-0 group/round">
+                        <span className="font-mono text-[10px] opacity-50 uppercase" style={{ color: COLORS.textLight }}>
+                          {round.date}
+                        </span>
+                        <h4 className="text-lg md:text-xl font-bold text-white group-hover/round:text-[#EA5297] transition-colors">
+                          {round.title}
+                        </h4>
+                        <p className="text-xs md:text-sm text-gray-400 leading-relaxed font-light">
+                          {round.desc}
+                        </p>
                       </div>
                     ))}
                   </div>
                 </div>
-
               </div>
-              
-              {/* 3. Spacer (Hidden on Mobile) */}
-              <div className="hidden md:block w-[45%]"></div> 
+
+              {/* Layout Spacer (Desktop Only) */}
+              <div className="hidden md:block w-[45%]" />
             </div>
           ))}
         </div>
 
+        {/* Mobile Swipe Indicator */}
+        <div className="md:hidden text-center mt-4 text-[9px] uppercase tracking-[0.3em] text-white/20 animate-pulse font-bold">
+          Swipe to explore events →
+        </div>
+
       </div>
+
+      <style jsx global>{`
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      `}</style>
     </div>
   );
 }

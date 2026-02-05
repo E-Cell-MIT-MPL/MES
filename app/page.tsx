@@ -89,35 +89,35 @@ const REAL_EVENTS = [
     date: "10 Feb", 
     title: "Money Quest", 
     desc: "A finance-focused challenge testing strategy, risk-taking, and decision-making skills.", 
-    link: "https://unstop.com/", 
-    image: "https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?q=80&w=800&auto=format&fit=crop"
+    link: "https://unstop.com/competitions/money-quest-manipal-entrepreneurship-summit-2026-manipal-institute-of-technology-manipal-1620675", 
+    image: "/images/moneyquest.jpeg"
   },
   { 
     date: "11 Feb", 
     title: "Blind Spot", 
     desc: "Blindspot is a hands-on investment decision-making competition in (MES) 2026 on Unstop, with a ₹25,000 prize pool and rounds running from January 26, 2026..", 
-    link: "#", 
+    link: "https://unstop.com/competitions/blindspot-manipal-entrepreneurship-summit-2026-manipal-institute-of-technology-manipal-1616331", 
     image: "/images/blindspot.jpg"
   },
   { 
     date: "11 Feb", 
-    title: "Innovation Policy Consertum", 
+    title: "Innovation Policy Consortium", 
     desc: "A consortium-style discussion on innovation frameworks, governance, and policy impact.", 
-    link: "#", 
+    link: "https://www.ecellmit.in/ipc", 
     image: "/images/ipc.jpg"
   },
   { 
     date: "11 Feb", 
     title: "Postmortem", 
     desc: "An analytical postmortem session uncovering blind spots, failures, and lessons from real cases.", 
-    link: "#", 
+    link: "https://unstop.com/competitions/postmortem-manipal-entrepreneurship-summit-2026-manipal-institute-of-technology-manipal-1622583", 
     image: "/images/postmortum.png"
   },
   {
     date: "14 Feb",
     title: "Case Maze",
     desc: "A competitive case-solving challenge designed to test analytical thinking.",
-    link: "#",
+    link: "",
     image: "/images/casemaze.jpg"
   }
 ];
@@ -691,12 +691,12 @@ return (
 
       {/* BUY Button */}
       <button
-        onClick={homedir}
+        onClick={handleBuyTicket}
         className="
           absolute 
-          right-[4%] 
+          right-[5%] 
           bottom-[2%]
-          px-10 py-3
+          px-11 py-3
           bg-yellow-400
           text-black
           font-bold
@@ -710,7 +710,7 @@ return (
           active:scale-95
         "
       >
-        SOON!
+       BUY!
       </button>
     </div>
 
@@ -728,13 +728,13 @@ return (
     className="absolute inset-0 w-full h-full object-fill"
   />
   <button
-    onClick={homedir}
+    onClick={handleBuyTicket}
     className="
       absolute 
       /* Using percentages relative to the aspect-ratio container */
       right-[-55%] 
-      bottom-[-82%]
-      w-[42%] 
+      bottom-[-85%]
+      w-[38%] 
       py-4
       bg-yellow-400
       text-black
@@ -746,7 +746,7 @@ return (
       transition-all
     "
   >
-    SOON!
+   BUY
   </button>
 </div>
   </motion.div>
