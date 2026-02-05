@@ -222,8 +222,9 @@ function DashboardContent() {
       merchId,
       custEmail: user?.personalEmail || "test@example.com",
       custMobile: user?.phone || "9999999999",
-      returnUrl: `${frontendUrl}/payment/success?txnId=${txnId}`,
-      callbackUrl: `${backendUrl}/payment/callback`,
+     // returnUrl: `${frontendUrl}/payment/success?txnId=${txnId}`,
+      returnUrl: `${backendUrl}/api/payments/atom/redirect`,
+      callbackUrl: `${backendUrl}/payment/callback`
     };
   
     const AtomSDK =
