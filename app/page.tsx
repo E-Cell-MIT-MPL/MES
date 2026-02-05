@@ -97,7 +97,7 @@ const REAL_EVENTS = [
     title: "Blind Spot", 
     desc: "Blindspot is a hands-on investment decision-making competition in (MES) 2026 on Unstop, with a ₹25,000 prize pool and rounds running from January 26, 2026..", 
     link: "https://unstop.com/competitions/blindspot-manipal-entrepreneurship-summit-2026-manipal-institute-of-technology-manipal-1616331", 
-    image: "/images/blindspot.jpg"
+    image: "/images/blindspott.jpg"
   },
   { 
     date: "11 Feb", 
@@ -432,7 +432,7 @@ export function SponsorFooter() {
     
     {/* --- 1. INNOVATION PARTNER --- */}
     <div className="col-span-1 flex flex-col items-center gap-2">
-      <p className="text-gray-400 text-[10px] uppercase tracking-[0.1em] opacity-80">Innovation Partner</p>
+      <p className="text-gray-400 text-[10px] uppercase tracking-[0.1em] opacity-80">Innovation Mela Sponsor</p>
       <div className="flex flex-col items-center">
         <div className="relative w-14 h-14 md:w-16 md:h-16">
           <Image src="/images/MIT Manipal Alumni Association Logo Transparent.png" alt="MITMAA" fill className="object-contain" />
