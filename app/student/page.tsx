@@ -223,7 +223,7 @@ function DashboardContent() {
       custEmail: user?.personalEmail || "test@example.com",
       custMobile: user?.phone || "9999999999",
      // returnUrl: `${frontendUrl}/payment/success?txnId=${txnId}`,
-      returnUrl: `${backendUrl}/api/payments/atom/redirect`,
+      returnUrl: `${backendUrl}/payment/redirect`,
       callbackUrl: `${backendUrl}/payment/callback`
     };
   
