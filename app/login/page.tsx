@@ -18,7 +18,7 @@ const SLIDES = [
   },
   {
     title: <>Resume Your<br />Journey.</>,
-    desc: "Pick up where you left off. The future is being built today."
+    desc: "Pick up where you left off. The future is being ltlt today."
   },
   {
     title: <>Ready to<br />Disrupt?</>,
@@ -171,7 +171,7 @@ export default function LoginPage() {
                 <div className="mb-8">
                     <h2 className="text-3xl font-bold text-white mb-2 tracking-tight">Sign In</h2>
                     <p className="text-gray-500 text-sm">
-                        Don't have an account? <Link href="/signup" className="text-blue-400 hover:text-blue-300 font-medium transition-colors underline decoration-blue-400/30 underline-offset-4">Create one</Link>
+                        Don&apos;t have an account? <Link href="/signup" className="text-blue-400 hover:text-blue-300 font-medium transition-colors underline decoration-blue-400/30 underline-offset-4">Create one</Link>
                     </p>
                 </div>
 
@@ -189,11 +189,11 @@ export default function LoginPage() {
                 </AnimatePresence>
 
                 <form className="space-y-5" onSubmit={handleLogin}>
-                    <InputField label="Email Address" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="john@example.com" />
+                    <InputField label="Personal Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="john@example.com" />
                     <div className="space-y-1">
                         <InputField label="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="••••••••" />
                         <div className="flex justify-end pt-1">
-                            <Link href="/forgot-password" university-context="true" className="text-xs text-gray-500 hover:text-white transition-colors py-2">Forgot password?</Link>
+                            <Link href="../forgot-password" university-context="true" className="text-xs text-gray-500 hover:text-white transition-colors py-2">Forgot password?</Link>
                         </div>
                     </div>
 

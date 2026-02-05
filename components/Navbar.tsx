@@ -75,7 +75,7 @@ const Navbar = () => {
           {/* --- LEFT: LOGO --- */}
 <div className="relative h-20 w-40 md:h-28 md:w-56 flex items-center">
   <Image 
-    src="/images/MES 2026 logo 4.png" 
+    src="/images/mes.jpg" 
     alt="MES 2026" 
     fill
     className="object-contain object-left"
@@ -105,7 +105,7 @@ const Navbar = () => {
         {/* --- RIGHT: BUTTON (DESKTOP ONLY) --- */}
         <div className="hidden md:flex items-center ml-auto z-50">
           <Link 
-            href="#"
+            href="/student"
             className="group relative px-6 py-2 rounded-full font-bold text-sm text-white shadow-lg transition-all duration-300 hover:scale-105 active:scale-95 hover:shadow-[0_0_25px_rgba(219,39,119,0.4)] overflow-hidden"
             style={{
               background: 'linear-gradient(135deg, #831843 0%, #db2777 100%)', 
@@ -114,9 +114,10 @@ const Navbar = () => {
                 : '1px solid rgba(0, 0, 0, 0.1)',
             }}
           >
+            
             <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
             <span className="relative z-10 tracking-widest flex items-center gap-2">
-             COMING SOON
+             BUY NOW
             </span>
           </Link>
         </div>
@@ -135,7 +136,7 @@ const Navbar = () => {
                 >
                     <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
                     <span className="relative z-10">
-                      COMING SOON
+                     BUY NOW
                     </span>
                 </Link>
             )}

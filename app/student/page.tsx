@@ -76,25 +76,18 @@ interface Ticket {
 
 const CONCLAVES = [
   {
-    id: "fintech",
-    title: "FinTech Panel",
+    id: "conclave",
+    title: "KEYNOTE",
     displayDate: "Feb 12",
-    venue: "MV Hall",
-    time: "10:00 AM",
+    venue: "AB 4 QUADRANGLE",
+    time: "6:00 PM",
   },
   {
-    id: "built-her",
-    title: "Built By Her",
-    displayDate: "Feb 13",
-    venue: "Lib Aud",
-    time: "2:00 PM",
-  },
-  {
-    id: "mindverse",
-    title: "MindVerse 2026",
+    id: "conclave 2",
+    title: "INFLUENCERS CONCLAVE",
     displayDate: "Feb 14",
-    venue: "MSCE",
-    time: "11:00 AM",
+    venue: "AB 4 QUADRANGLE",
+    time: "6:00 PM",
   },
 ];
 
@@ -223,7 +216,7 @@ function DashboardContent() {
       custEmail: user?.personalEmail || "test@example.com",
       custMobile: user?.phone || "9999999999",
      // returnUrl: `${frontendUrl}/payment/success?txnId=${txnId}`,
-      returnUrl: `${backendUrl}/payment/atom/redirect`,
+      returnUrl: `${backendUrl}/payment/atom/redirect?txnId=${txnId}`,
       callbackUrl: `${backendUrl}/payment/callback`
     };
   
