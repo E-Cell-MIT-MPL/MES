@@ -75,7 +75,7 @@ const Navbar = () => {
           {/* --- LEFT: LOGO --- */}
 <div className="relative h-20 w-40 md:h-28 md:w-56 flex items-center">
   <Image 
-    src="/images/MES 2026 logo 4.png" 
+    src="/images/mes.jpg" 
     alt="MES 2026" 
     fill
     className="object-contain object-left"
