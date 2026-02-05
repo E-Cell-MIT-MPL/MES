@@ -73,16 +73,23 @@ const Navbar = () => {
       <div className="relative flex items-center px-6 md:px-8 py-4 md:py-6 pointer-events-auto min-h-[80px] md:min-h-[88px]">
         
           {/* --- LEFT: LOGO --- */}
-<div className="relative h-20 w-40 md:h-28 md:w-56 flex items-center">
-  <Image 
-    src="/images/mes.jpg" 
-    alt="MES 2026" 
-    fill
-    className="object-contain object-left"
-    priority
-    sizes="(max-width: 768px) 160px, 224px"
-  />
-</div>
+<a 
+          href="#hero" 
+          className="relative z-[50002] cursor-pointer transition-opacity hover:opacity-80 flex-shrink-0 flex items-center" 
+          onClick={() => setIsMobileMenuOpen(false)}
+        >
+          {/* FIX: Increased mobile height to h-16 (64px) and width to w-32 to make it big again */}
+          <div className="relative h-20 w-40 md:h-28 md:w-56 flex items-center">
+          <Image 
+                src="/images/mes.jpg" 
+                alt="MES 2026" 
+                fill
+                className="object-contain object-left"
+                priority
+                sizes="(max-width: 768px) 160px, 224px"
+            />
+          </div>
+        </a>
 
         {/* --- CENTER: PILLS (DESKTOP ONLY) --- */}
         <div className="hidden md:block absolute left-1/2 -translate-x-1/2 z-40">
