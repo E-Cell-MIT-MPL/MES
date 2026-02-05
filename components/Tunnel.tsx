@@ -22,6 +22,12 @@ function StockChart({ color, isMobile }: { color: "green" | "red", isMobile: boo
     canvas.height = height * dpr;
     ctx.scale(dpr, dpr);
 
+    // Only enable expensive glow on PC
+    // if (!isMobile) {
+    //     ctx.shadowBlur = 20;
+    //     ctx.shadowColor = color === "green" ? "#4ade80" : "#f87171";
+    // }
+
     const generateData = () => {
       const p = []; let v = 200;
       const points = isMobile ? 40 : 200;
@@ -90,23 +96,13 @@ const TunnelText = ({ text, zOffset, tunnelZ, color = "white", multiLine = false
   const scale = useTransform(tunnelZ, [inStart, inFull], [0.4, 1]); 
 
   return (
-    // FIX: Added 'will-change-transform' and explicitly set 'backfaceVisibility' to hidden
-    // This forces the mobile browser to keep the layer active and prevents flickering during 3D movement.
-    <div className="absolute inset-0 flex items-center justify-center pointer-events-none will-change-transform" 
-         style={{ 
-            transformStyle: 'preserve-3d',
-            backfaceVisibility: 'hidden',
-            WebkitBackfaceVisibility: 'hidden' 
-         }}>
+    <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ transformStyle: 'preserve-3d' }}>
       <motion.div 
         style={{
           transform: useTransform(tunnelZ, (v) => `translateZ(${zOffset}px)`),
           opacity: opacity, 
           scale: scale,
-          zIndex: 50,
-          // FIX: Added backface visibility here too just in case
-          backfaceVisibility: 'hidden',
-          WebkitBackfaceVisibility: 'hidden'
+          zIndex: 50
         }}
         className="flex items-center justify-center"
       >
@@ -117,10 +113,7 @@ const TunnelText = ({ text, zOffset, tunnelZ, color = "white", multiLine = false
             fontSize: multiLine ? 'clamp(1.5rem, 10vw, 6rem)' : 'clamp(2rem, 12vw, 8rem)',
             textShadow: `0 0 20px ${color}, 0 0 40px ${color}`,
             lineHeight: multiLine ? 1.1 : 1,
-            whiteSpace: 'normal',
-            // FIX: Antialiasing helps text render cleanly during 3D transforms
-            WebkitFontSmoothing: 'antialiased',
-            MozOsxFontSmoothing: 'grayscale'
+            whiteSpace: 'normal'
           }}
         >
           {text}
@@ -169,13 +162,8 @@ export default function Tunnel() {
 
   return (
     <div ref={tunnelRef} className="relative bg-black" style={{ height: `${SCROLL_HEIGHT}px` }}>
-      {/* FIX: perspectiveOrigin ensures consistent vanishing point on mobile */}
       <div className="w-full h-screen sticky top-0 overflow-hidden bg-black" 
-           style={{ 
-             perspective: "600px", 
-             perspectiveOrigin: "center center", 
-             transformStyle: "preserve-3d" 
-           }}>
+           style={{ perspective: "600px", transformStyle: "preserve-3d" }}>
         
         <motion.div
           className="w-full h-full absolute top-0 left-0"
@@ -211,8 +199,7 @@ export default function Tunnel() {
                 bottom: wall.bottom || 'auto',
                 gridTemplateColumns: (wall.side === "left" || wall.side === "right") ? `repeat(${GRID_COLS}, 1fr)` : `repeat(${GRID_ROWS}, 1fr)`,
                 gridTemplateRows: (wall.side === "left" || wall.side === "right") ? `repeat(${GRID_ROWS}, 1fr)` : `repeat(${GRID_COLS}, 1fr)`,
-                backfaceVisibility: "hidden",
-                WebkitBackfaceVisibility: "hidden" // Fix for mobile webkit glitch
+                backfaceVisibility: "hidden" 
               }}
             >
               {(wall.side === "left" || wall.side === "right") && (
