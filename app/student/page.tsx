@@ -79,14 +79,14 @@ const CONCLAVES = [
     id: "conclave",
     title: "KEYNOTE",
     displayDate: "Feb 12",
-    venue: "AB 4 QUADRANGLE",
+    venue: "AB 1 QUADRANGLE",
     time: "6:00 PM",
   },
   {
     id: "conclave 2",
     title: "INFLUENCERS CONCLAVE",
     displayDate: "Feb 14",
-    venue: "AB 4 QUADRANGLE",
+    venue: "AB 1 QUADRANGLE",
     time: "6:00 PM",
   },
 ];

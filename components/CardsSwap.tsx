@@ -11,11 +11,11 @@ import React, {
   useEffect,
   useMemo,
   useRef,
-  useImperativeHandle
+  useImperativeHandle,
+  useState
 } from 'react';
 import gsap from 'gsap';
 
-// Define the handle that the parent can use
 export interface CardSwapHandle {
   triggerSwap: () => void;
 }
@@ -25,9 +25,8 @@ export interface CardSwapProps {
   height?: number | string;
   cardDistance?: number;
   verticalDistance?: number;
-  // Removed "delay" and "pauseOnHover" because we are controlling it via scroll now
   onCardClick?: (idx: number) => void;
-  skewAmount?: number;
+  skewAmount?: number; // We will ignore this on mobile
   easing?: 'linear' | 'elastic';
   children: ReactNode;
 }
@@ -40,7 +39,10 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(({ customClass, ...res
   <div
     ref={ref}
     {...rest}
-    className={`absolute top-1/2 left-1/2 rounded-xl border border-white bg-black [transform-style:preserve-3d] [will-change:transform] [backface-visibility:hidden] ${customClass ?? ''} ${rest.className ?? ''}`.trim()}
+    // Added 'will-change-transform' and specific mobile optimizations in CSS
+    className={`absolute top-1/2 left-1/2 rounded-3xl border border-white/10 bg-[#111] 
+                [transform-style:preserve-3d] [backface-visibility:hidden] will-change-transform 
+                ${customClass ?? ''} ${rest.className ?? ''}`.trim()}
   />
 ));
 Card.displayName = 'Card';
@@ -51,29 +53,9 @@ interface Slot {
   y: number;
   z: number;
   zIndex: number;
+  scale: number; // Added scale for mobile optimization (fake depth)
 }
 
-const makeSlot = (i: number, distX: number, distY: number, total: number): Slot => ({
-  x: i * distX,
-  y: -i * distY,
-  z: -i * distX * 1.5,
-  zIndex: total - i
-});
-
-const placeNow = (el: HTMLElement, slot: Slot, skew: number) =>
-  gsap.set(el, {
-    x: slot.x,
-    y: slot.y,
-    z: slot.z,
-    xPercent: -50,
-    yPercent: -50,
-    skewY: skew,
-    transformOrigin: 'center center',
-    zIndex: slot.zIndex,
-    force3D: true
-  });
-
-// Wrap component in forwardRef to expose the triggerSwap method
 const CardSwap = forwardRef<CardSwapHandle, CardSwapProps>(({
   width = 500,
   height = 400,
@@ -84,15 +66,37 @@ const CardSwap = forwardRef<CardSwapHandle, CardSwapProps>(({
   easing = 'elastic',
   children
 }, ref) => {
-  const config =
-    easing === 'elastic'
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // --- OPTIMIZATION: Config based on device ---
+  const config = useMemo(() => {
+    if (isMobile) {
+      return {
+        ease: 'power3.inOut', // Snappier, less CPU intensive than elastic
+        durDrop: 0.6,
+        durMove: 0.5,
+        durReturn: 0.6,
+        promoteOverlap: 0.2,
+        returnDelay: 0.1,
+        skew: 0 // No skew on mobile
+      };
+    }
+    return easing === 'elastic'
       ? {
           ease: 'elastic.out(0.6,0.9)',
           durDrop: 2,
           durMove: 2,
           durReturn: 2,
           promoteOverlap: 0.9,
-          returnDelay: 0.05
+          returnDelay: 0.05,
+          skew: skewAmount
         }
       : {
           ease: 'power1.inOut',
@@ -100,86 +104,114 @@ const CardSwap = forwardRef<CardSwapHandle, CardSwapProps>(({
           durMove: 0.8,
           durReturn: 0.8,
           promoteOverlap: 0.45,
-          returnDelay: 0.2
+          returnDelay: 0.2,
+          skew: skewAmount
         };
+  }, [isMobile, easing, skewAmount]);
 
   const childArr = useMemo(() => Children.toArray(children) as ReactElement<CardProps>[], [children]);
   const refs = useMemo<CardRef[]>(() => childArr.map(() => React.createRef<HTMLDivElement>()), [childArr.length]);
-
   const order = useRef<number[]>(Array.from({ length: childArr.length }, (_, i) => i));
   const tlRef = useRef<gsap.core.Timeline | null>(null);
+
+  // Helper to calculate slots
+  const getSlot = (i: number, total: number): Slot => {
+    // Mobile: Tighter spacing, less Z-depth movement
+    const dX = isMobile ? cardDistance * 0.5 : cardDistance;
+    const dY = isMobile ? verticalDistance * 0.5 : verticalDistance;
+    
+    return {
+      x: i * dX,
+      y: -i * dY,
+      z: -i * dX * (isMobile ? 0.5 : 1.5), // Reduce depth calculation on mobile
+      zIndex: total - i,
+      scale: 1 - (i * 0.05) // Subtle scale down for back cards
+    };
+  };
+
+  const setCardPosition = (el: HTMLElement, slot: Slot, skew: number) => {
+    gsap.set(el, {
+      x: slot.x,
+      y: slot.y,
+      z: slot.z,
+      xPercent: -50,
+      yPercent: -50,
+      skewY: skew,
+      scale: slot.scale, // Apply scale
+      transformOrigin: 'center center',
+      zIndex: slot.zIndex,
+      overwrite: 'auto' // Ensure we don't have conflicting tweens
+    });
+  };
 
   // Initial Placement
   useEffect(() => {
     const total = refs.length;
-    refs.forEach((r, i) => placeNow(r.current!, makeSlot(i, cardDistance, verticalDistance, total), skewAmount));
-  }, [cardDistance, verticalDistance, skewAmount, refs]);
+    refs.forEach((r, i) => {
+        if (r.current) {
+            setCardPosition(r.current, getSlot(i, total), config.skew);
+        }
+    });
+  }, [cardDistance, verticalDistance, config, refs, isMobile]);
 
-  // The Swap Logic
   const swap = () => {
     if (order.current.length < 2) return;
-    // Check if animation is running to prevent spamming
-    if (tlRef.current && tlRef.current.isActive()) return; 
+    if (tlRef.current && tlRef.current.isActive()) return;
 
     const [front, ...rest] = order.current;
     const elFront = refs[front].current!;
-    const tl = gsap.timeline();
+    
+    const tl = gsap.timeline({
+        onComplete: () => {
+            order.current = [...rest, front];
+        }
+    });
     tlRef.current = tl;
 
+    // 1. Drop the front card
     tl.to(elFront, {
-      y: '+=500',
+      y: isMobile ? '+=200' : '+=500', // Shorter drop on mobile
+      rotation: isMobile ? -5 : 0, // Slight tilt on mobile drop instead of massive distance
       duration: config.durDrop,
       ease: config.ease
     });
 
+    // 2. Move the rest forward
     tl.addLabel('promote', `-=${config.durDrop * config.promoteOverlap}`);
     rest.forEach((idx, i) => {
       const el = refs[idx].current!;
-      const slot = makeSlot(i, cardDistance, verticalDistance, refs.length);
+      const slot = getSlot(i, refs.length);
+      
       tl.set(el, { zIndex: slot.zIndex }, 'promote');
-      tl.to(
-        el,
-        {
-          x: slot.x,
-          y: slot.y,
-          z: slot.z,
-          duration: config.durMove,
-          ease: config.ease
-        },
-        `promote+=${i * 0.15}`
-      );
-    });
-
-    const backSlot = makeSlot(refs.length - 1, cardDistance, verticalDistance, refs.length);
-    tl.addLabel('return', `promote+=${config.durMove * config.returnDelay}`);
-    tl.call(
-      () => {
-        gsap.set(elFront, { zIndex: backSlot.zIndex });
-      },
-      undefined,
-      'return'
-    );
-    tl.to(
-      elFront,
-      {
-        x: backSlot.x,
-        y: backSlot.y,
-        z: backSlot.z,
-        duration: config.durReturn,
+      tl.to(el, {
+        x: slot.x,
+        y: slot.y,
+        z: slot.z,
+        scale: slot.scale,
+        skewY: config.skew,
+        duration: config.durMove,
         ease: config.ease
-      },
-      'return'
-    );
-
-    tl.call(() => {
-      order.current = [...rest, front];
+      }, `promote+=${i * 0.1}`);
     });
+
+    // 3. Return the front card to the back
+    const backSlot = getSlot(refs.length - 1, refs.length);
+    tl.addLabel('return', `promote+=${config.durMove * config.returnDelay}`);
+    
+    tl.set(elFront, { zIndex: backSlot.zIndex }, 'return');
+    tl.to(elFront, {
+      x: backSlot.x,
+      y: backSlot.y,
+      z: backSlot.z,
+      scale: backSlot.scale,
+      rotation: 0, // Reset rotation
+      skewY: config.skew,
+      duration: config.durReturn,
+      ease: config.ease
+    }, 'return');
   };
 
-  // Expose the swap function to parent
-  useImperativeHandle(ref, () => ({
-    triggerSwap: swap
-  }));
+  useImperativeHandle(ref, () => ({ triggerSwap: swap }));
 
   const rendered = childArr.map((child, i) =>
     isValidElement<CardProps>(child)
@@ -197,7 +229,7 @@ const CardSwap = forwardRef<CardSwapHandle, CardSwapProps>(({
 
   return (
     <div
-      className="relative perspective-[900px] overflow-visible"
+      className="relative perspective-[1000px]" // Standardize perspective
       style={{ width, height }}
     >
       {rendered}
