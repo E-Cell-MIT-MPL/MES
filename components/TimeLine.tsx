@@ -62,7 +62,15 @@ const EVENT_GROUPS = [
       { date: "05 Feb - 08 Feb", title: "Qualification Quiz", desc: "Online murder mystery reasoning test." },
       { date: "11 Feb", title: "The Deduction", desc: "Solve the CEO's murder using deduction." }
     ]
+  },
+  {
+    name: " Innovation Policy Consortium (IPC)",
+    rounds: [
+      { date: "11 Feb", title: "Policy Compilation Event", desc: "Policy recommendation document compilation at the Innovation Policy Consortium 2026 "},
+      { date: "12 Feb", title: " Final Presentation at MES 2026", desc: "Presentation of 'Bharat Yuva Innovation Policy Recommendation 2026' to the government of Karnataka" }
+    ]
   }
+  
 ];
 
 export default function MESTimeline() {
