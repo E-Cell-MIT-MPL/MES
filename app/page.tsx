@@ -16,11 +16,13 @@ import { Check, ArrowUpRight,MapPin,
   Instagram, 
   Linkedin, 
   Youtube, 
-  Twitter } from "lucide-react"; 
+  Twitter,
+  Plus,
+  Minus } from "lucide-react"; 
 import { homedir } from "os";
   
 
-// ... [BlurReveal Component - Keep as is] ...
+// ... [BlurReveal Component] ...
 function BlurReveal({ children, delay = 0, className = "" }: { children: React.ReactNode, delay?: number, className?: string }) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.2 }); 
@@ -55,7 +57,7 @@ function BlurReveal({ children, delay = 0, className = "" }: { children: React.R
   );
 }
 
-// ... [REAL_EVENTS Data - Keep as is] ...
+// ... [REAL_EVENTS Data] ...
 const REAL_EVENTS = [
   { 
     date: "12 Feb", 
@@ -122,7 +124,7 @@ const REAL_EVENTS = [
   }
 ];
 
-// ... [EventsPage Component - Keep as is] ...
+// ... [EventsPage Component] ...
 function EventsPage() {
   return (
     <section className="py-20 md:py-32 bg-[#050505]">
@@ -168,8 +170,6 @@ function EventsPage() {
   );
 }
 
-
-// import CardSwap, { Card } from '@/components/CardSwap'; 
 export function ExpandingSection() {
   const containerRef = useRef<HTMLDivElement>(null);
   const cardSwapRef = useRef<CardSwapHandle>(null);
@@ -203,19 +203,16 @@ export function ExpandingSection() {
   const easedBox = ease(expansionCap);
   const isLocked = expansionCap >= 0.99;
 
-  // --- CARD SWAP TRIGGER LOGIC ---
   let activeCardIndex = 0;
   if (progress > 0.15) activeCardIndex = 1;
   if (progress > 0.45) activeCardIndex = 2;
 
   useEffect(() => {
-    // UPDATED: Removed "!isMobile" check. 
-    // Now it auto-swaps on BOTH mobile and desktop based on scroll.
     if (activeCardIndex !== lastIndexRef.current) {
       cardSwapRef.current?.triggerSwap();
       lastIndexRef.current = activeCardIndex;
     }
-  }, [activeCardIndex]); // Removed isMobile dependency as it's no longer used in logic
+  }, [activeCardIndex]);
 
   return (
     <section ref={containerRef} className="relative h-[350vh] bg-white z-20 font-sans">
@@ -223,7 +220,7 @@ export function ExpandingSection() {
         <div
           className="absolute overflow-hidden z-20 border border-white/5 shadow-2xl transition-colors duration-1000 ease-in-out"
           style={{
-            backgroundColor: '#FFD9DA', // THE PINK BACKGROUND
+            backgroundColor: '#FFD9DA', 
             width: isLocked ? '100%' : (isMobile ? `${85 + easedBox * 15}%` : `${45 + easedBox * 55}%`),
             height: isLocked ? '100dvh' : `${50 + easedBox * 50}vh`,
             top: '50%',
@@ -234,13 +231,9 @@ export function ExpandingSection() {
         >
           <div className="absolute inset-0 opacity-[0.1] pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
 
-          {/* ==========================================
-              VISION TEXT (TOP LEFT)
-          ========================================== */}
           <div
             className="absolute top-16 md:top-20 left-8 md:left-24 z-30 pointer-events-none"
             style={{
-              // If timeline is < 0.8, keep it visible. Once we lock (1.0), fade it out.
               opacity: Math.max(0, 1 - (timeline - 0.7) * 5), 
               transform: `translateY(${(timeline < 0.1) ? '20px' : '0px'})`,
               transition: 'all 0.6s cubic-bezier(0.22, 1, 0.36, 1)'
@@ -250,14 +243,10 @@ export function ExpandingSection() {
             <h2 className="font-serif-display italic text-black text-5xl md:text-8xl leading-none">The Vision.</h2>
           </div>
 
-          {/* ==========================================
-              LEAP TEXT (BOTTOM LEFT)
-          ========================================== */}
           <div className="absolute bottom-16 md:bottom-20 left-8 md:left-20 z-30 pointer-events-none">
             <h2
               className="font-serif-display italic font-bold text-fuchsia-900 text-6xl md:text-9xl leading-none tracking-tighter"
               style={{
-                // Appears as we scroll further down
                 opacity: Math.max(0, (timeline - 0.5) * 4),
                 transform: `translateY(${(timeline > 0.5) ? '0' : '40px'})`,
                 transition: 'all 0.8s cubic-bezier(0.22, 1, 0.36, 1)'
@@ -267,9 +256,6 @@ export function ExpandingSection() {
             </h2>
           </div>
 
-          {/* ==========================================
-              CARDS CONTAINER (RIGHT)
-          ========================================== */}
           <div
             className="absolute top-[50%] md:top-[55%] right-0 md:right-16 -translate-y-1/2 z-40 pointer-events-auto w-full md:w-auto flex justify-center"
             style={{
@@ -286,7 +272,6 @@ export function ExpandingSection() {
             >
              <Card customClass="bg-[#111] border border-white/10 overflow-hidden rounded-[32px] shadow-2xl">
   <div className="relative w-full h-full p-8 flex flex-col justify-between">
-    {/* Background Image / Decorative Image */}
     <div className="absolute inset-0 opacity-40 grayscale hover:grayscale-0 transition-all duration-500">
       <img 
         src="/images/capital.jpg" 
@@ -295,7 +280,6 @@ export function ExpandingSection() {
       />
     </div>
     
-    {/* Content Overlay */}
     <div className="relative z-10 w-10 h-10 rounded-full bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400 font-bold">01</div>
     <div className="relative z-10">
       <h3 className="text-white text-4xl font-serif-display italic mb-2">Capital</h3>
@@ -346,7 +330,7 @@ export function ExpandingSection() {
     </section>
   );
 }
-// ... [Timeline Data & Component - Keep as is] ...
+
 const TIMELINE_DATA = [
   { title: "Conceptiō", tag: "FLAGSHIP", color: "bg-pink-500", items: [{ date: "11 Dec - 07 Jan", label: "Ideation Round", desc: "Pitch Deck submission." }, { date: "11 Jan - 27 Jan", label: "PoC Workshop", desc: "Build a working prototype." }, { date: "07 Feb", label: "Final Pitching", desc: "7-minute pitch to judges." }] },
   { title: "Pitch Tank", tag: "FLAGSHIP", color: "bg-purple-500", items: [{ date: "16 Dec - 05 Jan", label: "Startup Submission", desc: "Showcase business models." }, { date: "08 Jan - 20 Jan", label: "Video & Deck", desc: "3-min pitch video." }, { date: "13 Feb - 14 Feb", label: "Offline Pitching", desc: "Pitch to VCs in person." }] },
@@ -413,24 +397,11 @@ function TimelineCard({ phase }: { phase: any }) {
   );
 }
 
-// =========================================
-// SPONSOR FOOTER (VERTICAL FIX)
-// =========================================
-// =========================================
-// SPONSOR FOOTER (FIXED ALIGNMENT & TEXT)
-// =========================================
-// =========================================
-// SPONSOR FOOTER (TEXT BELOW LOGOS)
-// =========================================
-// =========================================
-// SPONSOR FOOTER (NO TEXT OVERLAP FIX)
-// =========================================
 export function SponsorFooter() {
   return (
 <div className="absolute bottom-0 w-full z-40 pb-12 pt-48 bg-gradient-to-t from-[#050505] via-[#050505] to-transparent pointer-events-auto">
   <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-y-10 gap-x-4 items-start md:items-center justify-items-center text-center">
     
-    {/* --- 1. INNOVATION PARTNER --- */}
     <div className="col-span-1 flex flex-col items-center gap-2">
       <p className="text-gray-400 text-[10px] uppercase tracking-[0.1em] opacity-80">Innovation Mela Sponsor</p>
       <div className="flex flex-col items-center">
@@ -441,7 +412,6 @@ export function SponsorFooter() {
       </div>
     </div>
 
-    {/* --- 2. TITLE SPONSOR (Prominent on all screens) --- */}
     <div className="col-span-2 md:col-span-1 order-first md:order-none w-full flex flex-col items-center gap-3">
       <p className="text-purple-400 text-[10px] uppercase tracking-[0.2em] font-bold">Title Sponsor</p>
       <div className="relative w-48 h-14 md:w-56 md:h-16">
@@ -449,7 +419,6 @@ export function SponsorFooter() {
       </div>
     </div>
 
-    {/* --- 3. MES PARTNER (MTL) --- */}
     <div className="col-span-1 flex flex-col items-center gap-2">
       <p className="text-gray-400 text-[10px] uppercase tracking-[0.1em] opacity-80">MES Partner</p>
       <div className="flex flex-col items-center">
@@ -462,11 +431,9 @@ export function SponsorFooter() {
       </div>
     </div>
 
-    {/* --- 4. EVENTS SPONSORS (Ananth & KNND) --- */}
     <div className="col-span-2 md:col-span-1 flex flex-col items-center gap-2">
       <p className="text-gray-400 text-[10px] uppercase tracking-[0.1em] opacity-80">Events Sponsors</p>
       <div className="flex flex-row justify-center items-center gap-6">
-        {/* Ananth Logo */}
         <div className="flex flex-col items-center">
           <div className="relative w-16 h-12 md:w-20 md:h-14">
             <Image src="/images/ananth.png" alt="Ananth" fill className="object-contain" />
@@ -475,7 +442,6 @@ export function SponsorFooter() {
 
         <div className="w-[1px] h-8 bg-white/20"></div>
 
-        {/* KNND Block */}
         <div className="flex flex-col items-center gap-1">
           <div className="relative w-8 h-8 md:w-10 md:h-10 bg-white/90 rounded-full p-1">
             <Image src="/images/KNND-Associates-Logo.png" alt="KNND" fill className="object-contain" />
@@ -489,10 +455,7 @@ export function SponsorFooter() {
 </div>
   )
 }
-// ... [SpeakersSection & TicketCard - Keep as is] ...
-// (I will assume you have the code for REAL_SPEAKERS and TicketCard from previous messages. 
-//  They work fine, just need to be imported or present in the file.)
-// ... [REAL_SPEAKERS Array] ...
+
 const REAL_SPEAKERS = [
    {
       name: "Shantanu Deshpande",
@@ -530,8 +493,6 @@ const REAL_SPEAKERS = [
     gradient: "from-violet-400 to-purple-600",
     linkedin: "https://in.linkedin.com/in/parul-gulati-44709681",
   },
-
- 
   {
     name: "Ankur Warikoo",
     role: "Entrepreneur & Author",
@@ -570,16 +531,13 @@ export function SpeakersSection() {
           <BlurReveal key={idx} delay={idx * 0.1}>
             <div className="group relative min-h-[85vh] max-h-[90vh] md:h-[600px] w-full rounded-[2.5rem] overflow-hidden bg-[#0a0a0a] border border-white/5 hover:border-white/20 transition-all duration-700">
               
-              {/* Background Image Logic */}
               <div className="absolute inset-0 z-0">
                 <Image 
                   src={speaker.image} 
                   alt={speaker.name} 
                   fill 
                   className="object-cover transition-all duration-700 
-                    /* Mobile: Full color and visible */
                     grayscale-0 opacity-100 scale-110 
-                    /* PC: Grayscale until hover */
                     md:grayscale md:opacity-80 md:scale-100
                     md:group-hover:grayscale-0 md:group-hover:opacity-100 md:group-hover:scale-110" 
                 />
@@ -587,20 +545,14 @@ export function SpeakersSection() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-90 md:group-hover:opacity-70 transition-opacity duration-500" />
               </div>
 
-              {/* Glowing Blur Circle */}
               <div className={`absolute -bottom-10 -right-10 w-64 h-32 rounded-full blur-[100px] transition-opacity duration-700 ${speaker.color} 
-                /* Mobile: Always visible */
                 opacity-50
-                /* PC: Only on hover */
                 md:opacity-0 md:group-hover:opacity-50`} 
               />
 
               <div className="absolute inset-0 p-8 md:p-10 flex flex-col justify-between z-10">
-                {/* Top Header: Company & LinkedIn */}
                 <div className="flex justify-between items-start transition-all duration-500
-                  /* Mobile: Always visible and in position */
                   translate-y-0 opacity-0
-                  /* PC: Hidden until hover */
                   md:translate-y-[-20px] md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100">
                   <div className="px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/10">
                     <span className="text-xs font-bold text-white uppercase tracking-widest">{speaker.company}</span>
@@ -610,22 +562,16 @@ export function SpeakersSection() {
                   </div>
                 </div>
 
-                {/* Bottom Info: Role and Name */}
                 <div className="transform transition-transform duration-500
-                  /* Mobile: Always in position */
                   translate-y-0 
-                  /* PC: Slide up on hover */
                   md:translate-y-4 md:group-hover:translate-y-0">
                   <p className="text-gray-400 font-mono text-[10px] uppercase tracking-[0.3em] mb-3 border-l-2 border-white/20 pl-3">{speaker.role}</p>
                   <h3 className="text-5xl md:text-6xl font-serif-display italic font-bold text-white leading-[0.85] mb-6">
                     {speaker.name.split(' ').map((n, i) => (<span key={i} className="block">{n}</span>))}
                   </h3>
                   
-                  {/* Decorative Line */}
                   <div className={`h-[2px] transition-all duration-700 bg-gradient-to-r ${speaker.gradient} 
-                    /* Mobile: Full width */
                     w-full 
-                    /* PC: Grows from small to full */
                     md:w-12 md:group-hover:w-full`} 
                   />
                 </div>
@@ -642,7 +588,7 @@ export function SpeakersSection() {
 export function TicketCard() {
   const cardRef = useRef<HTMLDivElement>(null);
   const [rotate, setRotate] = useState({ x: 0, y: 0 });
-  const router = useRouter(); // 👈 INITIALIZED ROUTER
+  const router = useRouter(); 
 
   const onMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const card = cardRef.current;
@@ -661,7 +607,6 @@ export function TicketCard() {
     setRotate({ x: 0, y: 0 });
   };
 
-  // Placeholder for your buy function
   const handleBuyTicket = () => {
     router.push("/signup");
   };
@@ -676,12 +621,8 @@ return (
     }}
     className="relative w-full max-w-5xl mx-auto transition-transform duration-300 ease-out will-change-transform"
   >
-    {/* Glow */}
     <div className="absolute -inset-4 bg-gradient-to-r from-purple-600/40 via-pink-600/40 to-blue-600/40 rounded-[2.5rem] blur-3xl opacity-50" />
 
-    {/* ========================================== */}
-    {/* DESKTOP VIEW (ONLY DESKTOP) */}
-    {/* ========================================== */}
     <div className="hidden md:block relative w-full overflow-hidden rounded-3xl">
       <img
         src="/images/MES WEB PASS.jpg"
@@ -689,7 +630,6 @@ return (
         className="w-full h-auto object-contain"
       />
 
-      {/* BUY Button */}
       <button
         onClick={handleBuyTicket}
         className="
@@ -714,22 +654,16 @@ return (
       </button>
     </div>
 
-    {/* ========================================== */}
-    {/* MOBILE VIEW (ONLY MOBILE) */}
-    {/* ========================================== */}
-{/* ========================================== */}
-{/* MOBILE VIEW (ONLY MOBILE) */}
-{/* ========================================== */}
 <div className="block md:hidden relative w-full aspect-[430/620] rounded-3xl overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)]">
   <img
     src="/images/mobilewebpass.jpg"
     alt="MES 2026 Mobile Pass"
-    className="absolute inset-0 w-full h-full object-cover" // Changed to object-cover for better scaling
+    className="absolute inset-0 w-full h-full object-cover" 
   />
   
   <button
     onClick={(e) => {
-      e.stopPropagation(); // Prevents the click from bubbling to the card
+      e.stopPropagation(); 
       handleBuyTicket();
     }}
     className="
@@ -774,8 +708,79 @@ export function PassesSection() {
 }
 
 // =========================================
-// MAIN PAGE
+// NEW FAQ SECTION
 // =========================================
+const FAQ_DATA = [
+  {
+    question: "How do I complete a payment via UPI?",
+    answer: "During the payment process, navigate to 'Wallets' and select 'PhonePe.' From there, you can choose UPI to complete the transaction using GPay, PhonePe, or any other preferred UPI application."
+  },
+  {
+    question: "What should I do if I cannot access the dashboard or verify my account?",
+    answer: "This is often a network-related sync issue. Please try switching between Wi-Fi and mobile data. If the problem persists, clear your browser cache and attempt to log in again."
+  },
+  {
+    question: "What is the registration fee for the summit?",
+    answer: "The delegate pass for the Manipal Entrepreneurship Summit is priced at ₹250."
+  },
+  {
+    question: "What if my payment was successful but I haven't received my ticket?",
+    answer: "Please forward your payment confirmation or transaction ID to mes.support@manipal.edu. Our team will verify the transaction and issue your ticket as soon as possible."
+  },
+  {
+    question: "What is the cancellation and refund policy for purchases?",
+    answer: "All ticket sales for MES 2026 are final. We do not offer cancellations or refunds once a purchase has been completed."
+  },
+  {
+    question: "Are offline ticket sales available?",
+    answer: "No, all registrations must be processed through the official web portal to ensure valid entry and digital verification."
+  }
+];
+
+function FAQItem({ question, answer }: { question: string, answer: string }) {
+  const [isOpen, setIsOpen] = useState(false);
+  return (
+    <div className="border-b border-white/5 py-6">
+      <button 
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full flex justify-between items-center text-left group"
+      >
+        <h4 className="text-lg md:text-xl font-bold text-white group-hover:text-purple-400 transition-colors">{question}</h4>
+        {isOpen ? <Minus className="text-purple-400" size={20} /> : <Plus className="text-gray-500" size={20} />}
+      </button>
+      <motion.div
+        initial={false}
+        animate={{ height: isOpen ? "auto" : 0, opacity: isOpen ? 1 : 0 }}
+        className="overflow-hidden"
+      >
+        <p className="text-gray-400 mt-4 text-sm md:text-base leading-relaxed font-light">{answer}</p>
+      </motion.div>
+    </div>
+  );
+}
+
+export function FAQSection() {
+  return (
+    <section id="faq" className="relative z-30 py-20 md:py-32 bg-[#050505] border-t border-white/5">
+      <div className="max-w-4xl mx-auto px-6">
+        <BlurReveal>
+          <div className="text-center mb-16">
+            <p className="text-purple-500 font-mono text-[10px] tracking-[0.4em] uppercase mb-4">Support // 05</p>
+            <h2 className="text-4xl md:text-7xl font-serif-display italic font-bold text-white mb-6">FAQs</h2>
+          </div>
+        </BlurReveal>
+        <div className="space-y-2">
+          {FAQ_DATA.map((faq, idx) => (
+            <BlurReveal key={idx} delay={idx * 0.1}>
+              <FAQItem question={faq.question} answer={faq.answer} />
+            </BlurReveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function Home() {
   return (
     <div className="bg-[#050505] text-white w-full min-h-screen font-sans">
@@ -791,11 +796,9 @@ export default function Home() {
           </Canvas>
       </div>
       
-      {/* HERO SECTION - MOBILE OPTIMIZED */}
       <section id="hero" className="relative h-[100dvh] w-full flex flex-col items-center justify-center overflow-hidden z-[100]">
         <div className="absolute inset-0 z-0 pointer-events-none"><Prism scale={4} colorFrequency={2.5} noise={0} /></div>
           
-        {/* 3D Model Background */}
         <div className="absolute inset-0 w-full h-full z-10 pointer-events-none">
             <Canvas shadows camera={{ position: [0, 0, 10], fov: 50 }} className="w-full h-full">    
                 <ambientLight intensity={1} />
@@ -803,16 +806,11 @@ export default function Home() {
             </Canvas>
         </div>
 
-        {/* Hero Text: Fixed Placement & Scaling */}
         <div className="relative z-20 w-full max-w-[1600px] mx-auto px-5 h-full flex flex-row items-start md:items-center justify-between pointer-events-none pt-74 md:pt-0">
-            
-            {/* Left Text: "MES" */}
-            {/* Left Text: "MES" */}
 <h1 className="font-serif-display font-bold text-4xl md:text-9xl lg:text-[13rem] leading-none text-white mix-blend-difference tracking-tighter drop-shadow-[0_0_20px_rgba(236,72,153,0.6),0_0_60px_rgba(169,85,247,0.4)] order-1">
     MES
 </h1>
 
-{/* Right Text: "2026" */}
 <h1 className="font-serif-display font-bold text-4xl md:text-9xl lg:text-[13rem] leading-none text-white mix-blend-difference tracking-tighter drop-shadow-[0_0_20px_rgba(236,72,153,0.6),0_0_60px_rgba(168,85,247,0.5)] order-2">
     2026
 </h1>
@@ -839,17 +837,13 @@ export default function Home() {
         <TimelineSection />
       </section>
 
+      <FAQSection />
 
-
-      {/* =========================================
-          PROFESSIONAL FOOTER
-      ========================================= */}
       <footer className="relative z-30 border-t border-white/10 bg-[#050505] pt-20 pb-10">
-         <div className="max-w-7xl mx-auto px-6">
+          <div className="max-w-7xl mx-auto px-6">
             
             <div className="grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-8 mb-16">
 
-               {/* BRAND COLUMN (Span 4) */}
                <div className="md:col-span-4 flex flex-col gap-6">
                   <div>
                      <h3 className="font-serif-display italic font-bold text-3xl text-white mb-2">MES 2026</h3>
@@ -858,14 +852,12 @@ export default function Home() {
                      </p>
                   </div>
                   
-                  {/* Social Links */}
-            {/* Social Links */}
 <div className="flex gap-4">
   {[
     { icon: Instagram, href: "https://www.instagram.com/ecell.mit" },
     { icon: Linkedin, href: "https://in.linkedin.com/company/ecellmit" },
     { icon: Youtube, href: "https://www.youtube.com/channel/UCjxa0qInEzuaJR0adwh3VCQ" },
-    { icon: Twitter, href: "https://x.com/ecellmit" } // Using Twitter icon for X
+    { icon: Twitter, href: "https://x.com/ecellmit" } 
   ].map((social, i) => (
     <a key={i} href={social.href} className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 hover:bg-white hover:text-black hover:border-white transition-all duration-300">
       <social.icon size={18} />
@@ -874,16 +866,13 @@ export default function Home() {
 </div>
                </div>
 
-               {/* CONTACT COLUMN (Span 5) */}
                <div className="md:col-span-5 grid grid-cols-1 sm:grid-cols-2 gap-8">
-                  {/* Chairperson */}
                   <div>
                      <h4 className="text-purple-400 font-mono text-xs tracking-widest uppercase mb-4">Chairperson</h4>
                      <p className="font-bold text-white text-sm mb-1">Bhavesh Changulani</p>
                      <a href="tel:+916386098299" className="text-gray-500 text-xs hover:text-white transition-colors font-mono tracking-wide">+91 63860 98299</a>
                   </div>
 
-                  {/* PR Team */}
                   <div>
                      <h4 className="text-purple-400 font-mono text-xs tracking-widest uppercase mb-4">Tech</h4>
                      <div className="flex flex-col gap-4">
@@ -899,7 +888,6 @@ export default function Home() {
                   </div>
                </div>
 
-               {/* LOCATION COLUMN (Span 3) */}
                <div className="md:col-span-3">
                   <h4 className="text-purple-400 font-mono text-xs tracking-widest uppercase mb-4">Location</h4>
                   <div className="flex gap-3 items-start">
@@ -925,7 +913,6 @@ export default function Home() {
 
             </div>
 
-            {/* BOTTOM BAR */}
             <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
                <p className="text-gray-600 text-xs">© 2026 E-Cell MIT Manipal. All rights reserved.</p>
                <div className="flex gap-6">
@@ -933,7 +920,7 @@ export default function Home() {
                   <a href="#" className="text-gray-600 text-xs hover:text-white transition-colors">Terms of Service</a>
                </div>
             </div>
-         </div>
+          </div>
       </footer>
     </div>
   );
