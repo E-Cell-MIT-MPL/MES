@@ -7,7 +7,7 @@ import {
   InputHTMLAttributes,
   useEffect,
 } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { Loader2, CheckCircle2, AlertCircle, ArrowLeft } from "lucide-react";
@@ -45,6 +45,7 @@ interface InputFieldProps extends InputHTMLAttributes<HTMLInputElement> {
 
 export default function SignupPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   // --- FORM STATE ---
   const [userType, setUserType] = useState<UserType>("MIT");
@@ -66,6 +67,7 @@ export default function SignupPage() {
     personalEmail: "",
     phone: "",
     password: "",
+    referralCode: "",
   });
 
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -76,6 +78,13 @@ export default function SignupPage() {
     }, 4000);
     return () => clearInterval(timer);
   }, []);
+
+  useEffect(() => {
+    const ref = searchParams.get("ref");
+    if (ref) {
+      setFormData((prev) => ({ ...prev, referralCode: ref.trim() }));
+    }
+  }, [searchParams]);
 
   // --- NEW: COUNTDOWN LOGIC ---
   useEffect(() => {
@@ -109,6 +118,10 @@ export default function SignupPage() {
       phone: formData.phone.trim(),
       password: formData.password,
     };
+
+    if (formData.referralCode.trim()) {
+      payload.referralCode = formData.referralCode.trim();
+    }
 
     if (userType === "MIT") {
       payload.regNumber = formData.regNumber.trim();
