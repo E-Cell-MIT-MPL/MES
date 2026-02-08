@@ -110,6 +110,7 @@ export default function SignupPage() {
 
     // Sanitize email and structure payload strictly
     const cleanEmail = formData.personalEmail.trim().toLowerCase();
+    const referralFromQuery = searchParams.get("ref")?.trim() || "";
     
     const payload: any = {
       userType,
@@ -119,8 +120,9 @@ export default function SignupPage() {
       password: formData.password,
     };
 
-    if (formData.referralCode.trim()) {
-      payload.referralCode = formData.referralCode.trim();
+    const referralCode = formData.referralCode.trim() || referralFromQuery;
+    if (referralCode) {
+      payload.referralCode = referralCode;
     }
 
     if (userType === "MIT") {
