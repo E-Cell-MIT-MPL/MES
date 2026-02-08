@@ -57,11 +57,13 @@ export default function LoginPage() {
         password 
       });
 
-      if (response.status === 200) {
+      if (response.status >= 200 && response.status < 300) {
         if (typeof checkUserSession === 'function') {
-            await checkUserSession();
+          await checkUserSession().catch((sessionError) => {
+            console.error("Session refresh failed after login", sessionError);
+          });
         }
-        router.push('/student'); 
+        router.push('/student');
       }
     } catch (err: any) {
       console.error("Login Error Details:", err);
