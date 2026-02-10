@@ -63,7 +63,7 @@ export default function LoginPage() {
             console.error("Session refresh failed after login", sessionError);
           });
         }
-        router.push('/student');
+       window.location.href = '/student';
       }
     } catch (err: any) {
       console.error("Login Error Details:", err);
