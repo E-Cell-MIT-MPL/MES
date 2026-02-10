@@ -34,6 +34,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showDashboardURL, setShowDashboardURL] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentSlide, setCurrentSlide] = useState(0);
   const router = useRouter();
@@ -64,6 +65,8 @@ export default function LoginPage() {
           });
         }
        window.location.href = '/student';
+       router.push('/student');
+       setShowDashboardURL(true);
       }
     } catch (err: any) {
       console.error("Login Error Details:", err);
@@ -206,6 +209,17 @@ export default function LoginPage() {
                     >
                         {loading ? <Loader2 className="animate-spin" size={20} /> : <>Access Dashboard <ArrowRight size={16} /></>}
                     </button>
+                    {showDashboardURL && (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="mt-4 text-center text-xs text-gray-500"
+                        >
+                            Redirecting to <span className="font-mono text-blue-400">/student</span>...
+                            <br/>
+                            If you are not redirected, <Link href="/student" className="text-blue-400 hover:text-blue-300 underline transition-colors">click here</Link>.
+                        </motion.div>
+                    )}
                 </form>
             </div>
         </div>
