@@ -8,7 +8,7 @@ export function HeroBusinessman() {
   const group = useRef(null);
 
   // ✅ UPDATED: Using your Supabase URL
-  const { scene, animations } = useGLTF("https://sscoxziuelqjhmamtuyq.supabase.co/storage/v1/object/public/mes/BusinessmanFinal.glb");
+  const { scene, animations } = useGLTF("https://ptqooyvwtshvivczyago.supabase.co/storage/v1/object/public/busineessmodel/Mes26final.glb");
   
   const { actions } = useAnimations(animations, group);
   const [startRain] = useState(true);
